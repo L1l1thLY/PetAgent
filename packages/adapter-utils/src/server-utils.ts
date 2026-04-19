@@ -113,7 +113,7 @@ function buildManagedSkillOrigin(entry: { required?: boolean }): Pick<
 > {
   if (entry.required) {
     return {
-      origin: "petagent_required",
+      origin: "paperclip_required",
       originLabel: "Required by PetAgent",
       readOnly: false,
     };

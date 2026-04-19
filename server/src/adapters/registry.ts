@@ -75,11 +75,11 @@ import {
   listSkills as hermesListSkills,
   syncSkills as hermesSyncSkills,
   detectModel as detectModelFromHermes,
-} from "hermes-petagent-adapter/server";
+} from "hermes-paperclip-adapter/server";
 import {
   agentConfigurationDoc as hermesAgentConfigurationDoc,
   models as hermesModels,
-} from "hermes-petagent-adapter";
+} from "hermes-paperclip-adapter";
 import { BUILTIN_ADAPTER_TYPES } from "./builtin-adapter-types.js";
 import { buildExternalAdapters } from "./plugin-loader.js";
 import { getDisabledAdapterTypes } from "../services/adapter-plugin-store.js";

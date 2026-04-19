@@ -25,7 +25,7 @@ async function buildCodexSkillSnapshot(
     desired: desiredSet.has(entry.key),
     managed: true,
     state: desiredSet.has(entry.key) ? "configured" : "available",
-    origin: entry.required ? "petagent_required" : "company_managed",
+    origin: entry.required ? "paperclip_required" : "company_managed",
     originLabel: entry.required ? "Required by PetAgent" : "Managed by PetAgent",
     readOnly: false,
     sourcePath: entry.source,
