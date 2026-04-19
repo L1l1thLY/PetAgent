@@ -1,0 +1,38 @@
+{
+  "name": "@petagent/my-agent-adapter",
+  "version": "0.1.0-m1",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./plugin": "./src/plugin.ts",
+    "./registry": "./src/plugin_registry.ts",
+    "./runtime/managed-agents": "./src/runtime/managed_agents.ts",
+    "./runtime/local-process": "./src/runtime/local_process.ts",
+    "./runtime/worktree": "./src/runtime/worktree.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@petagent/hooks": "workspace:*",
+    "@petagent/role-template": "workspace:*",
+    "@petagent/safety-net": "workspace:*",
+    "@petagent/skills": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "typescript": "^5.7.3"
+  }
+}

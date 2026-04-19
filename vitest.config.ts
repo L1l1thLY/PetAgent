@@ -7,6 +7,8 @@ export default defineConfig({
       "packages/hooks",
       "packages/safety-net",
       "packages/skills",
+      "packages/role-template",
+      "packages/my-agent-adapter",
       "packages/adapters/codex-local",
       "packages/adapters/opencode-local",
       "server",

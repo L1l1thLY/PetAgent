@@ -285,6 +285,28 @@ importers:
         specifier: ^3.0.5
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.12.0)(jiti@2.6.1)(jsdom@28.1.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(tsx@4.21.0)
 
+  packages/my-agent-adapter:
+    dependencies:
+      '@petagent/hooks':
+        specifier: workspace:*
+        version: link:../hooks
+      '@petagent/role-template':
+        specifier: workspace:*
+        version: link:../role-template
+      '@petagent/safety-net':
+        specifier: workspace:*
+        version: link:../safety-net
+      '@petagent/skills':
+        specifier: workspace:*
+        version: link:../skills
+    devDependencies:
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.0
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/plugins/create-petagent-plugin:
     dependencies:
       '@petagent/plugin-sdk':
@@ -455,6 +477,25 @@ importers:
       '@types/react':
         specifier: ^19.0.8
         version: 19.2.14
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/role-template:
+    dependencies:
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
+      zod:
+        specifier: ^3.25.0
+        version: 3.25.76
+    devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.0
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
