@@ -1,0 +1,34 @@
+{
+  "name": "@petagent/safety-net",
+  "version": "0.1.0-m1",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fuzzy-match": "./src/fuzzy_match.ts",
+    "./threat-patterns": "./src/validator/threat_patterns.ts",
+    "./validator": "./src/validator/index.ts",
+    "./git-store": "./src/git_store.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "isomorphic-git": "^1.27.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "typescript": "^5.7.3"
+  }
+}

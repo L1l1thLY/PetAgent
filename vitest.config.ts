@@ -5,6 +5,7 @@ export default defineConfig({
     projects: [
       "packages/db",
       "packages/hooks",
+      "packages/safety-net",
       "packages/adapters/codex-local",
       "packages/adapters/opencode-local",
       "server",
