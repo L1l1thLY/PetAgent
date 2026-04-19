@@ -6,6 +6,7 @@ export default defineConfig({
       "packages/db",
       "packages/hooks",
       "packages/safety-net",
+      "packages/skills",
       "packages/adapters/codex-local",
       "packages/adapters/opencode-local",
       "server",
