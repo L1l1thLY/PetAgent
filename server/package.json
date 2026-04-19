@@ -53,6 +53,7 @@
     "@petagent/adapter-pi-local": "workspace:*",
     "@petagent/adapter-utils": "workspace:*",
     "@petagent/db": "workspace:*",
+    "@petagent/hooks": "workspace:*",
     "@petagent/plugin-sdk": "workspace:*",
     "@petagent/shared": "workspace:*",
     "ajv": "^8.18.0",

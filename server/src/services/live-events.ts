@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 import type { LiveEvent, LiveEventType } from "@petagent/shared";
+import { globalHookBus, type HookEventType } from "@petagent/hooks";
 
 type LiveEventPayload = Record<string, unknown>;
 type LiveEventListener = (event: LiveEvent) => void;
@@ -24,6 +25,46 @@ function toLiveEvent(input: {
   };
 }
 
+function normalizeEventType(paperclipType: LiveEventType): HookEventType | null {
+  switch (paperclipType) {
+    case "agent.status":
+      return "agent.status_change";
+    case "heartbeat.run.queued":
+      return "heartbeat.started";
+    case "heartbeat.run.status":
+      return null;
+    case "heartbeat.run.event":
+      return "agent.output";
+    case "heartbeat.run.log":
+      return null;
+    case "activity.logged":
+      return null;
+    default:
+      return null;
+  }
+}
+
+function forwardToHookBus(event: LiveEvent) {
+  if (event.companyId === "*") return;
+  const hookType = normalizeEventType(event.type);
+  if (!hookType) return;
+  const payload = event.payload ?? {};
+  const agentId = typeof payload.agentId === "string" ? payload.agentId : undefined;
+  const issueId = typeof payload.issueId === "string" ? payload.issueId : undefined;
+  void globalHookBus
+    .publish({
+      type: hookType,
+      companyId: event.companyId,
+      agentId,
+      issueId,
+      payload,
+      timestamp: event.createdAt,
+    })
+    .catch((err) => {
+      console.error("[hooks] publish failed", err);
+    });
+}
+
 export function publishLiveEvent(input: {
   companyId: string;
   type: LiveEventType;
@@ -31,6 +72,7 @@ export function publishLiveEvent(input: {
 }) {
   const event = toLiveEvent(input);
   emitter.emit(input.companyId, event);
+  forwardToHookBus(event);
   return event;
 }
 
