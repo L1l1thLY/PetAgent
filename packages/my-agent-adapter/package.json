@@ -20,7 +20,7 @@
       }
     }
   },
-  "files": ["dist", "src"],
+  "files": ["dist", "src", "built-in-roles"],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit"
