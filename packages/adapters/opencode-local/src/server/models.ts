@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
 import os from "node:os";
-import type { AdapterModel } from "@paperclipai/adapter-utils";
+import type { AdapterModel } from "@petagent/adapter-utils";
 import {
   asString,
   ensurePathInEnv,
   runChildProcess,
-} from "@paperclipai/adapter-utils/server-utils";
+} from "@petagent/adapter-utils/server-utils";
 
 const MODELS_CACHE_TTL_MS = 60_000;
 const MODELS_DISCOVERY_TIMEOUT_MS = 20_000;

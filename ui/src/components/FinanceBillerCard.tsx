@@ -1,4 +1,4 @@
-import type { FinanceByBiller } from "@paperclipai/shared";
+import type { FinanceByBiller } from "@petagent/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCents, providerDisplayName } from "@/lib/utils";
 

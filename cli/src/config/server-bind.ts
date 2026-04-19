@@ -8,7 +8,7 @@ import {
   type BindMode,
   type DeploymentExposure,
   type DeploymentMode,
-} from "@paperclipai/shared";
+} from "@petagent/shared";
 import type { AuthConfig, ServerConfig } from "./schema.js";
 
 const TAILSCALE_DETECT_TIMEOUT_MS = 3000;

@@ -1,4 +1,4 @@
-import type { DocumentRevision, IssueDocument } from "@paperclipai/shared";
+import type { DocumentRevision, IssueDocument } from "@petagent/shared";
 import { describe, expect, it } from "vitest";
 import { deriveDocumentRevisionState } from "./document-revisions";
 

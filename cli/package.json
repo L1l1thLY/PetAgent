@@ -1,12 +1,13 @@
 {
-  "name": "paperclipai",
-  "version": "0.3.1",
-  "description": "Paperclip CLI — orchestrate AI agent teams to run a business",
+  "name": "petagent",
+  "version": "0.1.0-m0",
+  "description": "PetAgent CLI — coordinate and evolve your AI company",
   "type": "module",
   "bin": {
-    "paperclipai": "./dist/index.js"
+    "petagent": "./dist/index.js"
   },
   "keywords": [
+    "petagent",
     "paperclip",
     "ai",
     "agents",
@@ -16,12 +17,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/paperclipai/paperclip",
+    "url": "https://github.com/YOUR_ORG/petagent",
     "directory": "cli"
   },
-  "homepage": "https://github.com/paperclipai/paperclip",
+  "homepage": "https://petagent.ai",
   "bugs": {
-    "url": "https://github.com/paperclipai/paperclip/issues"
+    "url": "https://github.com/YOUR_ORG/petagent/issues"
   },
   "files": [
     "dist"

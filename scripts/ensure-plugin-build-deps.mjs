@@ -11,12 +11,12 @@ const tscCliPath = path.join(rootDir, "node_modules", "typescript", "bin", "tsc"
 
 const buildTargets = [
   {
-    name: "@paperclipai/shared",
+    name: "@petagent/shared",
     output: path.join(rootDir, "packages/shared/dist/index.js"),
     tsconfig: path.join(rootDir, "packages/shared/tsconfig.json"),
   },
   {
-    name: "@paperclipai/plugin-sdk",
+    name: "@petagent/plugin-sdk",
     output: path.join(rootDir, "packages/plugins/sdk/dist/index.js"),
     tsconfig: path.join(rootDir, "packages/plugins/sdk/tsconfig.json"),
   },

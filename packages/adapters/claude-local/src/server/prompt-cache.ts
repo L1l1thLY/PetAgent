@@ -3,8 +3,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { createHash, type Hash } from "node:crypto";
-import type { AdapterExecutionContext } from "@paperclipai/adapter-utils";
-import { ensurePaperclipSkillSymlink, type PaperclipSkillEntry } from "@paperclipai/adapter-utils/server-utils";
+import type { AdapterExecutionContext } from "@petagent/adapter-utils";
+import { ensurePaperclipSkillSymlink, type PaperclipSkillEntry } from "@petagent/adapter-utils/server-utils";
 
 const DEFAULT_PAPERCLIP_INSTANCE_ID = "default";
 

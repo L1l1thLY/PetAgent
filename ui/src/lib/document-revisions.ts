@@ -1,4 +1,4 @@
-import type { DocumentRevision, IssueDocument } from "@paperclipai/shared";
+import type { DocumentRevision, IssueDocument } from "@petagent/shared";
 
 type DocumentRevisionState = {
   currentRevision: DocumentRevision;

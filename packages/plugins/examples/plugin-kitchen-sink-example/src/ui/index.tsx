@@ -13,7 +13,7 @@ import {
   type PluginSettingsPageProps,
   type PluginSidebarProps,
   type PluginWidgetProps,
-} from "@paperclipai/plugin-sdk/ui";
+} from "@petagent/plugin-sdk/ui";
 import {
   DEFAULT_CONFIG,
   JOB_KEYS,

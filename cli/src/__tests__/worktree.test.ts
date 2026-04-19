@@ -12,7 +12,7 @@ import {
   projects,
   routines,
   routineTriggers,
-} from "@paperclipai/db";
+} from "@petagent/db";
 import {
   copyGitHooksToWorktreeGitDir,
   copySeededSecretsKey,

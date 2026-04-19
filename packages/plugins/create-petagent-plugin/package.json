@@ -1,19 +1,19 @@
 {
-  "name": "@petagent/create-paperclip-plugin",
+  "name": "@petagent/create-petagent-plugin",
   "version": "0.1.0",
   "license": "MIT",
-  "homepage": "https://github.com/paperclipai/paperclip",
+  "homepage": "https://github.com/YOUR_ORG/petagent",
   "bugs": {
-    "url": "https://github.com/paperclipai/paperclip/issues"
+    "url": "https://github.com/YOUR_ORG/petagent/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/paperclipai/paperclip",
-    "directory": "packages/plugins/create-paperclip-plugin"
+    "url": "https://github.com/YOUR_ORG/petagent",
+    "directory": "packages/plugins/create-petagent-plugin"
   },
   "type": "module",
   "bin": {
-    "create-paperclip-plugin": "./dist/index.js"
+    "create-petagent-plugin": "./dist/index.js"
   },
   "exports": {
     ".": "./src/index.ts"
@@ -21,7 +21,7 @@
   "publishConfig": {
     "access": "public",
     "bin": {
-      "create-paperclip-plugin": "./dist/index.js"
+      "create-petagent-plugin": "./dist/index.js"
     },
     "exports": {
       ".": {

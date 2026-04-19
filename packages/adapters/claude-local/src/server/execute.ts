@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { AdapterExecutionContext, AdapterExecutionResult } from "@paperclipai/adapter-utils";
-import type { RunProcessResult } from "@paperclipai/adapter-utils/server-utils";
+import type { AdapterExecutionContext, AdapterExecutionResult } from "@petagent/adapter-utils";
+import type { RunProcessResult } from "@petagent/adapter-utils/server-utils";
 import {
   asString,
   asNumber,
@@ -22,7 +22,7 @@ import {
   renderPaperclipWakePrompt,
   stringifyPaperclipWakePayload,
   runChildProcess,
-} from "@paperclipai/adapter-utils/server-utils";
+} from "@petagent/adapter-utils/server-utils";
 import {
   parseClaudeStreamJson,
   describeClaudeFailure,
