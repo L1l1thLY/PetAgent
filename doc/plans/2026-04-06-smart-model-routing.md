@@ -10,13 +10,13 @@ Related:
 
 ## 1. Purpose
 
-This document defines a V1 plan for "smart model routing" in Paperclip.
+This document defines a V1 plan for "smart model routing" in PetAgent.
 
 The goal is not to build a generic cross-provider router in the server. The goal is:
 
 - let supported adapters use a cheaper model for lightweight heartbeat orchestration work
 - keep the main task execution on the adapter's normal primary model
-- preserve Paperclip's existing task, session, and audit invariants
+- preserve PetAgent's existing task, session, and audit invariants
 - report cost and model usage truthfully when more than one model participates in a single heartbeat
 
 The motivating use case is a local coding adapter where a cheap model can handle the first fast pass:
@@ -50,15 +50,15 @@ More useful than the routing heuristic itself is Hermes' broader model-slot desi
 - fallback model for failover
 - auxiliary model slots for side tasks like compression and classification
 
-That separation is a better fit for Paperclip than copying Hermes' exact keyword heuristic.
+That separation is a better fit for PetAgent than copying Hermes' exact keyword heuristic.
 
-## 3. Current Paperclip State
+## 3. Current PetAgent State
 
-Paperclip already has the right execution shape for adapter-specific routing, but it currently assumes one model per heartbeat run.
+PetAgent already has the right execution shape for adapter-specific routing, but it currently assumes one model per heartbeat run.
 
 Current implementation facts:
 
-- `server/src/services/heartbeat.ts` builds rich run context, including `paperclipWake`, workspace metadata, and session handoff context
+- `server/src/services/heartbeat.ts` builds rich run context, including `petagentWake`, workspace metadata, and session handoff context
 - each adapter receives a single resolved `config` object and executes once
 - built-in local adapters read one `config.model` and pass it directly to the underlying CLI
 - UI config today exposes one main `model` field plus adapter-specific thinking-effort controls
@@ -72,19 +72,19 @@ What this means:
 
 ## 4. Product Decision
 
-Paperclip should implement smart model routing as an adapter-local, opt-in execution pattern.
+PetAgent should implement smart model routing as an adapter-local, opt-in execution pattern.
 
 V1 decision:
 
 1. Do not add a global server-side router that tries to understand every adapter.
-2. Do not copy Hermes' prompt-keyword classifier as Paperclip's default routing policy.
+2. Do not copy Hermes' prompt-keyword classifier as PetAgent's default routing policy.
 3. Add an adapter-specific "cheap preflight" phase for supported adapters.
 4. Keep the primary model as the canonical work model.
 5. Persist only the primary session unless an adapter can prove that cross-model session resume is safe.
 
 Rationale:
 
-- Paperclip heartbeats are structured, issue-scoped, and already include wake metadata
+- PetAgent heartbeats are structured, issue-scoped, and already include wake metadata
 - routing by execution phase is more reliable than routing by free-text prompt complexity
 - session semantics differ by adapter, so resume behavior must stay adapter-owned
 
@@ -161,7 +161,7 @@ After preflight, the adapter launches the normal primary execution using the exi
 
 The primary phase should receive:
 
-- the normal Paperclip prompt
+- the normal PetAgent prompt
 - any preflight-generated handoff summary
 - normal workspace and wake context
 
@@ -220,7 +220,7 @@ Success criteria:
 Why first:
 
 - Codex already has rich prompt/handoff handling
-- the adapter already injects Paperclip skills and workspace metadata cleanly
+- the adapter already injects PetAgent skills and workspace metadata cleanly
 - the current implementation already distinguishes bootstrap, wake delta, and handoff prompt sections
 
 Implementation work:
@@ -271,20 +271,20 @@ The run detail UI should also show when routing occurred, for example:
 - primary model
 - token/cost split
 
-This matters because Paperclip's board UI is supposed to make cost and behavior legible.
+This matters because PetAgent's board UI is supposed to make cost and behavior legible.
 
 ## 9. Why Not Copy Hermes Exactly
 
-Hermes' cheap-route heuristic is useful precedent, but Paperclip should not start there.
+Hermes' cheap-route heuristic is useful precedent, but PetAgent should not start there.
 
 Reasons:
 
 - Hermes is optimizing free-form conversational turns
-- Paperclip agents run structured, issue-scoped heartbeats with explicit task and workspace context
-- Paperclip already knows whether a run is fresh vs resumed, issue-scoped vs approval follow-up, and what workspace/session exists
+- PetAgent agents run structured, issue-scoped heartbeats with explicit task and workspace context
+- PetAgent already knows whether a run is fresh vs resumed, issue-scoped vs approval follow-up, and what workspace/session exists
 - those execution facts are stronger routing signals than prompt keyword matching
 
-If Paperclip later wants a cheap-only completion path for trivial runs, that can be a second-stage feature built on observed run data, not the first implementation.
+If PetAgent later wants a cheap-only completion path for trivial runs, that can be a second-stage feature built on observed run data, not the first implementation.
 
 ## 10. Risks
 
@@ -351,7 +351,7 @@ Manual checks:
 
 ## 13. Recommendation
 
-Paperclip should ship smart model routing as:
+PetAgent should ship smart model routing as:
 
 - adapter-specific
 - opt-in

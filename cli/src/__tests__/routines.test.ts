@@ -67,7 +67,7 @@ function writeTestConfig(configPath: string, tempRoot: string, connectionString:
         baseDir: path.join(tempRoot, "storage"),
       },
       s3: {
-        bucket: "paperclip",
+        bucket: "petagent",
         region: "us-east-1",
         prefix: "",
         forcePathStyle: false,
@@ -93,9 +93,9 @@ describeEmbeddedPostgres("disableAllRoutinesInConfig", () => {
   let configPath = "";
 
   beforeAll(async () => {
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-routines-cli-db-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-routines-cli-db-");
     db = createDb(tempDb.connectionString);
-    tempRoot = mkdtempSync(path.join(os.tmpdir(), "paperclip-routines-cli-config-"));
+    tempRoot = mkdtempSync(path.join(os.tmpdir(), "petagent-routines-cli-config-"));
     configPath = path.join(tempRoot, "config.json");
     writeTestConfig(configPath, tempRoot, tempDb.connectionString);
   }, 20_000);
@@ -129,7 +129,7 @@ describeEmbeddedPostgres("disableAllRoutinesInConfig", () => {
     await db.insert(companies).values([
       {
         id: companyId,
-        name: "Paperclip",
+        name: "PetAgent",
         issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
         requireBoardApprovalForNewAgents: false,
       },

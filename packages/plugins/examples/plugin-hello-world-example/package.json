@@ -7,7 +7,7 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "paperclipPlugin": {
+  "petagentPlugin": {
     "manifest": "./dist/manifest.js",
     "worker": "./dist/worker.js",
     "ui": "./dist/ui/"

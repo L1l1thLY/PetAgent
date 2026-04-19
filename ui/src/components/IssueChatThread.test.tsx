@@ -135,8 +135,8 @@ vi.mock("./StatusBadge", () => ({
   StatusBadge: ({ status }: { status: string }) => <span>{status}</span>,
 }));
 
-vi.mock("../hooks/usePaperclipIssueRuntime", () => ({
-  usePaperclipIssueRuntime: () => ({}),
+vi.mock("../hooks/usePetAgentIssueRuntime", () => ({
+  usePetAgentIssueRuntime: () => ({}),
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

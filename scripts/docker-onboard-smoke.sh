@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-IMAGE_NAME="${IMAGE_NAME:-paperclip-onboard-smoke}"
+IMAGE_NAME="${IMAGE_NAME:-petagent-onboard-smoke}"
 HOST_PORT="${HOST_PORT:-3131}"
 PAPERCLIPAI_VERSION="${PAPERCLIPAI_VERSION:-latest}"
 DATA_DIR="${DATA_DIR:-$REPO_ROOT/data/docker-onboard-smoke}"
@@ -14,8 +14,8 @@ PAPERCLIP_DEPLOYMENT_EXPOSURE="${PAPERCLIP_DEPLOYMENT_EXPOSURE:-private}"
 PAPERCLIP_PUBLIC_URL="${PAPERCLIP_PUBLIC_URL:-http://localhost:${HOST_PORT}}"
 SMOKE_AUTO_BOOTSTRAP="${SMOKE_AUTO_BOOTSTRAP:-true}"
 SMOKE_ADMIN_NAME="${SMOKE_ADMIN_NAME:-Smoke Admin}"
-SMOKE_ADMIN_EMAIL="${SMOKE_ADMIN_EMAIL:-smoke-admin@paperclip.local}"
-SMOKE_ADMIN_PASSWORD="${SMOKE_ADMIN_PASSWORD:-paperclip-smoke-password}"
+SMOKE_ADMIN_EMAIL="${SMOKE_ADMIN_EMAIL:-smoke-admin@petagent.local}"
+SMOKE_ADMIN_PASSWORD="${SMOKE_ADMIN_PASSWORD:-petagent-smoke-password}"
 CONTAINER_NAME="${IMAGE_NAME//[^a-zA-Z0-9_.-]/-}"
 LOG_PID=""
 COOKIE_JAR=""
@@ -91,9 +91,9 @@ generate_bootstrap_invite_url() {
       -e PAPERCLIP_DEPLOYMENT_MODE="$PAPERCLIP_DEPLOYMENT_MODE" \
       -e PAPERCLIP_DEPLOYMENT_EXPOSURE="$PAPERCLIP_DEPLOYMENT_EXPOSURE" \
       -e PAPERCLIP_PUBLIC_URL="$PAPERCLIP_PUBLIC_URL" \
-      -e PAPERCLIP_HOME="/paperclip" \
+      -e PAPERCLIP_HOME="/petagent" \
       "$CONTAINER_NAME" bash -lc \
-      'timeout 20s npx --yes "paperclipai@${PAPERCLIPAI_VERSION}" auth bootstrap-ceo --data-dir "$PAPERCLIP_HOME" --base-url "$PAPERCLIP_PUBLIC_URL"' \
+      'timeout 20s npx --yes "petagentai@${PAPERCLIPAI_VERSION}" auth bootstrap-ceo --data-dir "$PAPERCLIP_HOME" --base-url "$PAPERCLIP_PUBLIC_URL"' \
       2>&1
   )"; then
     bootstrap_status=0
@@ -267,7 +267,7 @@ docker run -d --rm \
   -e PAPERCLIP_DEPLOYMENT_MODE="$PAPERCLIP_DEPLOYMENT_MODE" \
   -e PAPERCLIP_DEPLOYMENT_EXPOSURE="$PAPERCLIP_DEPLOYMENT_EXPOSURE" \
   -e PAPERCLIP_PUBLIC_URL="$PAPERCLIP_PUBLIC_URL" \
-  -v "$DATA_DIR:/paperclip" \
+  -v "$DATA_DIR:/petagent" \
   "$IMAGE_NAME" >/dev/null
 
 if [[ "$SMOKE_DETACH" != "true" ]]; then
@@ -275,7 +275,7 @@ if [[ "$SMOKE_DETACH" != "true" ]]; then
   LOG_PID=$!
 fi
 
-TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/paperclip-onboard-smoke.XXXXXX")"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/petagent-onboard-smoke.XXXXXX")"
 COOKIE_JAR="$TMP_DIR/cookies.txt"
 
 if ! wait_for_http "$PAPERCLIP_PUBLIC_URL/api/health" 90 1; then

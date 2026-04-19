@@ -3,12 +3,12 @@ title: CLI Overview
 summary: CLI installation and setup
 ---
 
-The Paperclip CLI handles instance setup, diagnostics, and control-plane operations.
+The PetAgent CLI handles instance setup, diagnostics, and control-plane operations.
 
 ## Usage
 
 ```sh
-pnpm paperclipai --help
+pnpm petagentai --help
 ```
 
 ## Global Options
@@ -17,7 +17,7 @@ All commands support:
 
 | Flag | Description |
 |------|-------------|
-| `--data-dir <path>` | Local Paperclip data root (isolates from `~/.paperclip`) |
+| `--data-dir <path>` | Local PetAgent data root (isolates from `~/.petagent`) |
 | `--api-base <url>` | API base URL |
 | `--api-key <token>` | API authentication token |
 | `--context <path>` | Context file path |
@@ -29,7 +29,7 @@ Company-scoped commands also accept `--company-id <id>`.
 For clean local instances, pass `--data-dir` on the command you run:
 
 ```sh
-pnpm paperclipai run --data-dir ./tmp/paperclip-dev
+pnpm petagentai run --data-dir ./tmp/petagent-dev
 ```
 
 ## Context Profiles
@@ -38,26 +38,26 @@ Store defaults to avoid repeating flags:
 
 ```sh
 # Set defaults
-pnpm paperclipai context set --api-base http://localhost:3100 --company-id <id>
+pnpm petagentai context set --api-base http://localhost:3100 --company-id <id>
 
 # View current context
-pnpm paperclipai context show
+pnpm petagentai context show
 
 # List profiles
-pnpm paperclipai context list
+pnpm petagentai context list
 
 # Switch profile
-pnpm paperclipai context use default
+pnpm petagentai context use default
 ```
 
 To avoid storing secrets in context, use an env var:
 
 ```sh
-pnpm paperclipai context set --api-key-env-var-name PAPERCLIP_API_KEY
+pnpm petagentai context set --api-key-env-var-name PAPERCLIP_API_KEY
 export PAPERCLIP_API_KEY=...
 ```
 
-Context is stored at `~/.paperclip/context.json`.
+Context is stored at `~/.petagent/context.json`.
 
 ## Command Categories
 

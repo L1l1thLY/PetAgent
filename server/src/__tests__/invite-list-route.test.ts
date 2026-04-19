@@ -42,7 +42,7 @@ describeEmbeddedPostgres("GET /companies/:companyId/invites", () => {
   let companyId!: string;
 
   beforeAll(async () => {
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-invite-list-route-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-invite-list-route-");
     db = createDb(tempDb.connectionString);
   }, 20_000);
 
@@ -50,7 +50,7 @@ describeEmbeddedPostgres("GET /companies/:companyId/invites", () => {
     companyId = randomUUID();
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
     });

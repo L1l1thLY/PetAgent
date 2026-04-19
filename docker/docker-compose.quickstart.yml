@@ -1,5 +1,5 @@
 services:
-  paperclip:
+  petagent:
     build:
       context: ..
       dockerfile: Dockerfile
@@ -7,7 +7,7 @@ services:
       - "${PAPERCLIP_PORT:-3100}:3100"
     environment:
       HOST: "0.0.0.0"
-      PAPERCLIP_HOME: "/paperclip"
+      PAPERCLIP_HOME: "/petagent"
       OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
       PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
@@ -15,4 +15,4 @@ services:
       PAPERCLIP_PUBLIC_URL: "${PAPERCLIP_PUBLIC_URL:-http://localhost:3100}"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
     volumes:
-      - "${PAPERCLIP_DATA_DIR:-../data/docker-paperclip}:/paperclip"
+      - "${PAPERCLIP_DATA_DIR:-../data/docker-petagent}:/petagent"

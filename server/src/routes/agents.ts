@@ -24,8 +24,8 @@ import {
   updateAgentSchema,
 } from "@petagent/shared";
 import {
-  readPaperclipSkillSyncPreference,
-  writePaperclipSkillSyncPreference,
+  readPetAgentSkillSyncPreference,
+  writePetAgentSkillSyncPreference,
 } from "@petagent/adapter-utils/server-utils";
 import { trackAgentCreated } from "@petagent/shared/telemetry";
 import { validate } from "../middleware/validate.js";
@@ -721,7 +721,7 @@ export function agentRoutes(db: Db) {
     });
     return {
       ...config,
-      paperclipRuntimeSkills: runtimeSkillEntries,
+      petagentRuntimeSkills: runtimeSkillEntries,
     };
   }
 
@@ -752,7 +752,7 @@ export function agentRoutes(db: Db) {
     const desiredSkills = Array.from(new Set([...requiredSkills, ...resolvedRequestedSkills]));
 
     return {
-      adapterConfig: writePaperclipSkillSyncPreference(adapterConfig, desiredSkills),
+      adapterConfig: writePetAgentSkillSyncPreference(adapterConfig, desiredSkills),
       desiredSkills,
       runtimeSkillEntries,
     };
@@ -899,7 +899,7 @@ export function agentRoutes(db: Db) {
 
     const adapter = findActiveServerAdapter(agent.adapterType);
     if (!adapter?.listSkills) {
-      const preference = readPaperclipSkillSyncPreference(
+      const preference = readPetAgentSkillSyncPreference(
         agent.adapterConfig as Record<string, unknown>,
       );
       const runtimeSkillEntries = await companySkills.listRuntimeSkillEntries(agent.companyId, {
@@ -982,7 +982,7 @@ export function agentRoutes(db: Db) {
       );
       const runtimeSkillConfig = {
         ...runtimeConfig,
-        paperclipRuntimeSkills: runtimeSkillEntries,
+        petagentRuntimeSkills: runtimeSkillEntries,
       };
       const snapshot = adapter?.syncSkills
         ? await adapter.syncSkills({

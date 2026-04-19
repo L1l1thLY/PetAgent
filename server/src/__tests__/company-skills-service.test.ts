@@ -26,7 +26,7 @@ describeEmbeddedPostgres("companySkillService.list", () => {
   const cleanupDirs = new Set<string>();
 
   beforeAll(async () => {
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-company-skills-service-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-company-skills-service-");
     db = createDb(tempDb.connectionString);
     svc = companySkillService(db);
   }, 20_000);
@@ -45,13 +45,13 @@ describeEmbeddedPostgres("companySkillService.list", () => {
   it("lists skills without exposing markdown content", async () => {
     const companyId = randomUUID();
     const skillId = randomUUID();
-    const skillDir = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-heavy-skill-"));
+    const skillDir = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-heavy-skill-"));
     cleanupDirs.add(skillDir);
     await fs.writeFile(path.join(skillDir, "SKILL.md"), "# Heavy Skill\n", "utf8");
 
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
     });

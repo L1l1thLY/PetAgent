@@ -233,7 +233,7 @@ export type {
   PluginLauncherDeclaration,
   PluginMinimumHostVersion,
   PluginUiDeclaration,
-  PaperclipPluginManifestV1,
+  PetAgentPluginManifestV1,
   PluginRecord,
   PluginStateRecord,
   PluginConfig,

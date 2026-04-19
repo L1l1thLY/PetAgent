@@ -19,7 +19,7 @@ async function createSkillDir(root: string, name: string) {
 }
 
 describe("cursor local skill sync", () => {
-  const paperclipKey = "petagent/paperclip/paperclip";
+  const petagentKey = "petagent/petagent/petagent";
   const cleanupDirs = new Set<string>();
 
   afterEach(async () => {
@@ -27,8 +27,8 @@ describe("cursor local skill sync", () => {
     cleanupDirs.clear();
   });
 
-  it("reports configured Paperclip skills and installs them into the Cursor skills home", async () => {
-    const home = await makeTempDir("paperclip-cursor-skill-sync-");
+  it("reports configured PetAgent skills and installs them into the Cursor skills home", async () => {
+    const home = await makeTempDir("petagent-cursor-skill-sync-");
     cleanupDirs.add(home);
 
     const ctx = {
@@ -39,30 +39,30 @@ describe("cursor local skill sync", () => {
         env: {
           HOME: home,
         },
-        paperclipSkillSync: {
-          desiredSkills: [paperclipKey],
+        petagentSkillSync: {
+          desiredSkills: [petagentKey],
         },
       },
     } as const;
 
     const before = await listCursorSkills(ctx);
     expect(before.mode).toBe("persistent");
-    expect(before.desiredSkills).toContain(paperclipKey);
-    expect(before.entries.find((entry) => entry.key === paperclipKey)?.required).toBe(true);
-    expect(before.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("missing");
+    expect(before.desiredSkills).toContain(petagentKey);
+    expect(before.entries.find((entry) => entry.key === petagentKey)?.required).toBe(true);
+    expect(before.entries.find((entry) => entry.key === petagentKey)?.state).toBe("missing");
 
-    const after = await syncCursorSkills(ctx, [paperclipKey]);
-    expect(after.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("installed");
-    expect((await fs.lstat(path.join(home, ".cursor", "skills", "paperclip"))).isSymbolicLink()).toBe(true);
+    const after = await syncCursorSkills(ctx, [petagentKey]);
+    expect(after.entries.find((entry) => entry.key === petagentKey)?.state).toBe("installed");
+    expect((await fs.lstat(path.join(home, ".cursor", "skills", "petagent"))).isSymbolicLink()).toBe(true);
   });
 
-  it("recognizes company-library runtime skills supplied outside the bundled Paperclip directory", async () => {
-    const home = await makeTempDir("paperclip-cursor-runtime-skills-home-");
-    const runtimeSkills = await makeTempDir("paperclip-cursor-runtime-skills-src-");
+  it("recognizes company-library runtime skills supplied outside the bundled PetAgent directory", async () => {
+    const home = await makeTempDir("petagent-cursor-runtime-skills-home-");
+    const runtimeSkills = await makeTempDir("petagent-cursor-runtime-skills-src-");
     cleanupDirs.add(home);
     cleanupDirs.add(runtimeSkills);
 
-    const paperclipDir = await createSkillDir(runtimeSkills, "paperclip");
+    const petagentDir = await createSkillDir(runtimeSkills, "petagent");
     const asciiHeartDir = await createSkillDir(runtimeSkills, "ascii-heart");
 
     const ctx = {
@@ -73,13 +73,13 @@ describe("cursor local skill sync", () => {
         env: {
           HOME: home,
         },
-        paperclipRuntimeSkills: [
+        petagentRuntimeSkills: [
           {
-            key: "paperclip",
-            runtimeName: "paperclip",
-            source: paperclipDir,
+            key: "petagent",
+            runtimeName: "petagent",
+            source: petagentDir,
             required: true,
-            requiredReason: "Bundled Paperclip skills are always available for local adapters.",
+            requiredReason: "Bundled PetAgent skills are always available for local adapters.",
           },
           {
             key: "ascii-heart",
@@ -87,7 +87,7 @@ describe("cursor local skill sync", () => {
             source: asciiHeartDir,
           },
         ],
-        paperclipSkillSync: {
+        petagentSkillSync: {
           desiredSkills: ["ascii-heart"],
         },
       },
@@ -95,7 +95,7 @@ describe("cursor local skill sync", () => {
 
     const before = await listCursorSkills(ctx);
     expect(before.warnings).toEqual([]);
-    expect(before.desiredSkills).toEqual(["paperclip", "ascii-heart"]);
+    expect(before.desiredSkills).toEqual(["petagent", "ascii-heart"]);
     expect(before.entries.find((entry) => entry.key === "ascii-heart")?.state).toBe("missing");
 
     const after = await syncCursorSkills(ctx, ["ascii-heart"]);
@@ -104,8 +104,8 @@ describe("cursor local skill sync", () => {
     expect((await fs.lstat(path.join(home, ".cursor", "skills", "ascii-heart"))).isSymbolicLink()).toBe(true);
   });
 
-  it("keeps required bundled Paperclip skills installed even when the desired set is emptied", async () => {
-    const home = await makeTempDir("paperclip-cursor-skill-prune-");
+  it("keeps required bundled PetAgent skills installed even when the desired set is emptied", async () => {
+    const home = await makeTempDir("petagent-cursor-skill-prune-");
     cleanupDirs.add(home);
 
     const configuredCtx = {
@@ -116,13 +116,13 @@ describe("cursor local skill sync", () => {
         env: {
           HOME: home,
         },
-        paperclipSkillSync: {
-          desiredSkills: [paperclipKey],
+        petagentSkillSync: {
+          desiredSkills: [petagentKey],
         },
       },
     } as const;
 
-    await syncCursorSkills(configuredCtx, [paperclipKey]);
+    await syncCursorSkills(configuredCtx, [petagentKey]);
 
     const clearedCtx = {
       ...configuredCtx,
@@ -130,15 +130,15 @@ describe("cursor local skill sync", () => {
         env: {
           HOME: home,
         },
-        paperclipSkillSync: {
+        petagentSkillSync: {
           desiredSkills: [],
         },
       },
     } as const;
 
     const after = await syncCursorSkills(clearedCtx, []);
-    expect(after.desiredSkills).toContain(paperclipKey);
-    expect(after.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("installed");
-    expect((await fs.lstat(path.join(home, ".cursor", "skills", "paperclip"))).isSymbolicLink()).toBe(true);
+    expect(after.desiredSkills).toContain(petagentKey);
+    expect(after.entries.find((entry) => entry.key === petagentKey)?.state).toBe("installed");
+    expect((await fs.lstat(path.join(home, ".cursor", "skills", "petagent"))).isSymbolicLink()).toBe(true);
   });
 });

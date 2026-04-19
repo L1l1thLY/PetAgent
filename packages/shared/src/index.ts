@@ -382,7 +382,7 @@ export type {
   PluginLauncherDeclaration,
   PluginMinimumHostVersion,
   PluginUiDeclaration,
-  PaperclipPluginManifestV1,
+  PetAgentPluginManifestV1,
   PluginRecord,
   PluginStateRecord,
   PluginConfig,
@@ -723,7 +723,7 @@ export {
 } from "./routine-variables.js";
 
 export {
-  paperclipConfigSchema,
+  petagentConfigSchema,
   configMetaSchema,
   llmConfigSchema,
   databaseBackupConfigSchema,
@@ -738,7 +738,7 @@ export {
   secretsLocalEncryptedConfigSchema,
   telemetryConfigSchema,
   type TelemetryConfig,
-  type PaperclipConfig,
+  type PetAgentConfig,
   type LlmConfig,
   type DatabaseBackupConfig,
   type DatabaseConfig,

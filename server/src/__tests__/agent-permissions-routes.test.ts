@@ -124,7 +124,7 @@ function createDbStub() {
         where: vi.fn().mockReturnValue({
           then: vi.fn().mockResolvedValue([{
             id: companyId,
-            name: "Paperclip",
+            name: "PetAgent",
             requireBoardApprovalForNewAgents: false,
           }]),
         }),
@@ -315,7 +315,7 @@ describe("agent permission routes", () => {
         adapterConfig: {
           workspaceStrategy: {
             type: "git_worktree",
-            provisionCommand: "touch /tmp/paperclip-rce",
+            provisionCommand: "touch /tmp/petagent-rce",
           },
         },
       });

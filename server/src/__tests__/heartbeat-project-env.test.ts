@@ -88,30 +88,30 @@ describe("applyRunScopedMentionedSkillKeys", () => {
   it("adds mentioned skills without mutating the original config", () => {
     const originalConfig = {
       command: "codex",
-      paperclipSkillSync: {
-        desiredSkills: ["petagent/paperclip/paperclip"],
+      petagentSkillSync: {
+        desiredSkills: ["petagent/petagent/petagent"],
       },
     };
 
     const updatedConfig = applyRunScopedMentionedSkillKeys(originalConfig, [
       "company/company-1/release-changelog",
-      "petagent/paperclip/paperclip",
+      "petagent/petagent/petagent",
       "company/company-1/release-changelog",
     ]);
 
     expect(updatedConfig).toEqual({
       command: "codex",
-      paperclipSkillSync: {
+      petagentSkillSync: {
         desiredSkills: [
-          "petagent/paperclip/paperclip",
+          "petagent/petagent/petagent",
           "company/company-1/release-changelog",
         ],
       },
     });
     expect(originalConfig).toEqual({
       command: "codex",
-      paperclipSkillSync: {
-        desiredSkills: ["petagent/paperclip/paperclip"],
+      petagentSkillSync: {
+        desiredSkills: ["petagent/petagent/petagent"],
       },
     });
   });

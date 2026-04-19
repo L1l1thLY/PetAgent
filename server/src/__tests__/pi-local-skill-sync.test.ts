@@ -12,7 +12,7 @@ async function makeTempDir(prefix: string): Promise<string> {
 }
 
 describe("pi local skill sync", () => {
-  const paperclipKey = "petagent/paperclip/paperclip";
+  const petagentKey = "petagent/petagent/petagent";
   const cleanupDirs = new Set<string>();
 
   afterEach(async () => {
@@ -20,8 +20,8 @@ describe("pi local skill sync", () => {
     cleanupDirs.clear();
   });
 
-  it("reports configured Paperclip skills and installs them into the Pi skills home", async () => {
-    const home = await makeTempDir("paperclip-pi-skill-sync-");
+  it("reports configured PetAgent skills and installs them into the Pi skills home", async () => {
+    const home = await makeTempDir("petagent-pi-skill-sync-");
     cleanupDirs.add(home);
 
     const ctx = {
@@ -32,25 +32,25 @@ describe("pi local skill sync", () => {
         env: {
           HOME: home,
         },
-        paperclipSkillSync: {
-          desiredSkills: [paperclipKey],
+        petagentSkillSync: {
+          desiredSkills: [petagentKey],
         },
       },
     } as const;
 
     const before = await listPiSkills(ctx);
     expect(before.mode).toBe("persistent");
-    expect(before.desiredSkills).toContain(paperclipKey);
-    expect(before.entries.find((entry) => entry.key === paperclipKey)?.required).toBe(true);
-    expect(before.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("missing");
+    expect(before.desiredSkills).toContain(petagentKey);
+    expect(before.entries.find((entry) => entry.key === petagentKey)?.required).toBe(true);
+    expect(before.entries.find((entry) => entry.key === petagentKey)?.state).toBe("missing");
 
-    const after = await syncPiSkills(ctx, [paperclipKey]);
-    expect(after.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("installed");
-    expect((await fs.lstat(path.join(home, ".pi", "agent", "skills", "paperclip"))).isSymbolicLink()).toBe(true);
+    const after = await syncPiSkills(ctx, [petagentKey]);
+    expect(after.entries.find((entry) => entry.key === petagentKey)?.state).toBe("installed");
+    expect((await fs.lstat(path.join(home, ".pi", "agent", "skills", "petagent"))).isSymbolicLink()).toBe(true);
   });
 
-  it("keeps required bundled Paperclip skills installed even when the desired set is emptied", async () => {
-    const home = await makeTempDir("paperclip-pi-skill-prune-");
+  it("keeps required bundled PetAgent skills installed even when the desired set is emptied", async () => {
+    const home = await makeTempDir("petagent-pi-skill-prune-");
     cleanupDirs.add(home);
 
     const configuredCtx = {
@@ -61,13 +61,13 @@ describe("pi local skill sync", () => {
         env: {
           HOME: home,
         },
-        paperclipSkillSync: {
-          desiredSkills: [paperclipKey],
+        petagentSkillSync: {
+          desiredSkills: [petagentKey],
         },
       },
     } as const;
 
-    await syncPiSkills(configuredCtx, [paperclipKey]);
+    await syncPiSkills(configuredCtx, [petagentKey]);
 
     const clearedCtx = {
       ...configuredCtx,
@@ -75,15 +75,15 @@ describe("pi local skill sync", () => {
         env: {
           HOME: home,
         },
-        paperclipSkillSync: {
+        petagentSkillSync: {
           desiredSkills: [],
         },
       },
     } as const;
 
     const after = await syncPiSkills(clearedCtx, []);
-    expect(after.desiredSkills).toContain(paperclipKey);
-    expect(after.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("installed");
-    expect((await fs.lstat(path.join(home, ".pi", "agent", "skills", "paperclip"))).isSymbolicLink()).toBe(true);
+    expect(after.desiredSkills).toContain(petagentKey);
+    expect(after.entries.find((entry) => entry.key === petagentKey)?.state).toBe("installed");
+    expect((await fs.lstat(path.join(home, ".pi", "agent", "skills", "petagent"))).isSymbolicLink()).toBe(true);
   });
 });

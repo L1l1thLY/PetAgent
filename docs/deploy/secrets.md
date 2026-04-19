@@ -3,14 +3,14 @@ title: Secrets Management
 summary: Master key, encryption, and strict mode
 ---
 
-Paperclip encrypts secrets at rest using a local master key. Agent environment variables that contain sensitive values (API keys, tokens) are stored as encrypted secret references.
+PetAgent encrypts secrets at rest using a local master key. Agent environment variables that contain sensitive values (API keys, tokens) are stored as encrypted secret references.
 
 ## Default Provider: `local_encrypted`
 
 Secrets are encrypted with a local master key stored at:
 
 ```
-~/.paperclip/instances/default/secrets/master.key
+~/.petagent/instances/default/secrets/master.key
 ```
 
 This key is auto-created during onboarding. The key never leaves your machine.
@@ -22,19 +22,19 @@ This key is auto-created during onboarding. The key never leaves your machine.
 Onboarding writes default secrets config:
 
 ```sh
-pnpm paperclipai onboard
+pnpm petagentai onboard
 ```
 
 Update secrets settings:
 
 ```sh
-pnpm paperclipai configure --section secrets
+pnpm petagentai configure --section secrets
 ```
 
 Validate secrets config:
 
 ```sh
-pnpm paperclipai doctor
+pnpm petagentai doctor
 ```
 
 ### Environment Overrides

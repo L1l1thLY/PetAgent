@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Paperclip",
-  "short_name": "Paperclip",
+  "name": "PetAgent",
+  "short_name": "PetAgent",
   "description": "AI-powered project management and agent coordination platform",
   "start_url": "/",
   "scope": "/",

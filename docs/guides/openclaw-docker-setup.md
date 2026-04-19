@@ -1,10 +1,10 @@
 # Running OpenClaw in Docker (Local Development)
 
-How to get OpenClaw running in a Docker container for local development and testing the Paperclip OpenClaw adapter integration.
+How to get OpenClaw running in a Docker container for local development and testing the PetAgent OpenClaw adapter integration.
 
 ## Automated Join Smoke Test (Recommended First)
 
-Paperclip includes an end-to-end join smoke harness:
+PetAgent includes an end-to-end join smoke harness:
 
 ```bash
 pnpm smoke:openclaw-join
@@ -39,10 +39,10 @@ What this command does:
 
 - clones/updates `openclaw/openclaw` in `/tmp/openclaw-docker`
 - builds `openclaw:local` (unless `OPENCLAW_BUILD=0`)
-- writes isolated smoke config under `~/.openclaw-paperclip-smoke/openclaw.json` and Docker `.env`
+- writes isolated smoke config under `~/.openclaw-petagent-smoke/openclaw.json` and Docker `.env`
 - pins agent model defaults to OpenAI (`openai/gpt-5.2` with OpenAI fallback)
 - starts `openclaw-gateway` via Compose (with required `/tmp` tmpfs override)
-- probes and prints a Paperclip host URL that is reachable from inside OpenClaw Docker
+- probes and prints a PetAgent host URL that is reachable from inside OpenClaw Docker
 - waits for health and prints:
   - `http://127.0.0.1:18789/#token=...`
 - disables Control UI device pairing by default for local smoke ergonomics
@@ -59,14 +59,14 @@ Environment knobs:
 - `OPENCLAW_DISABLE_DEVICE_AUTH=0` keeps pairing enabled (then approve browser with `devices` CLI commands)
 - `OPENCLAW_MODEL_PRIMARY` (default `openai/gpt-5.2`)
 - `OPENCLAW_MODEL_FALLBACK` (default `openai/gpt-5.2-chat-latest`)
-- `OPENCLAW_CONFIG_DIR` (default `~/.openclaw-paperclip-smoke`)
+- `OPENCLAW_CONFIG_DIR` (default `~/.openclaw-petagent-smoke`)
 - `OPENCLAW_RESET_STATE=1` (default) resets smoke agent state on each run to avoid stale auth/session drift
 - `PAPERCLIP_HOST_PORT` (default `3100`)
 - `PAPERCLIP_HOST_FROM_CONTAINER` (default `host.docker.internal`)
 
 ### Authenticated mode
 
-If your Paperclip deployment is `authenticated`, provide auth context:
+If your PetAgent deployment is `authenticated`, provide auth context:
 
 ```bash
 PAPERCLIP_AUTH_HEADER="Bearer <token>" pnpm smoke:openclaw-join
@@ -77,20 +77,20 @@ PAPERCLIP_COOKIE="your_session_cookie=..." pnpm smoke:openclaw-join
 ### Network topology tips
 
 - Local same-host smoke: default callback uses `http://127.0.0.1:<port>/webhook`.
-- Inside OpenClaw Docker, `127.0.0.1` points to the container itself, not your host Paperclip server.
-- For invite/onboarding URLs consumed by OpenClaw in Docker, use the script-printed Paperclip URL (typically `http://host.docker.internal:3100`).
-- If Paperclip rejects the container-visible host with a hostname error, allow it from host:
+- Inside OpenClaw Docker, `127.0.0.1` points to the container itself, not your host PetAgent server.
+- For invite/onboarding URLs consumed by OpenClaw in Docker, use the script-printed PetAgent URL (typically `http://host.docker.internal:3100`).
+- If PetAgent rejects the container-visible host with a hostname error, allow it from host:
 
 ```bash
-pnpm paperclipai allowed-hostname host.docker.internal
+pnpm petagentai allowed-hostname host.docker.internal
 ```
 
-Then restart Paperclip and rerun the smoke script.
+Then restart PetAgent and rerun the smoke script.
 - Docker/remote OpenClaw: prefer a reachable hostname (Docker host alias, Tailscale hostname, or public domain).
 - Authenticated/private mode: ensure hostnames are in the allowed list when required:
 
 ```bash
-pnpm paperclipai allowed-hostname <host>
+pnpm petagentai allowed-hostname <host>
 ```
 
 ## Prerequisites

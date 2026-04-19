@@ -85,7 +85,7 @@ function writeTestConfig(configPath: string, tempRoot: string, port: number, con
         baseDir: path.join(tempRoot, "storage"),
       },
       s3: {
-        bucket: "paperclip",
+        bucket: "petagent",
         region: "us-east-1",
         prefix: "",
         forcePathStyle: false,
@@ -239,11 +239,11 @@ describeEmbeddedPostgres("petagent company import/export e2e", () => {
   let tempDb: Awaited<ReturnType<typeof startEmbeddedPostgresTestDatabase>> | null = null;
 
   beforeAll(async () => {
-    tempRoot = mkdtempSync(path.join(os.tmpdir(), "paperclip-company-cli-e2e-"));
+    tempRoot = mkdtempSync(path.join(os.tmpdir(), "petagent-company-cli-e2e-"));
     configPath = path.join(tempRoot, "config", "config.json");
     exportDir = path.join(tempRoot, "exported-company");
 
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-company-cli-db-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-company-cli-db-");
 
     const port = await getAvailablePort();
     writeTestConfig(configPath, tempRoot, port, tempDb.connectionString);
@@ -356,7 +356,7 @@ describeEmbeddedPostgres("petagent company import/export e2e", () => {
     expect(exportResult.ok).toBe(true);
     expect(exportResult.filesWritten).toBeGreaterThan(0);
     expect(readFileSync(path.join(exportDir, "COMPANY.md"), "utf8")).toContain(sourceCompany.name);
-    expect(readFileSync(path.join(exportDir, ".paperclip.yaml"), "utf8")).toContain('schema: "paperclip/v1"');
+    expect(readFileSync(path.join(exportDir, ".petagent.yaml"), "utf8")).toContain('schema: "petagent/v1"');
 
     const importedNew = await runCliJson<{
       company: { id: string; name: string; action: string };
@@ -475,7 +475,7 @@ describeEmbeddedPostgres("petagent company import/export e2e", () => {
     const zipPath = path.join(tempRoot, "exported-company.zip");
     const portableFiles: Record<string, string> = {};
     collectTextFiles(exportDir, exportDir, portableFiles);
-    writeFileSync(zipPath, createStoredZipArchive(portableFiles, "paperclip-demo"));
+    writeFileSync(zipPath, createStoredZipArchive(portableFiles, "petagent-demo"));
 
     const importedFromZip = await runCliJson<{
       company: { id: string; name: string; action: string };

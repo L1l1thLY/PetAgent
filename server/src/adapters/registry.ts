@@ -75,11 +75,11 @@ import {
   listSkills as hermesListSkills,
   syncSkills as hermesSyncSkills,
   detectModel as detectModelFromHermes,
-} from "hermes-paperclip-adapter/server";
+} from "hermes-petagent-adapter/server";
 import {
   agentConfigurationDoc as hermesAgentConfigurationDoc,
   models as hermesModels,
-} from "hermes-paperclip-adapter";
+} from "hermes-petagent-adapter";
 import { BUILTIN_ADAPTER_TYPES } from "./builtin-adapter-types.js";
 import { buildExternalAdapters } from "./plugin-loader.js";
 import { getDisabledAdapterTypes } from "../services/adapter-plugin-store.js";
@@ -271,7 +271,7 @@ const externalAdaptersReady: Promise<void> = (async () => {
       const overriding = BUILTIN_ADAPTER_TYPES.has(externalAdapter.type);
       if (overriding) {
         console.log(
-          `[paperclip] External adapter "${externalAdapter.type}" overrides built-in adapter`,
+          `[petagent] External adapter "${externalAdapter.type}" overrides built-in adapter`,
         );
         // Save the original builtin for later restoration.
         const existing = adaptersByType.get(externalAdapter.type);
@@ -288,7 +288,7 @@ const externalAdaptersReady: Promise<void> = (async () => {
       );
     }
   } catch (err) {
-    console.error("[paperclip] Failed to load external adapters:", err);
+    console.error("[petagent] Failed to load external adapters:", err);
   }
 })();
 
@@ -404,12 +404,12 @@ export function setOverridePaused(type: string, paused: boolean): boolean {
   const wasPaused = pausedOverrides.has(type);
   if (paused && !wasPaused) {
     pausedOverrides.add(type);
-    console.log(`[paperclip] Override paused for "${type}" — builtin adapter restored`);
+    console.log(`[petagent] Override paused for "${type}" — builtin adapter restored`);
     return true;
   }
   if (!paused && wasPaused) {
     pausedOverrides.delete(type);
-    console.log(`[paperclip] Override resumed for "${type}" — external adapter active`);
+    console.log(`[petagent] Override resumed for "${type}" — external adapter active`);
     return true;
   }
   return false;

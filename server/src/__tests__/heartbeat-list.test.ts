@@ -21,7 +21,7 @@ describeEmbeddedPostgres("heartbeat list", () => {
   let tempDb: Awaited<ReturnType<typeof startEmbeddedPostgresTestDatabase>> | null = null;
 
   beforeAll(async () => {
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-heartbeat-list-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-heartbeat-list-");
     db = createDb(tempDb.connectionString);
   }, 20_000);
 
@@ -42,7 +42,7 @@ describeEmbeddedPostgres("heartbeat list", () => {
 
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
     });
@@ -96,7 +96,7 @@ describeEmbeddedPostgres("heartbeat list", () => {
 
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
     });
@@ -146,7 +146,7 @@ describeEmbeddedPostgres("heartbeat list", () => {
 
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
     });

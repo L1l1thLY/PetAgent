@@ -90,7 +90,7 @@ describeEmbeddedPostgres("routine routes end-to-end", () => {
   let tempDb: Awaited<ReturnType<typeof startEmbeddedPostgresTestDatabase>> | null = null;
 
   beforeAll(async () => {
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-routines-e2e-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-routines-e2e-");
     db = createDb(tempDb.connectionString);
   }, 20_000);
 
@@ -179,7 +179,7 @@ describeEmbeddedPostgres("routine routes end-to-end", () => {
 
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix,
       requireBoardApprovalForNewAgents: false,
     });
@@ -351,13 +351,13 @@ describeEmbeddedPostgres("routine routes end-to-end", () => {
 
     const runRes = await postRoutineRun(app, createRes.body.id, {
       source: "manual",
-      variables: { repo: "paperclip" },
+      variables: { repo: "petagent" },
     });
 
     expect(runRes.status).toBe(202);
     expect(runRes.body.triggerPayload).toEqual({
       variables: {
-        repo: "paperclip",
+        repo: "petagent",
         priority: "high",
       },
     });
@@ -367,7 +367,7 @@ describeEmbeddedPostgres("routine routes end-to-end", () => {
       .from(issues)
       .where(eq(issues.id, runRes.body.linkedIssueId));
 
-    expect(issue?.description).toBe("Review paperclip for high bugs");
+    expect(issue?.description).toBe("Review petagent for high bugs");
   });
 
   it("allows drafting a routine without defaults and running it with one-off overrides", async () => {

@@ -4,7 +4,7 @@ import pc from "picocolors";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { createDb, instanceUserRoles, invites } from "@petagent/db";
 import { inferBindModeFromHost } from "@petagent/shared";
-import { loadPaperclipEnvFile } from "../config/env.js";
+import { loadPetAgentEnvFile } from "../config/env.js";
 import { readConfig, resolveConfigPath } from "../config/store.js";
 
 function hashToken(token: string) {
@@ -24,7 +24,7 @@ function resolveDbUrl(configPath?: string, explicitDbUrl?: string) {
   }
   if (config?.database.mode === "embedded-postgres") {
     const port = config.database.embeddedPostgresPort ?? 54329;
-    return `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`;
+    return `postgres://petagent:petagent@127.0.0.1:${port}/petagent`;
   }
   return null;
 }
@@ -59,10 +59,10 @@ export async function bootstrapCeoInvite(opts: {
   dbUrl?: string;
 }) {
   const configPath = resolveConfigPath(opts.config);
-  loadPaperclipEnvFile(configPath);
+  loadPetAgentEnvFile(configPath);
   const config = readConfig(configPath);
   if (!config) {
-    p.log.error(`No config found at ${configPath}. Run ${pc.cyan("paperclip onboard")} first.`);
+    p.log.error(`No config found at ${configPath}. Run ${pc.cyan("petagent onboard")} first.`);
     return;
   }
 
@@ -131,7 +131,7 @@ export async function bootstrapCeoInvite(opts: {
     p.log.message(`Expires: ${pc.dim(created.expiresAt.toISOString())}`);
   } catch (err) {
     p.log.error(`Could not create bootstrap invite: ${err instanceof Error ? err.message : String(err)}`);
-    p.log.info("If using embedded-postgres, start the Paperclip server and run this command again.");
+    p.log.info("If using embedded-postgres, start the PetAgent server and run this command again.");
   } finally {
     await closableDb.$client?.end?.({ timeout: 5 }).catch(() => undefined);
   }

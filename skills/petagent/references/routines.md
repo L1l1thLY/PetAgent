@@ -1,4 +1,4 @@
-# Paperclip Routines
+# PetAgent Routines
 
 Routines are recurring tasks. Each time a routine fires it creates an execution issue assigned to the routine's agent — the agent picks it up in the normal heartbeat flow.
 
@@ -118,7 +118,7 @@ POST /api/routines/{routineId}/triggers
 - Response includes the webhook URL (`publicId`-based) and the signing secret
 - Fire externally: `POST /api/routine-triggers/public/{publicId}/fire`
   - Bearer: `Authorization: Bearer <secret>`
-  - HMAC: `X-Paperclip-Signature` + `X-Paperclip-Timestamp` headers
+  - HMAC: `X-PetAgent-Signature` + `X-PetAgent-Timestamp` headers
 
 ### API (manual only)
 
@@ -184,4 +184,4 @@ GET /api/routines/{routineId}
 GET /api/routines/{routineId}/runs?limit=50
 ```
 
-Use the generic API endpoint tables in `skills/paperclip/references/api-reference.md` when you need a full cross-domain reference. Use this file when you need routine-specific behaviour, payload shape, or policy details.
+Use the generic API endpoint tables in `skills/petagent/references/api-reference.md` when you need a full cross-domain reference. Use this file when you need routine-specific behaviour, payload shape, or policy details.

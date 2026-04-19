@@ -44,8 +44,8 @@ import {
   normalizeAgentUrlKey,
 } from "@petagent/shared";
 import {
-  readPaperclipSkillSyncPreference,
-  writePaperclipSkillSyncPreference,
+  readPetAgentSkillSyncPreference,
+  writePetAgentSkillSyncPreference,
 } from "@petagent/adapter-utils/server-utils";
 import { ensureOpenCodeModelConfiguredAndAvailable } from "@petagent/adapter-opencode-local/server";
 import { findServerAdapter } from "../adapters/index.js";
@@ -136,7 +136,7 @@ function resolveSkillConflictStrategy(mode: ImportMode, collisionStrategy: Compa
 function classifyPortableFileKind(pathValue: string): CompanyPortabilityExportPreviewResult["fileInventory"][number]["kind"] {
   const normalized = normalizePortablePath(pathValue);
   if (normalized === "COMPANY.md") return "company";
-  if (normalized === ".paperclip.yaml" || normalized === ".paperclip.yml") return "extension";
+  if (normalized === ".petagent.yaml" || normalized === ".petagent.yml") return "extension";
   if (normalized === "README.md") return "readme";
   if (normalized.startsWith("agents/")) return "agent";
   if (normalized.startsWith("skills/")) return "skill";
@@ -160,15 +160,15 @@ function normalizeSkillKey(value: string | null | undefined) {
 
 function readSkillKey(frontmatter: Record<string, unknown>) {
   const metadata = isPlainRecord(frontmatter.metadata) ? frontmatter.metadata : null;
-  const paperclip = isPlainRecord(metadata?.paperclip) ? metadata?.paperclip as Record<string, unknown> : null;
+  const petagent = isPlainRecord(metadata?.petagent) ? metadata?.petagent as Record<string, unknown> : null;
   return normalizeSkillKey(
     asString(frontmatter.key)
     ?? asString(frontmatter.skillKey)
     ?? asString(metadata?.skillKey)
     ?? asString(metadata?.canonicalKey)
-    ?? asString(metadata?.paperclipSkillKey)
-    ?? asString(paperclip?.skillKey)
-    ?? asString(paperclip?.key),
+    ?? asString(metadata?.petagentSkillKey)
+    ?? asString(petagent?.skillKey)
+    ?? asString(petagent?.key),
   );
 }
 
@@ -188,8 +188,8 @@ function deriveManifestSkillKey(
   if ((sourceType === "github" || sourceType === "skills_sh" || sourceKind === "github" || sourceKind === "skills_sh") && owner && repo) {
     return `${owner}/${repo}/${slug}`;
   }
-  if (sourceKind === "paperclip_bundled") {
-    return `petagent/paperclip/${slug}`;
+  if (sourceKind === "petagent_bundled") {
+    return `petagent/petagent/${slug}`;
   }
   if (sourceType === "url" || sourceKind === "url") {
     try {
@@ -308,8 +308,8 @@ function deriveSkillExportDirCandidates(
     }
   };
 
-  if (sourceKind === "paperclip_bundled") {
-    pushSuffix("paperclip");
+  if (sourceKind === "petagent_bundled") {
+    pushSuffix("petagent");
   }
 
   if (skill.sourceType === "github" || skill.sourceType === "skills_sh") {
@@ -490,7 +490,7 @@ type CompanyPackageIncludeEntry = {
   path: string;
 };
 
-type PaperclipExtensionDoc = {
+type PetAgentExtensionDoc = {
   schema?: string;
   company?: Record<string, unknown> | null;
   agents?: Record<string, Record<string, unknown>> | null;
@@ -619,7 +619,7 @@ const ADAPTER_DEFAULT_RULES_BY_TYPE: Record<string, Array<{ path: string[]; valu
     { path: ["timeoutSec"], value: 120 },
     { path: ["waitTimeoutMs"], value: 120000 },
     { path: ["sessionKeyStrategy"], value: "fixed" },
-    { path: ["sessionKey"], value: "paperclip" },
+    { path: ["sessionKey"], value: "petagent" },
     { path: ["role"], value: "operator" },
     { path: ["scopes"], value: ["operator.admin"] },
   ],
@@ -1053,11 +1053,11 @@ function buildLegacyRoutineTriggerFromRecurrence(
   const frequency = asString(issue.legacyRecurrence.frequency);
   const interval = asInteger(issue.legacyRecurrence.interval) ?? 1;
   if (!frequency) {
-    errors.push(`Recurring task ${issue.slug} uses legacy recurrence without frequency; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+    errors.push(`Recurring task ${issue.slug} uses legacy recurrence without frequency; add .petagent.yaml routines.${issue.slug}.triggers.`);
     return { trigger: null, warnings, errors };
   }
   if (interval < 1) {
-    errors.push(`Recurring task ${issue.slug} uses legacy recurrence with an invalid interval; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+    errors.push(`Recurring task ${issue.slug} uses legacy recurrence with an invalid interval; add .petagent.yaml routines.${issue.slug}.triggers.`);
     return { trigger: null, warnings, errors };
   }
 
@@ -1065,7 +1065,7 @@ function buildLegacyRoutineTriggerFromRecurrence(
   const startsAt = asString(schedule?.startsAt);
   const zonedStartsAt = startsAt ? readZonedDateParts(startsAt, timezone) : null;
   if (startsAt && !zonedStartsAt) {
-    errors.push(`Recurring task ${issue.slug} has an invalid legacy startsAt/timezone combination; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+    errors.push(`Recurring task ${issue.slug} has an invalid legacy startsAt/timezone combination; add .petagent.yaml routines.${issue.slug}.triggers.`);
     return { trigger: null, warnings, errors };
   }
 
@@ -1073,12 +1073,12 @@ function buildLegacyRoutineTriggerFromRecurrence(
   const hour = asInteger(time?.hour) ?? zonedStartsAt?.hour ?? 0;
   const minute = asInteger(time?.minute) ?? zonedStartsAt?.minute ?? 0;
   if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-    errors.push(`Recurring task ${issue.slug} uses legacy recurrence with an invalid time; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+    errors.push(`Recurring task ${issue.slug} uses legacy recurrence with an invalid time; add .petagent.yaml routines.${issue.slug}.triggers.`);
     return { trigger: null, warnings, errors };
   }
 
   if (issue.legacyRecurrence.until != null || issue.legacyRecurrence.count != null) {
-    warnings.push(`Recurring task ${issue.slug} uses legacy recurrence end bounds; Paperclip will import the routine trigger without those limits.`);
+    warnings.push(`Recurring task ${issue.slug} uses legacy recurrence end bounds; PetAgent will import the routine trigger without those limits.`);
   }
 
   let cronExpression: string | null = null;
@@ -1092,14 +1092,14 @@ function buildLegacyRoutineTriggerFromRecurrence(
     cronExpression = `${minute} ${hourField} * * *`;
   } else if (frequency === "daily") {
     if (Array.isArray(issue.legacyRecurrence.weekdays) || Array.isArray(issue.legacyRecurrence.monthDays) || Array.isArray(issue.legacyRecurrence.months)) {
-      errors.push(`Recurring task ${issue.slug} uses unsupported legacy daily recurrence constraints; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses unsupported legacy daily recurrence constraints; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     const dayField = interval === 1 ? "*" : `*/${interval}`;
     cronExpression = `${minute} ${hour} ${dayField} * *`;
   } else if (frequency === "weekly") {
     if (interval !== 1) {
-      errors.push(`Recurring task ${issue.slug} uses legacy weekly recurrence with interval > 1; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses legacy weekly recurrence with interval > 1; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     const weekdays = Array.isArray(issue.legacyRecurrence.weekdays)
@@ -1114,17 +1114,17 @@ function buildLegacyRoutineTriggerFromRecurrence(
       cronWeekdays.push(zonedStartsAt.weekday);
     }
     if (cronWeekdays.length === 0) {
-      errors.push(`Recurring task ${issue.slug} uses legacy weekly recurrence without weekdays; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses legacy weekly recurrence without weekdays; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     cronExpression = `${minute} ${hour} * * ${normalizeCronList(cronWeekdays)}`;
   } else if (frequency === "monthly") {
     if (interval !== 1) {
-      errors.push(`Recurring task ${issue.slug} uses legacy monthly recurrence with interval > 1; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses legacy monthly recurrence with interval > 1; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     if (Array.isArray(issue.legacyRecurrence.ordinalWeekdays) && issue.legacyRecurrence.ordinalWeekdays.length > 0) {
-      errors.push(`Recurring task ${issue.slug} uses legacy ordinal monthly recurrence; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses legacy ordinal monthly recurrence; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     const monthDays = Array.isArray(issue.legacyRecurrence.monthDays)
@@ -1136,7 +1136,7 @@ function buildLegacyRoutineTriggerFromRecurrence(
       monthDays.push(zonedStartsAt.day);
     }
     if (monthDays.length === 0) {
-      errors.push(`Recurring task ${issue.slug} uses legacy monthly recurrence without monthDays; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses legacy monthly recurrence without monthDays; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     const months = Array.isArray(issue.legacyRecurrence.months)
@@ -1148,7 +1148,7 @@ function buildLegacyRoutineTriggerFromRecurrence(
     cronExpression = `${minute} ${hour} ${normalizeCronList(monthDays.map(String))} ${monthField} *`;
   } else if (frequency === "yearly") {
     if (interval !== 1) {
-      errors.push(`Recurring task ${issue.slug} uses legacy yearly recurrence with interval > 1; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses legacy yearly recurrence with interval > 1; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     const months = Array.isArray(issue.legacyRecurrence.months)
@@ -1168,12 +1168,12 @@ function buildLegacyRoutineTriggerFromRecurrence(
       monthDays.push(zonedStartsAt.day);
     }
     if (months.length === 0 || monthDays.length === 0) {
-      errors.push(`Recurring task ${issue.slug} uses legacy yearly recurrence without month/monthDay anchors; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+      errors.push(`Recurring task ${issue.slug} uses legacy yearly recurrence without month/monthDay anchors; add .petagent.yaml routines.${issue.slug}.triggers.`);
       return { trigger: null, warnings, errors };
     }
     cronExpression = `${minute} ${hour} ${normalizeCronList(monthDays.map(String))} ${normalizeCronList(months.map(String))} *`;
   } else {
-    errors.push(`Recurring task ${issue.slug} uses unsupported legacy recurrence frequency "${frequency}"; add .paperclip.yaml routines.${issue.slug}.triggers.`);
+    errors.push(`Recurring task ${issue.slug} uses unsupported legacy recurrence frequency "${frequency}"; add .petagent.yaml routines.${issue.slug}.triggers.`);
     return { trigger: null, warnings, errors };
   }
 
@@ -1544,7 +1544,7 @@ function filterPortableExtensionYaml(yaml: string, selectedFiles: Set<string>) {
 function filterExportFiles(
   files: Record<string, CompanyPortabilityFileEntry>,
   selectedFilesInput: string[] | undefined,
-  paperclipExtensionPath: string,
+  petagentExtensionPath: string,
 ) {
   if (!selectedFilesInput || selectedFilesInput.length === 0) {
     return files;
@@ -1561,18 +1561,18 @@ function filterExportFiles(
     filtered[filePath] = content;
   }
 
-  const extensionEntry = filtered[paperclipExtensionPath];
-  if (selectedFiles.has(paperclipExtensionPath) && typeof extensionEntry === "string") {
-    filtered[paperclipExtensionPath] = filterPortableExtensionYaml(extensionEntry, selectedFiles);
+  const extensionEntry = filtered[petagentExtensionPath];
+  if (selectedFiles.has(petagentExtensionPath) && typeof extensionEntry === "string") {
+    filtered[petagentExtensionPath] = filterPortableExtensionYaml(extensionEntry, selectedFiles);
   }
 
   return filtered;
 }
 
-function findPaperclipExtensionPath(files: Record<string, CompanyPortabilityFileEntry>) {
-  if (typeof files[".paperclip.yaml"] === "string") return ".paperclip.yaml";
-  if (typeof files[".paperclip.yml"] === "string") return ".paperclip.yml";
-  return Object.keys(files).find((entry) => entry.endsWith("/.paperclip.yaml") || entry.endsWith("/.paperclip.yml")) ?? null;
+function findPetAgentExtensionPath(files: Record<string, CompanyPortabilityFileEntry>) {
+  if (typeof files[".petagent.yaml"] === "string") return ".petagent.yaml";
+  if (typeof files[".petagent.yml"] === "string") return ".petagent.yml";
+  return Object.keys(files).find((entry) => entry.endsWith("/.petagent.yaml") || entry.endsWith("/.petagent.yml")) ?? null;
 }
 
 function ensureMarkdownPath(pathValue: string) {
@@ -1599,7 +1599,7 @@ function normalizePortableConfig(
       key === "instructionsEntryFile" ||
       key === "promptTemplate" ||
       key === "bootstrapPromptTemplate" || // deprecated — kept for backward compat
-      key === "paperclipSkillSync"
+      key === "petagentSkillSync"
     ) continue;
     if (key === "env") continue;
     next[key] = entry;
@@ -1949,15 +1949,15 @@ async function resolveBundledSkillsCommit() {
 
 async function buildSkillSourceEntry(skill: CompanySkill) {
   const metadata = isPlainRecord(skill.metadata) ? skill.metadata : null;
-  if (asString(metadata?.sourceKind) === "paperclip_bundled") {
+  if (asString(metadata?.sourceKind) === "petagent_bundled") {
     const commit = await resolveBundledSkillsCommit();
     return {
       kind: "github-dir",
-      repo: "petagent/paperclip",
+      repo: "petagent/petagent",
       path: `skills/${skill.slug}`,
       commit,
       trackingRef: "master",
-      url: `https://github.com/petagent/paperclip/tree/master/skills/${skill.slug}`,
+      url: `https://github.com/petagent/petagent/tree/master/skills/${skill.slug}`,
     };
   }
 
@@ -1989,7 +1989,7 @@ async function buildSkillSourceEntry(skill: CompanySkill) {
 function shouldReferenceSkillOnExport(skill: CompanySkill, expandReferencedSkills: boolean) {
   if (expandReferencedSkills) return false;
   const metadata = isPlainRecord(skill.metadata) ? skill.metadata : null;
-  if (asString(metadata?.sourceKind) === "paperclip_bundled") return true;
+  if (asString(metadata?.sourceKind) === "petagent_bundled") return true;
   return skill.sourceType === "github" || skill.sourceType === "skills_sh" || skill.sourceType === "url";
 }
 
@@ -2022,9 +2022,9 @@ async function withSkillSourceMetadata(skill: CompanySkill, markdown: string) {
     metadata.sources = [...existingSources, sourceEntry];
   }
   metadata.skillKey = skill.key;
-  metadata.paperclipSkillKey = skill.key;
-  metadata.paperclip = {
-    ...(isPlainRecord(metadata.paperclip) ? metadata.paperclip : {}),
+  metadata.petagentSkillKey = skill.key;
+  metadata.petagent = {
+    ...(isPlainRecord(metadata.petagent) ? metadata.petagent : {}),
     skillKey: skill.key,
     slug: skill.slug,
   };
@@ -2351,16 +2351,16 @@ function buildManifestFromPackageFiles(
   }
   const companyDoc = parseFrontmatterMarkdown(companyMarkdown);
   const companyFrontmatter = companyDoc.frontmatter;
-  const paperclipExtensionPath = findPaperclipExtensionPath(normalizedFiles);
-  const paperclipExtension = paperclipExtensionPath
-    ? parseYamlFile(readPortableTextFile(normalizedFiles, paperclipExtensionPath) ?? "")
+  const petagentExtensionPath = findPetAgentExtensionPath(normalizedFiles);
+  const petagentExtension = petagentExtensionPath
+    ? parseYamlFile(readPortableTextFile(normalizedFiles, petagentExtensionPath) ?? "")
     : {};
-  const paperclipCompany = isPlainRecord(paperclipExtension.company) ? paperclipExtension.company : {};
-  const paperclipSidebar = normalizePortableSidebarOrder(paperclipExtension.sidebar);
-  const paperclipAgents = isPlainRecord(paperclipExtension.agents) ? paperclipExtension.agents : {};
-  const paperclipProjects = isPlainRecord(paperclipExtension.projects) ? paperclipExtension.projects : {};
-  const paperclipTasks = isPlainRecord(paperclipExtension.tasks) ? paperclipExtension.tasks : {};
-  const paperclipRoutines = isPlainRecord(paperclipExtension.routines) ? paperclipExtension.routines : {};
+  const petagentCompany = isPlainRecord(petagentExtension.company) ? petagentExtension.company : {};
+  const petagentSidebar = normalizePortableSidebarOrder(petagentExtension.sidebar);
+  const petagentAgents = isPlainRecord(petagentExtension.agents) ? petagentExtension.agents : {};
+  const petagentProjects = isPlainRecord(petagentExtension.projects) ? petagentExtension.projects : {};
+  const petagentTasks = isPlainRecord(petagentExtension.tasks) ? petagentExtension.tasks : {};
+  const petagentRoutines = isPlainRecord(petagentExtension.routines) ? petagentExtension.routines : {};
   const companyName =
     asString(companyFrontmatter.name)
     ?? opts?.sourceLabel?.companyName
@@ -2415,26 +2415,26 @@ function buildManifestFromPackageFiles(
       path: resolvedCompanyPath,
       name: companyName,
       description: asString(companyFrontmatter.description),
-      brandColor: asString(paperclipCompany.brandColor),
-      logoPath: asString(paperclipCompany.logoPath) ?? asString(paperclipCompany.logo),
+      brandColor: asString(petagentCompany.brandColor),
+      logoPath: asString(petagentCompany.logoPath) ?? asString(petagentCompany.logo),
       requireBoardApprovalForNewAgents:
-        typeof paperclipCompany.requireBoardApprovalForNewAgents === "boolean"
-          ? paperclipCompany.requireBoardApprovalForNewAgents
+        typeof petagentCompany.requireBoardApprovalForNewAgents === "boolean"
+          ? petagentCompany.requireBoardApprovalForNewAgents
           : readCompanyApprovalDefault(companyFrontmatter),
       feedbackDataSharingEnabled:
-        typeof paperclipCompany.feedbackDataSharingEnabled === "boolean"
-          ? paperclipCompany.feedbackDataSharingEnabled
+        typeof petagentCompany.feedbackDataSharingEnabled === "boolean"
+          ? petagentCompany.feedbackDataSharingEnabled
           : false,
       feedbackDataSharingConsentAt:
-        typeof paperclipCompany.feedbackDataSharingConsentAt === "string"
-          ? paperclipCompany.feedbackDataSharingConsentAt
+        typeof petagentCompany.feedbackDataSharingConsentAt === "string"
+          ? petagentCompany.feedbackDataSharingConsentAt
           : null,
       feedbackDataSharingConsentByUserId:
-        asString(paperclipCompany.feedbackDataSharingConsentByUserId),
+        asString(petagentCompany.feedbackDataSharingConsentByUserId),
       feedbackDataSharingTermsVersion:
-        asString(paperclipCompany.feedbackDataSharingTermsVersion),
+        asString(petagentCompany.feedbackDataSharingTermsVersion),
     },
-    sidebar: paperclipSidebar,
+    sidebar: petagentSidebar,
     agents: [],
     skills: [],
     projects: [],
@@ -2456,7 +2456,7 @@ function buildManifestFromPackageFiles(
     const frontmatter = agentDoc.frontmatter;
     const fallbackSlug = normalizeAgentUrlKey(path.posix.basename(path.posix.dirname(agentPath))) ?? "agent";
     const slug = asString(frontmatter.slug) ?? fallbackSlug;
-    const extension = isPlainRecord(paperclipAgents[slug]) ? paperclipAgents[slug] : {};
+    const extension = isPlainRecord(petagentAgents[slug]) ? petagentAgents[slug] : {};
     const extensionAdapter = isPlainRecord(extension.adapter) ? extension.adapter : null;
     const extensionRuntime = isPlainRecord(extension.runtime) ? extension.runtime : null;
     const extensionPermissions = isPlainRecord(extension.permissions) ? extension.permissions : null;
@@ -2595,7 +2595,7 @@ function buildManifestFromPackageFiles(
       projectPath,
     );
     const slug = asString(frontmatter.slug) ?? fallbackSlug;
-    const extension = isPlainRecord(paperclipProjects[slug]) ? paperclipProjects[slug] : {};
+    const extension = isPlainRecord(petagentProjects[slug]) ? petagentProjects[slug] : {};
     const workspaceExtensions = isPlainRecord(extension.workspaces) ? extension.workspaces : {};
     const workspaces = Object.entries(workspaceExtensions)
       .map(([workspaceKey, entry]) => normalizePortableProjectWorkspaceExtension(workspaceKey, entry))
@@ -2633,9 +2633,9 @@ function buildManifestFromPackageFiles(
     const frontmatter = taskDoc.frontmatter;
     const fallbackSlug = normalizeAgentUrlKey(path.posix.basename(path.posix.dirname(taskPath))) ?? "task";
     const slug = asString(frontmatter.slug) ?? fallbackSlug;
-    const extension = isPlainRecord(paperclipTasks[slug]) ? paperclipTasks[slug] : {};
-    const routineExtension = normalizeRoutineExtension(paperclipRoutines[slug]);
-    const routineExtensionRaw = isPlainRecord(paperclipRoutines[slug]) ? paperclipRoutines[slug] : {};
+    const extension = isPlainRecord(petagentTasks[slug]) ? petagentTasks[slug] : {};
+    const routineExtension = normalizeRoutineExtension(petagentRoutines[slug]);
+    const routineExtensionRaw = isPlainRecord(petagentRoutines[slug]) ? petagentRoutines[slug] : {};
     const schedule = isPlainRecord(frontmatter.schedule) ? frontmatter.schedule : null;
     const legacyRecurrence = schedule && isPlainRecord(schedule.recurrence)
       ? schedule.recurrence
@@ -2797,7 +2797,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
     if (mode === "agent_safe" && IMPORT_FORBIDDEN_ADAPTER_TYPES.has(effectiveAdapterType)) {
       throw forbidden(`Adapter type "${effectiveAdapterType}" is not allowed in safe imports`);
     }
-    const nextAdapterConfig = writePaperclipSkillSyncPreference({ ...adapterConfig }, desiredSkills);
+    const nextAdapterConfig = writePetAgentSkillSyncPreference({ ...adapterConfig }, desiredSkills);
     delete nextAdapterConfig.promptTemplate;
     delete nextAdapterConfig.bootstrapPromptTemplate;
     delete nextAdapterConfig.instructionsFilePath;
@@ -2894,8 +2894,8 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         return (
           relative.endsWith(".md") ||
           relative.startsWith("skills/") ||
-          relative === ".paperclip.yaml" ||
-          relative === ".paperclip.yml"
+          relative === ".petagent.yaml" ||
+          relative === ".petagent.yml"
         );
       });
     for (const repoPath of candidatePaths) {
@@ -3176,11 +3176,11 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
       }
     }
 
-    const paperclipAgentsOut: Record<string, Record<string, unknown>> = {};
-    const paperclipProjectsOut: Record<string, Record<string, unknown>> = {};
-    const paperclipTasksOut: Record<string, Record<string, unknown>> = {};
+    const petagentAgentsOut: Record<string, Record<string, unknown>> = {};
+    const petagentProjectsOut: Record<string, Record<string, unknown>> = {};
+    const petagentTasksOut: Record<string, Record<string, unknown>> = {};
     const unportableTaskWorkspaceRefs = new Map<string, { workspaceId: string; taskSlugs: string[] }>();
-    const paperclipRoutinesOut: Record<string, Record<string, unknown>> = {};
+    const petagentRoutinesOut: Record<string, Record<string, unknown>> = {};
 
     const skillByReference = new Map<string, typeof companySkillRows[number]>();
     for (const skill of companySkillRows) {
@@ -3262,7 +3262,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
             .filter((inputValue) => inputValue.agentSlug === slug),
         );
         const reportsToSlug = agent.reportsTo ? (idToSlug.get(agent.reportsTo) ?? null) : null;
-        const desiredSkills = readPaperclipSkillSyncPreference(
+        const desiredSkills = readPetAgentSkillSyncPreference(
           (agent.adapterConfig as Record<string, unknown>) ?? {},
         ).desiredSkills;
 
@@ -3306,7 +3306,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
             env: buildEnvInputMap(agentEnvInputs),
           };
         }
-        paperclipAgentsOut[slug] = isPlainRecord(extension) ? extension : {};
+        petagentAgentsOut[slug] = isPlainRecord(extension) ? extension : {};
       }
     }
 
@@ -3349,7 +3349,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           env: buildEnvInputMap(projectEnvInputs),
         };
       }
-      paperclipProjectsOut[slug] = isPlainRecord(extension) ? extension : {};
+      petagentProjectsOut[slug] = isPlainRecord(extension) ? extension : {};
     }
 
     for (const issue of selectedIssueRows) {
@@ -3391,7 +3391,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         executionWorkspaceSettings: issue.executionWorkspaceSettings ?? undefined,
         assigneeAdapterOverrides: issue.assigneeAdapterOverrides ?? undefined,
       });
-      paperclipTasksOut[taskSlug] = isPlainRecord(extension) ? extension : {};
+      petagentTasksOut[taskSlug] = isPlainRecord(extension) ? extension : {};
     }
 
     for (const { workspaceId, taskSlugs } of unportableTaskWorkspaceRefs.values()) {
@@ -3432,25 +3432,25 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
             : undefined,
         })),
       });
-      paperclipRoutinesOut[taskSlug] = isPlainRecord(extension) ? extension : {};
+      petagentRoutinesOut[taskSlug] = isPlainRecord(extension) ? extension : {};
     }
 
-    const paperclipExtensionPath = ".paperclip.yaml";
-    const paperclipAgents = Object.fromEntries(
-      Object.entries(paperclipAgentsOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
+    const petagentExtensionPath = ".petagent.yaml";
+    const petagentAgents = Object.fromEntries(
+      Object.entries(petagentAgentsOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
     );
-    const paperclipProjects = Object.fromEntries(
-      Object.entries(paperclipProjectsOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
+    const petagentProjects = Object.fromEntries(
+      Object.entries(petagentProjectsOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
     );
-    const paperclipTasks = Object.fromEntries(
-      Object.entries(paperclipTasksOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
+    const petagentTasks = Object.fromEntries(
+      Object.entries(petagentTasksOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
     );
-    const paperclipRoutines = Object.fromEntries(
-      Object.entries(paperclipRoutinesOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
+    const petagentRoutines = Object.fromEntries(
+      Object.entries(petagentRoutinesOut).filter(([, value]) => isPlainRecord(value) && Object.keys(value).length > 0),
     );
-    files[paperclipExtensionPath] = buildYamlFile(
+    files[petagentExtensionPath] = buildYamlFile(
       {
-        schema: "paperclip/v1",
+        schema: "petagent/v1",
         company: stripEmptyValues({
           brandColor: company.brandColor ?? null,
           logoPath: companyLogoPath,
@@ -3461,15 +3461,15 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           feedbackDataSharingTermsVersion: company.feedbackDataSharingTermsVersion ?? null,
         }),
         sidebar: stripEmptyValues(sidebarOrder),
-        agents: Object.keys(paperclipAgents).length > 0 ? paperclipAgents : undefined,
-        projects: Object.keys(paperclipProjects).length > 0 ? paperclipProjects : undefined,
-        tasks: Object.keys(paperclipTasks).length > 0 ? paperclipTasks : undefined,
-        routines: Object.keys(paperclipRoutines).length > 0 ? paperclipRoutines : undefined,
+        agents: Object.keys(petagentAgents).length > 0 ? petagentAgents : undefined,
+        projects: Object.keys(petagentProjects).length > 0 ? petagentProjects : undefined,
+        tasks: Object.keys(petagentTasks).length > 0 ? petagentTasks : undefined,
+        routines: Object.keys(petagentRoutines).length > 0 ? petagentRoutines : undefined,
       },
       { preserveEmptyStrings: true },
     );
 
-    let finalFiles = filterExportFiles(files, input.selectedFiles, paperclipExtensionPath);
+    let finalFiles = filterExportFiles(files, input.selectedFiles, petagentExtensionPath);
     let resolved = buildManifestFromPackageFiles(finalFiles, {
       sourceLabel: {
         companyId: company.id,
@@ -3525,7 +3525,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
       manifest: resolved.manifest,
       files: finalFiles,
       warnings: resolved.warnings,
-      paperclipExtensionPath,
+      petagentExtensionPath,
     };
   }
 

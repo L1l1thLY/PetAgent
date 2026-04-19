@@ -2,13 +2,13 @@
   "name": "@petagent/server",
   "version": "0.3.1",
   "license": "MIT",
-  "homepage": "https://github.com/paperclipai/paperclip",
+  "homepage": "https://github.com/petagentai/petagent",
   "bugs": {
-    "url": "https://github.com/paperclipai/paperclip/issues"
+    "url": "https://github.com/petagentai/petagent/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/paperclipai/paperclip",
+    "url": "https://github.com/petagentai/petagent",
     "directory": "server"
   },
   "type": "module",
@@ -65,7 +65,7 @@
     "drizzle-orm": "^0.38.4",
     "embedded-postgres": "^18.1.0-beta.16",
     "express": "^5.1.0",
-    "hermes-paperclip-adapter": "^0.2.0",
+    "hermes-petagent-adapter": "^0.2.0",
     "jsdom": "^28.1.0",
     "multer": "^2.1.1",
     "open": "^11.0.0",

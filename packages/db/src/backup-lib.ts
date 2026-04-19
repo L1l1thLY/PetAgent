@@ -62,7 +62,7 @@ const DRIZZLE_SCHEMA = "drizzle";
 const DRIZZLE_MIGRATIONS_TABLE = "__drizzle_migrations";
 const DEFAULT_BACKUP_WRITE_BUFFER_BYTES = 1024 * 1024;
 
-const STATEMENT_BREAKPOINT = "-- paperclip statement breakpoint 69f6f3f1-42fd-46a6-bf17-d1d85f8f3900";
+const STATEMENT_BREAKPOINT = "-- petagent statement breakpoint 69f6f3f1-42fd-46a6-bf17-d1d85f8f3900";
 
 function sanitizeRestoreErrorMessage(error: unknown): string {
   if (error && typeof error === "object") {
@@ -178,9 +178,9 @@ function formatBackupSize(sizeBytes: number): string {
 
 function formatSqlLiteral(value: string): string {
   const sanitized = value.replace(/\u0000/g, "");
-  let tag = "$paperclip$";
+  let tag = "$petagent$";
   while (sanitized.includes(tag)) {
-    tag = `$paperclip_${Math.random().toString(36).slice(2, 8)}$`;
+    tag = `$petagent_${Math.random().toString(36).slice(2, 8)}$`;
   }
   return `${tag}${sanitized}${tag}`;
 }
@@ -359,7 +359,7 @@ export function createBufferedTextFileWriter(filePath: string, maxBufferedBytes 
 }
 
 export async function runDatabaseBackup(opts: RunDatabaseBackupOptions): Promise<RunDatabaseBackupResult> {
-  const filenamePrefix = opts.filenamePrefix ?? "paperclip";
+  const filenamePrefix = opts.filenamePrefix ?? "petagent";
   const retention = opts.retention;
   const connectTimeout = Math.max(1, Math.trunc(opts.connectTimeoutSeconds ?? 5));
   const includeMigrationJournal = opts.includeMigrationJournal === true;
@@ -383,7 +383,7 @@ export async function runDatabaseBackup(opts: RunDatabaseBackupOptions): Promise
       emit(STATEMENT_BREAKPOINT);
     };
 
-    emit("-- Paperclip database backup");
+    emit("-- PetAgent database backup");
     emit(`-- Created: ${new Date().toISOString()}`);
     emit("");
     emitStatement("BEGIN;");

@@ -40,7 +40,7 @@ import type { Db } from "@petagent/db";
 import type {
   PluginStatus,
   PluginRecord,
-  PaperclipPluginManifestV1,
+  PetAgentPluginManifestV1,
 } from "@petagent/shared";
 import { pluginRegistryService } from "./plugin-registry.js";
 import { pluginLoader, type PluginLoader } from "./plugin-loader.js";

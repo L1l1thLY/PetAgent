@@ -15,7 +15,7 @@ describe("summarizeHeartbeatRunContextSnapshot", () => {
       wakeReason: "retry_failed_run",
       wakeSource: "on_demand",
       wakeTriggerDetail: "manual",
-      paperclipWake: {
+      petagentWake: {
         comments: [
           {
             body: "x".repeat(50_000),
@@ -42,7 +42,7 @@ describe("summarizeHeartbeatRunContextSnapshot", () => {
   it("returns null when no allowed fields are present", () => {
     expect(
       summarizeHeartbeatRunContextSnapshot({
-        paperclipWake: { comments: [{ body: "hello" }] },
+        petagentWake: { comments: [{ body: "hello" }] },
       }),
     ).toBeNull();
   });

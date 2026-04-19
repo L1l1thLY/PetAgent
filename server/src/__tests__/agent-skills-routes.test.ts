@@ -196,9 +196,9 @@ describe("agent skill routes", () => {
     mockSecretService.resolveAdapterConfigForRuntime.mockResolvedValue({ config: { env: {} } });
     mockCompanySkillService.listRuntimeSkillEntries.mockResolvedValue([
       {
-        key: "petagent/paperclip/paperclip",
-        runtimeName: "paperclip",
-        source: "/tmp/paperclip",
+        key: "petagent/petagent/petagent",
+        runtimeName: "petagent",
+        source: "/tmp/petagent",
         required: true,
         requiredReason: "required",
       },
@@ -206,8 +206,8 @@ describe("agent skill routes", () => {
     mockCompanySkillService.resolveRequestedSkillKeys.mockImplementation(
       async (_companyId: string, requested: string[]) =>
         requested.map((value) =>
-          value === "paperclip"
-            ? "petagent/paperclip/paperclip"
+          value === "petagent"
+            ? "petagent/petagent/petagent"
             : value,
         ),
     );
@@ -215,7 +215,7 @@ describe("agent skill routes", () => {
       adapterType: "claude_local",
       supported: true,
       mode: "ephemeral",
-      desiredSkills: ["petagent/paperclip/paperclip"],
+      desiredSkills: ["petagent/petagent/petagent"],
       entries: [],
       warnings: [],
     });
@@ -223,7 +223,7 @@ describe("agent skill routes", () => {
       adapterType: "claude_local",
       supported: true,
       mode: "ephemeral",
-      desiredSkills: ["petagent/paperclip/paperclip"],
+      desiredSkills: ["petagent/petagent/petagent"],
       entries: [],
       warnings: [],
     });
@@ -279,7 +279,7 @@ describe("agent skill routes", () => {
       expect.objectContaining({
         adapterType: "claude_local",
         config: expect.objectContaining({
-          paperclipRuntimeSkills: expect.any(Array),
+          petagentRuntimeSkills: expect.any(Array),
         }),
       }),
     );
@@ -291,7 +291,7 @@ describe("agent skill routes", () => {
       adapterType: "codex_local",
       supported: true,
       mode: "ephemeral",
-      desiredSkills: ["petagent/paperclip/paperclip"],
+      desiredSkills: ["petagent/petagent/petagent"],
       entries: [],
       warnings: [],
     });
@@ -308,7 +308,7 @@ describe("agent skill routes", () => {
       adapterType: "cursor",
       supported: true,
       mode: "persistent",
-      desiredSkills: ["petagent/paperclip/paperclip"],
+      desiredSkills: ["petagent/petagent/petagent"],
       entries: [],
       warnings: [],
     });
@@ -324,7 +324,7 @@ describe("agent skill routes", () => {
 
     const res = await request(await createApp())
       .post("/api/agents/11111111-1111-4111-8111-111111111111/skills/sync?companyId=company-1")
-      .send({ desiredSkills: ["petagent/paperclip/paperclip"] });
+      .send({ desiredSkills: ["petagent/petagent/petagent"] });
 
     expect(res.status, JSON.stringify(res.body)).toBe(200);
     expect(mockAdapter.syncSkills).toHaveBeenCalled();
@@ -335,15 +335,15 @@ describe("agent skill routes", () => {
 
     const res = await request(await createApp())
       .post("/api/agents/11111111-1111-4111-8111-111111111111/skills/sync?companyId=company-1")
-      .send({ desiredSkills: ["paperclip"] });
+      .send({ desiredSkills: ["petagent"] });
 
     expect(res.status, JSON.stringify(res.body)).toBe(200);
     expect(mockAgentService.update).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         adapterConfig: expect.objectContaining({
-          paperclipSkillSync: expect.objectContaining({
-            desiredSkills: ["petagent/paperclip/paperclip"],
+          petagentSkillSync: expect.objectContaining({
+            desiredSkills: ["petagent/petagent/petagent"],
           }),
         }),
       }),
@@ -358,7 +358,7 @@ describe("agent skill routes", () => {
         name: "QA Agent",
         role: "engineer",
         adapterType: "claude_local",
-        desiredSkills: ["paperclip"],
+        desiredSkills: ["petagent"],
         adapterConfig: {},
       });
 
@@ -367,8 +367,8 @@ describe("agent skill routes", () => {
       "company-1",
       expect.objectContaining({
         adapterConfig: expect.objectContaining({
-          paperclipSkillSync: expect.objectContaining({
-            desiredSkills: ["petagent/paperclip/paperclip"],
+          petagentSkillSync: expect.objectContaining({
+            desiredSkills: ["petagent/petagent/petagent"],
           }),
         }),
       }),
@@ -474,7 +474,7 @@ describe("agent skill routes", () => {
         name: "QA Agent",
         role: "engineer",
         adapterType: "claude_local",
-        desiredSkills: ["paperclip"],
+        desiredSkills: ["petagent"],
         adapterConfig: {},
       });
 
@@ -483,9 +483,9 @@ describe("agent skill routes", () => {
       "company-1",
       expect.objectContaining({
         payload: expect.objectContaining({
-          desiredSkills: ["petagent/paperclip/paperclip"],
+          desiredSkills: ["petagent/petagent/petagent"],
           requestedConfigurationSnapshot: expect.objectContaining({
-            desiredSkills: ["petagent/paperclip/paperclip"],
+            desiredSkills: ["petagent/petagent/petagent"],
           }),
         }),
       }),

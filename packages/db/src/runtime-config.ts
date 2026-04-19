@@ -22,7 +22,7 @@ export type ResolvedDatabaseTarget =
   | {
       mode: "postgres";
       connectionString: string;
-      source: "DATABASE_URL" | "paperclip-env" | "config.database.connectionString";
+      source: "DATABASE_URL" | "petagent-env" | "config.database.connectionString";
       configPath: string;
       envPath: string;
     }
@@ -41,13 +41,13 @@ function expandHomePrefix(value: string): string {
   return value;
 }
 
-function resolvePaperclipHomeDir(): string {
+function resolvePetAgentHomeDir(): string {
   const envHome = process.env.PAPERCLIP_HOME?.trim();
   if (envHome) return path.resolve(expandHomePrefix(envHome));
-  return path.resolve(os.homedir(), ".paperclip");
+  return path.resolve(os.homedir(), ".petagent");
 }
 
-function resolvePaperclipInstanceId(): string {
+function resolvePetAgentInstanceId(): string {
   const raw = process.env.PAPERCLIP_INSTANCE_ID?.trim() || DEFAULT_INSTANCE_ID;
   if (!INSTANCE_ID_RE.test(raw)) {
     throw new Error(`Invalid PAPERCLIP_INSTANCE_ID '${raw}'.`);
@@ -57,15 +57,15 @@ function resolvePaperclipInstanceId(): string {
 
 function resolveDefaultConfigPath(): string {
   return path.resolve(
-    resolvePaperclipHomeDir(),
+    resolvePetAgentHomeDir(),
     "instances",
-    resolvePaperclipInstanceId(),
+    resolvePetAgentInstanceId(),
     CONFIG_BASENAME,
   );
 }
 
 function resolveDefaultEmbeddedPostgresDir(): string {
-  return path.resolve(resolvePaperclipHomeDir(), "instances", resolvePaperclipInstanceId(), "db");
+  return path.resolve(resolvePetAgentHomeDir(), "instances", resolvePetAgentInstanceId(), "db");
 }
 
 function resolveHomeAwarePath(value: string): string {
@@ -76,7 +76,7 @@ function findConfigFileFromAncestors(startDir: string): string | null {
   let currentDir = path.resolve(startDir);
 
   while (true) {
-    const candidate = path.resolve(currentDir, ".paperclip", CONFIG_BASENAME);
+    const candidate = path.resolve(currentDir, ".petagent", CONFIG_BASENAME);
     if (existsSync(candidate)) return candidate;
 
     const nextDir = path.resolve(currentDir, "..");
@@ -85,14 +85,14 @@ function findConfigFileFromAncestors(startDir: string): string | null {
   }
 }
 
-function resolvePaperclipConfigPath(): string {
+function resolvePetAgentConfigPath(): string {
   if (process.env.PAPERCLIP_CONFIG?.trim()) {
     return path.resolve(process.env.PAPERCLIP_CONFIG.trim());
   }
   return findConfigFileFromAncestors(process.cwd()) ?? resolveDefaultConfigPath();
 }
 
-function resolvePaperclipEnvPath(configPath: string): string {
+function resolvePetAgentEnvPath(configPath: string): string {
   return path.resolve(path.dirname(configPath), ENV_BASENAME);
 }
 
@@ -213,8 +213,8 @@ function readConfig(configPath: string): PartialConfig | null {
 }
 
 export function resolveDatabaseTarget(): ResolvedDatabaseTarget {
-  const configPath = resolvePaperclipConfigPath();
-  const envPath = resolvePaperclipEnvPath(configPath);
+  const configPath = resolvePetAgentConfigPath();
+  const envPath = resolvePetAgentEnvPath(configPath);
   const envEntries = readEnvEntries(envPath);
 
   const envUrl = process.env.DATABASE_URL?.trim();
@@ -233,7 +233,7 @@ export function resolveDatabaseTarget(): ResolvedDatabaseTarget {
     return {
       mode: "postgres",
       connectionString: fileEnvUrl,
-      source: "paperclip-env",
+      source: "petagent-env",
       configPath,
       envPath,
     };

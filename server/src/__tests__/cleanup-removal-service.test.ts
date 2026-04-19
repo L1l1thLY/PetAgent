@@ -34,7 +34,7 @@ describeEmbeddedPostgres("cleanup removal services", () => {
   let tempDb: Awaited<ReturnType<typeof startEmbeddedPostgresTestDatabase>> | null = null;
 
   beforeAll(async () => {
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-cleanup-removal-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-cleanup-removal-");
     db = createDb(tempDb.connectionString);
   }, 20_000);
 
@@ -63,7 +63,7 @@ describeEmbeddedPostgres("cleanup removal services", () => {
 
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix,
       requireBoardApprovalForNewAgents: false,
     });
@@ -159,10 +159,10 @@ describeEmbeddedPostgres("cleanup removal services", () => {
     await db.insert(companySkills).values({
       id: randomUUID(),
       companyId,
-      key: "petagent/paperclip/paperclip",
-      slug: "paperclip",
-      name: "Paperclip",
-      markdown: "# Paperclip",
+      key: "petagent/petagent/petagent",
+      slug: "petagent",
+      name: "PetAgent",
+      markdown: "# PetAgent",
     });
 
     await db.insert(activityLog).values({

@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "@petagent/db";
 import { companySkills } from "@petagent/db";
-import { readPaperclipSkillSyncPreference } from "@petagent/adapter-utils/server-utils";
-import type { PaperclipSkillEntry } from "@petagent/adapter-utils/server-utils";
+import { readPetAgentSkillSyncPreference } from "@petagent/adapter-utils/server-utils";
+import type { PetAgentSkillEntry } from "@petagent/adapter-utils/server-utils";
 import type {
   CompanySkill,
   CompanySkillCreateRequest,
@@ -28,7 +28,7 @@ import type {
 } from "@petagent/shared";
 import { normalizeAgentUrlKey } from "@petagent/shared";
 import { findActiveServerAdapter } from "../adapters/index.js";
-import { resolvePaperclipInstanceRoot } from "../home-paths.js";
+import { resolvePetAgentInstanceRoot } from "../home-paths.js";
 import { notFound, unprocessable } from "../errors.js";
 import { ghFetch, gitHubApiBase, resolveRawGitHubUrl } from "./github-fetch.js";
 import { agentService } from "./agents.js";
@@ -276,7 +276,7 @@ function uniqueImportedSkillKey(companyId: string, baseSlug: string, usedKeys: S
 }
 
 function buildSkillRuntimeName(key: string, slug: string) {
-  if (key.startsWith("petagent/paperclip/")) return slug;
+  if (key.startsWith("petagent/petagent/")) return slug;
   return `${slug}--${hashSkillValue(key)}`;
 }
 
@@ -286,13 +286,13 @@ function readCanonicalSkillKey(frontmatter: Record<string, unknown>, metadata: R
     ?? asString(frontmatter.skillKey)
     ?? asString(metadata?.skillKey)
     ?? asString(metadata?.canonicalKey)
-    ?? asString(metadata?.paperclipSkillKey),
+    ?? asString(metadata?.petagentSkillKey),
   );
   if (direct) return direct;
-  const paperclip = isPlainRecord(metadata?.paperclip) ? metadata?.paperclip as Record<string, unknown> : null;
+  const petagent = isPlainRecord(metadata?.petagent) ? metadata?.petagent as Record<string, unknown> : null;
   return normalizeSkillKey(
-    asString(paperclip?.skillKey)
-    ?? asString(paperclip?.key),
+    asString(petagent?.skillKey)
+    ?? asString(petagent?.key),
   );
 }
 
@@ -306,8 +306,8 @@ function deriveCanonicalSkillKey(
   if (explicitKey) return explicitKey;
 
   const sourceKind = asString(metadata?.sourceKind);
-  if (sourceKind === "paperclip_bundled") {
-    return `petagent/paperclip/${slug}`;
+  if (sourceKind === "petagent_bundled") {
+    return `petagent/petagent/${slug}`;
   }
 
   const owner = normalizeSkillSlug(asString(metadata?.owner));
@@ -1311,7 +1311,7 @@ function resolveDesiredSkillKeys(
   skills: SkillReferenceTarget[],
   config: Record<string, unknown>,
 ) {
-  const preference = readPaperclipSkillSyncPreference(config);
+  const preference = readPetAgentSkillSyncPreference(config);
   return Array.from(new Set(
     preference.desiredSkills
       .map((reference) => resolveSkillReference(skills, reference).skill?.key ?? normalizeSkillKey(reference))
@@ -1358,7 +1358,7 @@ export async function findMissingLocalSkillIds(
 }
 
 function resolveManagedSkillsRoot(companyId: string) {
-  return path.resolve(resolvePaperclipInstanceRoot(), "skills", companyId);
+  return path.resolve(resolvePetAgentInstanceRoot(), "skills", companyId);
 }
 
 function resolveLocalSkillFilePath(skill: CompanySkill, relativePath: string) {
@@ -1404,12 +1404,12 @@ function deriveSkillSourceInfo(skill: SkillSourceInfoTarget): {
 } {
   const metadata = getSkillMeta(skill);
   const localSkillDir = normalizeSkillDirectory(skill);
-  if (metadata.sourceKind === "paperclip_bundled") {
+  if (metadata.sourceKind === "petagent_bundled") {
     return {
       editable: false,
-      editableReason: "Bundled Paperclip skills are read-only.",
-      sourceLabel: "Paperclip bundled",
-      sourceBadge: "paperclip",
+      editableReason: "Bundled PetAgent skills are read-only.",
+      sourceLabel: "PetAgent bundled",
+      sourceBadge: "petagent",
       sourcePath: null,
     };
   }
@@ -1457,8 +1457,8 @@ function deriveSkillSourceInfo(skill: SkillSourceInfoTarget): {
       return {
         editable: true,
         editableReason: null,
-        sourceLabel: "Paperclip workspace",
-        sourceBadge: "paperclip",
+        sourceLabel: "PetAgent workspace",
+        sourceBadge: "petagent",
         sourcePath: managedRoot,
       };
     }
@@ -1536,12 +1536,12 @@ export function companySkillService(db: Db) {
             ...skill,
             metadata: {
               ...(skill.metadata ?? {}),
-              sourceKind: "paperclip_bundled",
+              sourceKind: "petagent_bundled",
             },
           }),
           metadata: {
             ...(skill.metadata ?? {}),
-            sourceKind: "paperclip_bundled",
+            sourceKind: "petagent_bundled",
           },
         })))
         .catch(() => [] as ImportedSkill[]);
@@ -1681,7 +1681,7 @@ export function companySkillService(db: Db) {
               adapterType: agent.adapterType,
               config: {
                 ...runtimeConfig,
-                paperclipRuntimeSkills: runtimeSkillEntries,
+                petagentRuntimeSkills: runtimeSkillEntries,
               },
             });
             actualState = snapshot.entries.find((entry) => entry.key === key)?.state
@@ -2144,10 +2144,10 @@ export function companySkillService(db: Db) {
   async function listRuntimeSkillEntries(
     companyId: string,
     options: RuntimeSkillEntryOptions = {},
-  ): Promise<PaperclipSkillEntry[]> {
+  ): Promise<PetAgentSkillEntry[]> {
     const skills = await listFull(companyId);
 
-    const out: PaperclipSkillEntry[] = [];
+    const out: PetAgentSkillEntry[] = [];
     for (const skill of skills) {
       const sourceKind = asString(getSkillMeta(skill).sourceKind);
       let source = normalizeSkillDirectory(skill);
@@ -2158,14 +2158,14 @@ export function companySkillService(db: Db) {
       }
       if (!source) continue;
 
-      const required = sourceKind === "paperclip_bundled";
+      const required = sourceKind === "petagent_bundled";
       out.push({
         key: skill.key,
         runtimeName: buildSkillRuntimeName(skill.key, skill.slug),
         source,
         required,
         requiredReason: required
-          ? "Bundled Paperclip skills are always available for local adapters."
+          ? "Bundled PetAgent skills are always available for local adapters."
           : null,
       });
     }
@@ -2306,10 +2306,10 @@ export function companySkillService(db: Db) {
       const incomingKind = asString(incomingMeta.sourceKind);
       if (
         existing
-        && existingMeta.sourceKind === "paperclip_bundled"
+        && existingMeta.sourceKind === "petagent_bundled"
         && incomingKind === "github"
         && incomingOwner === "petagent"
-        && incomingRepo === "paperclip"
+        && incomingRepo === "petagent"
       ) {
         out.push(existing);
         continue;

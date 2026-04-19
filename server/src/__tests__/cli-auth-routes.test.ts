@@ -113,14 +113,14 @@ describe("cli auth routes", () => {
     const app = await createApp({ type: "none", source: "none" });
     const [indexRes, skillRes] = await Promise.all([
       request(app).get("/api/skills/index"),
-      request(app).get("/api/skills/paperclip"),
+      request(app).get("/api/skills/petagent"),
     ]);
 
     expect(indexRes.status).toBe(401);
     expect(skillRes.status).toBe(401);
   });
 
-  it("serves the invite-scoped paperclip skill anonymously for active invites", async () => {
+  it("serves the invite-scoped petagent skill anonymously for active invites", async () => {
     const invite = {
       id: "invite-1",
       companyId: "company-1",
@@ -144,11 +144,11 @@ describe("cli auth routes", () => {
     };
 
     const app = await createApp({ type: "none", source: "none" }, db);
-    const res = await request(app).get("/api/invites/token-123/skills/paperclip");
+    const res = await request(app).get("/api/invites/token-123/skills/petagent");
 
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toContain("text/markdown");
-    expect(res.text).toContain("# Paperclip Skill");
+    expect(res.text).toContain("# PetAgent Skill");
   });
 
   it("marks challenge status as requiring sign-in for anonymous viewers", async () => {

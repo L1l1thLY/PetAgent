@@ -2,7 +2,7 @@
 
 ## Role of This Document
 
-This document translates [workspace-product-model-and-work-product.md](/Users/dotta/paperclip-subissues/doc/plans/workspace-product-model-and-work-product.md) into an implementation-ready engineering plan.
+This document translates [workspace-product-model-and-work-product.md](/Users/dotta/petagent-subissues/doc/plans/workspace-product-model-and-work-product.md) into an implementation-ready engineering plan.
 
 It is intentionally concrete:
 
@@ -106,9 +106,9 @@ Purpose:
 ### Semantics
 
 - `local`
-  - Paperclip may create host-local worktrees, processes, and paths
+  - PetAgent may create host-local worktrees, processes, and paths
 - `cloud`
-  - Paperclip should assume no durable host-local execution workspace management
+  - PetAgent should assume no durable host-local execution workspace management
   - adapter-managed and cloud-sandbox flows should be treated as first-class
 - `hybrid`
   - both local and remote execution strategies may exist
@@ -264,7 +264,7 @@ Create a new durable table for outputs.
 - `type text not null`
   - `preview_url | runtime_service | pull_request | branch | commit | artifact | document`
 - `provider text not null`
-  - `paperclip | github | vercel | s3 | custom`
+  - `petagent | github | vercel | s3 | custom`
 - `external_id text null`
 - `title text not null`
 - `url text null`

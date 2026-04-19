@@ -3,15 +3,15 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { onboard } from "../commands/onboard.js";
-import type { PaperclipConfig } from "../config/schema.js";
+import type { PetAgentConfig } from "../config/schema.js";
 
 const ORIGINAL_ENV = { ...process.env };
 
 function createExistingConfigFixture() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "paperclip-onboard-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "petagent-onboard-"));
   const runtimeRoot = path.join(root, "runtime");
-  const configPath = path.join(root, ".paperclip", "config.json");
-  const config: PaperclipConfig = {
+  const configPath = path.join(root, ".petagent", "config.json");
+  const config: PetAgentConfig = {
     $meta: {
       version: 1,
       updatedAt: "2026-03-29T00:00:00.000Z",
@@ -53,7 +53,7 @@ function createExistingConfigFixture() {
         baseDir: path.join(runtimeRoot, "storage"),
       },
       s3: {
-        bucket: "paperclip",
+        bucket: "petagent",
         region: "us-east-1",
         prefix: "",
         forcePathStyle: false,
@@ -75,8 +75,8 @@ function createExistingConfigFixture() {
 }
 
 function createFreshConfigPath() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "paperclip-onboard-fresh-"));
-  return path.join(root, ".paperclip", "config.json");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "petagent-onboard-fresh-"));
+  return path.join(root, ".petagent", "config.json");
 }
 
 describe("onboard", () => {
@@ -118,7 +118,7 @@ describe("onboard", () => {
 
     await onboard({ config: configPath, yes: true, invokedByRun: true });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PaperclipConfig;
+    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PetAgentConfig;
     expect(raw.server.deploymentMode).toBe("local_trusted");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("loopback");
@@ -131,7 +131,7 @@ describe("onboard", () => {
 
     await onboard({ config: configPath, yes: true, invokedByRun: true, bind: "tailnet" });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PaperclipConfig;
+    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PetAgentConfig;
     expect(raw.server.deploymentMode).toBe("authenticated");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("tailnet");
@@ -144,7 +144,7 @@ describe("onboard", () => {
 
     await onboard({ config: configPath, yes: true, invokedByRun: true, bind: "tailnet" });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PaperclipConfig;
+    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PetAgentConfig;
     expect(raw.server.deploymentMode).toBe("authenticated");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("tailnet");
@@ -157,7 +157,7 @@ describe("onboard", () => {
 
     await onboard({ config: configPath, yes: true, invokedByRun: true });
 
-    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PaperclipConfig;
+    const raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as PetAgentConfig;
     expect(raw.server.deploymentMode).toBe("local_trusted");
     expect(raw.server.exposure).toBe("private");
     expect(raw.server.bind).toBe("loopback");

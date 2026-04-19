@@ -33,7 +33,7 @@ import type {
 } from "@petagent/shared";
 import type { ActiveRunForIssue, LiveRunForIssue } from "../api/heartbeats";
 import { useLiveRunTranscripts } from "./transcript/useLiveRunTranscripts";
-import { usePaperclipIssueRuntime, type PaperclipIssueRuntimeReassignment } from "../hooks/usePaperclipIssueRuntime";
+import { usePetAgentIssueRuntime, type PetAgentIssueRuntimeReassignment } from "../hooks/usePetAgentIssueRuntime";
 import {
   buildIssueChatMessages,
   formatDurationWords,
@@ -89,7 +89,7 @@ import { cn, formatDateTime, formatShortDate } from "../lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, ArrowRight, Brain, Check, ChevronDown, Copy, Hammer, Loader2, MoreHorizontal, Paperclip, Search, Square, ThumbsDown, ThumbsUp } from "lucide-react";
+import { AlertTriangle, ArrowRight, Brain, Check, ChevronDown, Copy, Hammer, Loader2, MoreHorizontal, PetAgent, Search, Square, ThumbsDown, ThumbsUp } from "lucide-react";
 
 interface IssueChatMessageContext {
   feedbackVoteByTargetId: Map<string, FeedbackVoteValue>;
@@ -430,7 +430,7 @@ function clearDraft(draftKey: string) {
   }
 }
 
-function parseReassignment(target: string): PaperclipIssueRuntimeReassignment | null {
+function parseReassignment(target: string): PetAgentIssueRuntimeReassignment | null {
   if (!target || target === "__none__") {
     return { assigneeAgentId: null, assigneeUserId: null };
   }
@@ -1472,7 +1472,7 @@ function IssueChatFeedbackButtons({
           <DialogHeader>
             <DialogTitle>Save your feedback sharing preference</DialogTitle>
             <DialogDescription>
-              Choose whether voted AI outputs can be shared with Paperclip Labs. This
+              Choose whether voted AI outputs can be shared with PetAgent Labs. This
               answer becomes the default for future thumbs up and thumbs down votes.
             </DialogDescription>
           </DialogHeader>
@@ -1858,7 +1858,7 @@ const IssueChatComposer = forwardRef<IssueChatComposerHandle, IssueChatComposerP
               disabled={attaching}
               title="Attach image"
             >
-              <Paperclip className="h-4 w-4" />
+              <PetAgent className="h-4 w-4" />
             </Button>
           </div>
         ) : null}
@@ -2059,7 +2059,7 @@ export function IssueChatThread({
     return map;
   }, [feedbackVotes]);
 
-  const runtime = usePaperclipIssueRuntime({
+  const runtime = usePetAgentIssueRuntime({
     messages,
     isRunning,
     onSend: ({ body, reopen, reassignment }) => onAdd(body, reopen, reassignment),

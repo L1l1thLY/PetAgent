@@ -178,7 +178,7 @@ function isLinkedGitWorktreeCheckout(rootDir: string) {
 
 function discoverWorkspacePackagePaths(rootDir: string): Map<string, string> {
   const packagePaths = new Map<string, string>();
-  const ignoredDirNames = new Set([".git", ".paperclip", "dist", "node_modules"]);
+  const ignoredDirNames = new Set([".git", ".petagent", "dist", "node_modules"]);
 
   function visit(dirPath: string) {
     if (!existsSync(dirPath)) return;
@@ -393,7 +393,7 @@ function sanitizeBranchName(value: string): string {
     .replace(/[^A-Za-z0-9._/-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^[-/.]+|[-/.]+$/g, "")
-    .slice(0, 120) || "paperclip-work";
+    .slice(0, 120) || "petagent-work";
 }
 
 function isAbsolutePath(value: string) {
@@ -1010,7 +1010,7 @@ export async function realizeExecutionWorkspace(input: {
   const configuredParentDir = asString(rawStrategy.worktreeParentDir, "");
   const worktreeParentDir = configuredParentDir
     ? resolveConfiguredPath(configuredParentDir, repoRoot)
-    : path.join(repoRoot, ".paperclip", "worktrees");
+    : path.join(repoRoot, ".petagent", "worktrees");
   const worktreePath = path.join(worktreeParentDir, branchName);
   const configuredBaseRef = typeof rawStrategy.baseRef === "string" && rawStrategy.baseRef.length > 0
     ? rawStrategy.baseRef
@@ -2713,7 +2713,7 @@ export async function restartDesiredRuntimeServicesOnStartup(db: Db) {
     try {
       const refs = await startRuntimeServicesForWorkspaceControl({
         db,
-        actor: { id: null, name: "Paperclip", companyId: row.companyId },
+        actor: { id: null, name: "PetAgent", companyId: row.companyId },
         issue: null,
         workspace: {
           baseCwd: row.cwd,
@@ -2761,7 +2761,7 @@ export async function restartDesiredRuntimeServicesOnStartup(db: Db) {
     try {
       const refs = await startRuntimeServicesForWorkspaceControl({
         db,
-        actor: { id: null, name: "Paperclip", companyId: row.companyId },
+        actor: { id: null, name: "PetAgent", companyId: row.companyId },
         issue: row.sourceIssueId
           ? {
               id: row.sourceIssueId,

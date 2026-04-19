@@ -4,11 +4,11 @@ import os from "node:os";
 import path from "node:path";
 import { createHash, type Hash } from "node:crypto";
 import type { AdapterExecutionContext } from "@petagent/adapter-utils";
-import { ensurePaperclipSkillSymlink, type PaperclipSkillEntry } from "@petagent/adapter-utils/server-utils";
+import { ensurePetAgentSkillSymlink, type PetAgentSkillEntry } from "@petagent/adapter-utils/server-utils";
 
 const DEFAULT_PAPERCLIP_INSTANCE_ID = "default";
 
-type SkillEntry = PaperclipSkillEntry;
+type SkillEntry = PetAgentSkillEntry;
 
 export interface ClaudePromptBundle {
   bundleKey: string;
@@ -25,10 +25,10 @@ function resolveManagedClaudePromptCacheRoot(
   env: NodeJS.ProcessEnv,
   companyId: string,
 ): string {
-  const paperclipHome = nonEmpty(env.PAPERCLIP_HOME) ?? path.resolve(os.homedir(), ".paperclip");
+  const petagentHome = nonEmpty(env.PAPERCLIP_HOME) ?? path.resolve(os.homedir(), ".petagent");
   const instanceId = nonEmpty(env.PAPERCLIP_INSTANCE_ID) ?? DEFAULT_PAPERCLIP_INSTANCE_ID;
   return path.resolve(
-    paperclipHome,
+    petagentHome,
     "instances",
     instanceId,
     "companies",
@@ -88,7 +88,7 @@ async function buildClaudePromptBundleKey(input: {
   instructionsContents: string | null;
 }): Promise<string> {
   const hash = createHash("sha256");
-  hash.update("paperclip-claude-prompt-bundle:v1\n");
+  hash.update("petagent-claude-prompt-bundle:v1\n");
   if (input.instructionsContents) {
     hash.update("instructions\n");
     hash.update(input.instructionsContents);
@@ -147,11 +147,11 @@ export async function prepareClaudePromptBundle(input: {
   for (const entry of skills) {
     const target = path.join(skillsHome, entry.runtimeName);
     try {
-      await ensurePaperclipSkillSymlink(entry.source, target);
+      await ensurePetAgentSkillSymlink(entry.source, target);
     } catch (err) {
       await onLog(
         "stderr",
-        `[paperclip] Failed to materialize Claude skill "${entry.key}" into ${skillsHome}: ${err instanceof Error ? err.message : String(err)}\n`,
+        `[petagent] Failed to materialize Claude skill "${entry.key}" into ${skillsHome}: ${err instanceof Error ? err.message : String(err)}\n`,
       );
     }
   }

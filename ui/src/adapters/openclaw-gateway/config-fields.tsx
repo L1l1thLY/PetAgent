@@ -134,19 +134,19 @@ export function OpenClawGatewayConfigFields({
 
       {!isCreate && (
         <>
-          <Field label="Paperclip API URL override">
+          <Field label="PetAgent API URL override">
             <DraftInput
               value={
                 eff(
                   "adapterConfig",
-                  "paperclipApiUrl",
-                  String(config.paperclipApiUrl ?? ""),
+                  "petagentApiUrl",
+                  String(config.petagentApiUrl ?? ""),
                 )
               }
-              onCommit={(v) => mark("adapterConfig", "paperclipApiUrl", v || undefined)}
+              onCommit={(v) => mark("adapterConfig", "petagentApiUrl", v || undefined)}
               immediate
               className={inputClass}
-              placeholder="https://paperclip.example"
+              placeholder="https://petagent.example"
             />
           </Field>
 
@@ -156,7 +156,7 @@ export function OpenClawGatewayConfigFields({
               onCommit={(v) => mark("adapterConfig", "claimedApiKeyPath", v || undefined)}
               immediate
               className={inputClass}
-              placeholder="~/.openclaw/workspace/paperclip-claimed-api-key.json"
+              placeholder="~/.openclaw/workspace/petagent-claimed-api-key.json"
             />
           </Field>
 
@@ -175,11 +175,11 @@ export function OpenClawGatewayConfigFields({
           {sessionStrategy === "fixed" && (
             <Field label="Session key">
               <DraftInput
-                value={eff("adapterConfig", "sessionKey", String(config.sessionKey ?? "paperclip"))}
+                value={eff("adapterConfig", "sessionKey", String(config.sessionKey ?? "petagent"))}
                 onCommit={(v) => mark("adapterConfig", "sessionKey", v || undefined)}
                 immediate
                 className={inputClass}
-                placeholder="paperclip"
+                placeholder="petagent"
               />
             </Field>
           )}
@@ -236,7 +236,7 @@ export function OpenClawGatewayConfigFields({
 
           <Field label="Device auth">
             <div className="text-xs text-muted-foreground leading-relaxed">
-              Always enabled for gateway agents. Paperclip persists a device key during onboarding so pairing approvals
+              Always enabled for gateway agents. PetAgent persists a device key during onboarding so pairing approvals
               remain stable across runs.
             </div>
           </Field>

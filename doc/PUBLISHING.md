@@ -1,6 +1,6 @@
 # Publishing to npm
 
-Low-level reference for how Paperclip packages are prepared and published to npm.
+Low-level reference for how PetAgent packages are prepared and published to npm.
 
 For the maintainer workflow, use [doc/RELEASING.md](RELEASING.md). This document focuses on packaging internals.
 
@@ -13,15 +13,15 @@ Use these scripts:
 - [`scripts/rollback-latest.sh`](../scripts/rollback-latest.sh) to repoint `latest`
 - [`scripts/build-npm.sh`](../scripts/build-npm.sh) for the CLI packaging build
 
-Paperclip no longer uses release branches or Changesets for publishing.
+PetAgent no longer uses release branches or Changesets for publishing.
 
 ## Why the CLI needs special packaging
 
-The CLI package, `paperclipai`, imports code from workspace packages such as:
+The CLI package, `petagentai`, imports code from workspace packages such as:
 
-- `@paperclipai/server`
-- `@paperclipai/db`
-- `@paperclipai/shared`
+- `@petagentai/server`
+- `@petagentai/db`
+- `@petagentai/shared`
 - adapter packages under `packages/adapters/`
 
 Those workspace references are valid in development but not in a publishable npm package. The release flow rewrites versions temporarily, then builds a publishable CLI bundle.
@@ -64,7 +64,7 @@ The version rewrite step now uses [`scripts/release-package-map.mjs`](../scripts
 
 Those rewrites are temporary. The working tree is restored after publish or dry-run.
 
-## `@paperclipai/ui` packaging
+## `@petagentai/ui` packaging
 
 The UI package publishes prebuilt static assets, not the source workspace.
 
@@ -76,20 +76,20 @@ The `ui` package uses [`scripts/generate-ui-package-json.mjs`](../scripts/genera
 
 After packing or publishing, `postpack` restores the development manifest automatically.
 
-### Manual first publish for `@paperclipai/ui`
+### Manual first publish for `@petagentai/ui`
 
 If you need to publish only the UI package once by hand, use the real package name:
 
-- `@paperclipai/ui`
+- `@petagentai/ui`
 
 Recommended flow from the repo root:
 
 ```bash
 # optional sanity check: this 404s until the first publish exists
-npm view @paperclipai/ui version
+npm view @petagentai/ui version
 
 # make sure the dist payload is fresh
-pnpm --filter @paperclipai/ui build
+pnpm --filter @petagentai/ui build
 
 # confirm your local npm auth before the real publish
 npm whoami
@@ -106,18 +106,18 @@ Notes:
 
 - Publish from `ui/`, not the repo root.
 - `prepack` automatically rewrites `ui/package.json` to the lean publish manifest, and `postpack` restores the dev manifest after the command finishes.
-- If `npm view @paperclipai/ui version` already returns the same version that is in [`ui/package.json`](../ui/package.json), do not republish. Bump the version or use the normal repo-wide release flow in [`scripts/release.sh`](../scripts/release.sh).
+- If `npm view @petagentai/ui version` already returns the same version that is in [`ui/package.json`](../ui/package.json), do not republish. Bump the version or use the normal repo-wide release flow in [`scripts/release.sh`](../scripts/release.sh).
 
 If the first real publish returns npm `E404`, check npm-side prerequisites before retrying:
 
 - `npm whoami` must succeed first. An expired or missing npm login will block the publish.
-- For an organization-scoped package like `@paperclipai/ui`, the `paperclipai` npm organization must exist and the publisher must be a member with permission to publish to that scope.
+- For an organization-scoped package like `@petagentai/ui`, the `petagentai` npm organization must exist and the publisher must be a member with permission to publish to that scope.
 - The initial publish must include `--access public` for a public scoped package.
 - npm also requires either account 2FA for publishing or a granular token that is allowed to bypass 2FA.
 
 ## Version formats
 
-Paperclip uses calendar versions:
+PetAgent uses calendar versions:
 
 - stable: `YYYY.MDD.P`
 - canary: `YYYY.MDD.P-canary.N`
@@ -135,12 +135,12 @@ Canaries publish under the npm dist-tag `canary`.
 
 Example:
 
-- `paperclipai@2026.318.1-canary.2`
+- `petagentai@2026.318.1-canary.2`
 
 This keeps the default install path unchanged while allowing explicit installs with:
 
 ```bash
-npx paperclipai@canary onboard
+npx petagentai@canary onboard
 ```
 
 ### Stable
@@ -149,7 +149,7 @@ Stable publishes use the npm dist-tag `latest`.
 
 Example:
 
-- `paperclipai@2026.318.0`
+- `petagentai@2026.318.0`
 
 Stable publishes do not create a release commit. Instead:
 

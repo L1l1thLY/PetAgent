@@ -24,7 +24,7 @@ OPENCLAW_METHOD="${OPENCLAW_METHOD:-POST}"
 OPENCLAW_AUTH_HEADER="${OPENCLAW_AUTH_HEADER:-}"
 OPENCLAW_TIMEOUT_SEC="${OPENCLAW_TIMEOUT_SEC:-180}"
 OPENCLAW_MODEL="${OPENCLAW_MODEL:-openclaw}"
-OPENCLAW_USER="${OPENCLAW_USER:-paperclip-smoke}"
+OPENCLAW_USER="${OPENCLAW_USER:-petagent-smoke}"
 
 PAPERCLIP_RUN_ID="${PAPERCLIP_RUN_ID:-smoke-run-$(date +%s)}"
 PAPERCLIP_AGENT_ID="${PAPERCLIP_AGENT_ID:-openclaw-smoke-agent}"
@@ -54,7 +54,7 @@ PAPERCLIP_APPROVAL_ID=${PAPERCLIP_APPROVAL_ID}
 PAPERCLIP_APPROVAL_STATUS=${PAPERCLIP_APPROVAL_STATUS}
 PAPERCLIP_LINKED_ISSUE_IDS=${PAPERCLIP_LINKED_ISSUE_IDS}
 
-Run your Paperclip heartbeat procedure now.
+Run your PetAgent heartbeat procedure now.
 EOF
 
 PAYLOAD="$(jq -nc \
@@ -87,7 +87,7 @@ PAYLOAD="$(jq -nc \
       PAPERCLIP_APPROVAL_ID: $approvalId,
       PAPERCLIP_APPROVAL_STATUS: $approvalStatus,
       PAPERCLIP_LINKED_ISSUE_IDS: $linkedIssueIds,
-      paperclip_session_key: ("paperclip:run:" + $runId)
+      petagent_session_key: ("petagent:run:" + $runId)
     }
   }')"
 
@@ -105,7 +105,7 @@ args=(
   -X "$OPENCLAW_METHOD"
   -H "content-type: application/json"
   -H "accept: text/event-stream"
-  -H "x-openclaw-session-key: paperclip:run:${PAPERCLIP_RUN_ID}"
+  -H "x-openclaw-session-key: petagent:run:${PAPERCLIP_RUN_ID}"
   -D "$headers_file"
   -o "$body_file"
   --data "$PAYLOAD"

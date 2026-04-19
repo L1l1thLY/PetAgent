@@ -2,7 +2,7 @@
  * JSON-file-backed store for external adapter registrations.
  *
  * Stores metadata about externally installed adapter packages at
- * ~/.paperclip/adapter-plugins.json. This is the source of truth for which
+ * ~/.petagent/adapter-plugins.json. This is the source of truth for which
  * external adapters should be loaded at startup.
  *
  * Both the plugin store and the settings store are cached in memory after
@@ -21,7 +21,7 @@ import os from "node:os";
 // ---------------------------------------------------------------------------
 
 export interface AdapterPluginRecord {
-  /** npm package name (e.g., "droid-paperclip-adapter") */
+  /** npm package name (e.g., "droid-petagent-adapter") */
   packageName: string;
   /** Absolute local filesystem path (for locally linked adapters) */
   localPath?: string;
@@ -43,7 +43,7 @@ interface AdapterSettings {
 // Paths
 // ---------------------------------------------------------------------------
 
-const PAPERCLIP_DIR = path.join(os.homedir(), ".paperclip");
+const PAPERCLIP_DIR = path.join(os.homedir(), ".petagent");
 const ADAPTER_PLUGINS_DIR = path.join(PAPERCLIP_DIR, "adapter-plugins");
 const ADAPTER_PLUGINS_STORE_PATH = path.join(PAPERCLIP_DIR, "adapter-plugins.json");
 const ADAPTER_SETTINGS_PATH = path.join(PAPERCLIP_DIR, "adapter-settings.json");
@@ -64,10 +64,10 @@ function ensureDirs(): void {
   const pkgJsonPath = path.join(ADAPTER_PLUGINS_DIR, "package.json");
   if (!fs.existsSync(pkgJsonPath)) {
     fs.writeFileSync(pkgJsonPath, JSON.stringify({
-      name: "paperclip-adapter-plugins",
+      name: "petagent-adapter-plugins",
       version: "0.0.0",
       private: true,
-      description: "Managed directory for Paperclip external adapter plugins. Do not edit manually.",
+      description: "Managed directory for PetAgent external adapter plugins. Do not edit manually.",
     }, null, 2) + "\n");
   }
 }

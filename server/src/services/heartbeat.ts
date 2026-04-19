@@ -72,8 +72,8 @@ import {
   type SessionCompactionPolicy,
 } from "@petagent/adapter-utils";
 import {
-  readPaperclipSkillSyncPreference,
-  writePaperclipSkillSyncPreference,
+  readPetAgentSkillSyncPreference,
+  writePetAgentSkillSyncPreference,
 } from "@petagent/adapter-utils/server-utils";
 import { extractSkillMentionIds } from "@petagent/shared";
 
@@ -81,13 +81,13 @@ const MAX_LIVE_LOG_CHUNK_BYTES = 8 * 1024;
 const MAX_PERSISTED_LOG_CHUNK_CHARS = 64 * 1024;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT = 1;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_MAX = 10;
-const DEFERRED_WAKE_CONTEXT_KEY = "_paperclipWakeContext";
+const DEFERRED_WAKE_CONTEXT_KEY = "_petagentWakeContext";
 const WAKE_COMMENT_IDS_KEY = "wakeCommentIds";
-const PAPERCLIP_WAKE_PAYLOAD_KEY = "paperclipWake";
-const PAPERCLIP_HARNESS_CHECKOUT_KEY = "paperclipHarnessCheckedOut";
+const PAPERCLIP_WAKE_PAYLOAD_KEY = "petagentWake";
+const PAPERCLIP_HARNESS_CHECKOUT_KEY = "petagentHarnessCheckedOut";
 const DETACHED_PROCESS_ERROR_CODE = "process_detached";
 const startLocksByAgent = new Map<string, Promise<void>>();
-const REPO_ONLY_CWD_SENTINEL = "/__paperclip_repo_only__";
+const REPO_ONLY_CWD_SENTINEL = "/__petagent_repo_only__";
 const MANAGED_WORKSPACE_GIT_CLONE_TIMEOUT_MS = 10 * 60 * 1000;
 const MAX_INLINE_WAKE_COMMENTS = 8;
 const MAX_INLINE_WAKE_COMMENT_BODY_CHARS = 4_000;
@@ -161,8 +161,8 @@ export function applyRunScopedMentionedSkillKeys(
   );
   if (normalizedSkillKeys.length === 0) return config;
 
-  const existingPreference = readPaperclipSkillSyncPreference(config);
-  return writePaperclipSkillSyncPreference(config, [
+  const existingPreference = readPetAgentSkillSyncPreference(config);
+  return writePetAgentSkillSyncPreference(config, [
     ...existingPreference.desiredSkills,
     ...normalizedSkillKeys,
   ]);
@@ -510,7 +510,7 @@ export function compactRunLogChunk(chunk: string, maxChars = MAX_PERSISTED_LOG_C
   const headChars = Math.max(0, Math.floor(maxChars * 0.6));
   const tailChars = Math.max(0, Math.floor(maxChars * 0.25));
   const omittedChars = Math.max(0, normalized.length - headChars - tailChars);
-  const marker = `\n[paperclip truncated run log chunk: omitted ${omittedChars} chars]\n`;
+  const marker = `\n[petagent truncated run log chunk: omitted ${omittedChars} chars]\n`;
   return `${normalized.slice(0, headChars)}${marker}${normalized.slice(normalized.length - tailChars)}`;
 }
 
@@ -1017,7 +1017,7 @@ function shouldRequireIssueCommentForWake(
 export function formatRuntimeWorkspaceWarningLog(warning: string) {
   return {
     stream: "stdout" as const,
-    chunk: `[paperclip] ${warning}\n`,
+    chunk: `[petagent] ${warning}\n`,
   };
 }
 
@@ -1200,7 +1200,7 @@ export function mergeCoalescedContextSnapshot(
   return merged;
 }
 
-async function buildPaperclipWakePayload(input: {
+async function buildPetAgentWakePayload(input: {
   db: Db;
   companyId: string;
   contextSnapshot: Record<string, unknown>;
@@ -1741,7 +1741,7 @@ export function heartbeatService(db: Db) {
       readNonEmptyString(latestRun.error);
 
     const handoffMarkdown = [
-      "Paperclip session handoff:",
+      "PetAgent session handoff:",
       `- Previous session: ${sessionId}`,
       issueId ? `- Issue: ${issueId}` : "",
       `- Rotation reason: ${reason}`,
@@ -3053,7 +3053,7 @@ export function heartbeatService(db: Db) {
             previousStatus: "todo",
             latestRun,
             comment:
-              "Paperclip automatically retried dispatch for this assigned `todo` issue after a lost wake/run, " +
+              "PetAgent automatically retried dispatch for this assigned `todo` issue after a lost wake/run, " +
               `but it still has no live execution path.${failureSummary ?? ""} ` +
               "Moving it to `blocked` so it is visible for intervention.",
           });
@@ -3090,7 +3090,7 @@ export function heartbeatService(db: Db) {
           previousStatus: "in_progress",
           latestRun,
           comment:
-            "Paperclip automatically retried continuation for this assigned `in_progress` issue after its live " +
+            "PetAgent automatically retried continuation for this assigned `in_progress` issue after its live " +
             `execution disappeared, but it still has no live execution path.${failureSummary ?? ""} ` +
             "Moving it to `blocked` so it is visible for intervention.",
         });
@@ -3340,7 +3340,7 @@ export function heartbeatService(db: Db) {
           executionWorkspacePreference: issueContext.executionWorkspacePreference,
         }
       : null;
-    const paperclipWakePayload = await buildPaperclipWakePayload({
+    const petagentWakePayload = await buildPetAgentWakePayload({
       db,
       companyId: agent.companyId,
       contextSnapshot: context,
@@ -3354,8 +3354,8 @@ export function heartbeatService(db: Db) {
           }
         : null,
     });
-    if (paperclipWakePayload) {
-      context[PAPERCLIP_WAKE_PAYLOAD_KEY] = paperclipWakePayload;
+    if (petagentWakePayload) {
+      context[PAPERCLIP_WAKE_PAYLOAD_KEY] = petagentWakePayload;
     } else {
       delete context[PAPERCLIP_WAKE_PAYLOAD_KEY];
     }
@@ -3411,7 +3411,7 @@ export function heartbeatService(db: Db) {
     const runtimeSkillEntries = await companySkills.listRuntimeSkillEntries(agent.companyId);
     const runtimeConfig = {
       ...effectiveResolvedConfig,
-      paperclipRuntimeSkills: runtimeSkillEntries,
+      petagentRuntimeSkills: runtimeSkillEntries,
     };
     const workspaceOperationRecorder = workspaceOperationsSvc.createRecorder({
       companyId: agent.companyId,
@@ -3606,7 +3606,7 @@ export function heartbeatService(db: Db) {
           ]
         : []),
     ];
-    context.paperclipWorkspace = {
+    context.petagentWorkspace = {
       cwd: executionWorkspace.cwd,
       source: executionWorkspace.source,
       mode: effectiveExecutionWorkspaceMode,
@@ -3623,7 +3623,7 @@ export function heartbeatService(db: Db) {
         return home;
       })(),
     };
-    context.paperclipWorkspaces = resolvedWorkspace.workspaceHints;
+    context.petagentWorkspaces = resolvedWorkspace.workspaceHints;
     const runtimeServiceIntents = (() => {
       const runtimeConfig = parseObject(resolvedConfig.workspaceRuntime);
       return Array.isArray(runtimeConfig.services)
@@ -3633,9 +3633,9 @@ export function heartbeatService(db: Db) {
         : [];
     })();
     if (runtimeServiceIntents.length > 0) {
-      context.paperclipRuntimeServiceIntents = runtimeServiceIntents;
+      context.petagentRuntimeServiceIntents = runtimeServiceIntents;
     } else {
-      delete context.paperclipRuntimeServiceIntents;
+      delete context.petagentRuntimeServiceIntents;
     }
     if (executionWorkspace.projectId && !readNonEmptyString(context.projectId)) {
       context.projectId = executionWorkspace.projectId;
@@ -3658,9 +3658,9 @@ export function heartbeatService(db: Db) {
       issueId,
     });
     if (sessionCompaction.rotate) {
-      context.paperclipSessionHandoffMarkdown = sessionCompaction.handoffMarkdown;
-      context.paperclipSessionRotationReason = sessionCompaction.reason;
-      context.paperclipPreviousSessionId = previousSessionDisplayId ?? runtimeSessionIdForAdapter;
+      context.petagentSessionHandoffMarkdown = sessionCompaction.handoffMarkdown;
+      context.petagentSessionRotationReason = sessionCompaction.reason;
+      context.petagentPreviousSessionId = previousSessionDisplayId ?? runtimeSessionIdForAdapter;
       runtimeSessionIdForAdapter = null;
       runtimeSessionParamsForAdapter = null;
       previousSessionDisplayId = null;
@@ -3670,9 +3670,9 @@ export function heartbeatService(db: Db) {
         );
       }
     } else {
-      delete context.paperclipSessionHandoffMarkdown;
-      delete context.paperclipSessionRotationReason;
-      delete context.paperclipPreviousSessionId;
+      delete context.petagentSessionHandoffMarkdown;
+      delete context.petagentSessionRotationReason;
+      delete context.petagentPreviousSessionId;
     }
 
     const runtimeForAdapter = {
@@ -3781,7 +3781,7 @@ export function heartbeatService(db: Db) {
       if (runScopedMentionedSkillKeys.length > 0) {
         await onLog(
           "stdout",
-          `[paperclip] Enabled run-scoped skills from issue mentions: ${runScopedMentionedSkillKeys.join(", ")}\n`,
+          `[petagent] Enabled run-scoped skills from issue mentions: ${runScopedMentionedSkillKeys.join(", ")}\n`,
         );
       }
       for (const warning of runtimeWorkspaceWarnings) {
@@ -3809,8 +3809,8 @@ export function heartbeatService(db: Db) {
         onLog,
       });
       if (runtimeServices.length > 0) {
-        context.paperclipRuntimeServices = runtimeServices;
-        context.paperclipRuntimePrimaryUrl =
+        context.petagentRuntimeServices = runtimeServices;
+        context.petagentRuntimePrimaryUrl =
           runtimeServices.find((service) => readNonEmptyString(service.url))?.url ?? null;
         await db
           .update(heartbeatRuns)
@@ -3833,7 +3833,7 @@ export function heartbeatService(db: Db) {
         } catch (err) {
           await onLog(
             "stderr",
-            `[paperclip] Failed to post workspace-ready comment: ${err instanceof Error ? err.message : String(err)}\n`,
+            `[petagent] Failed to post workspace-ready comment: ${err instanceof Error ? err.message : String(err)}\n`,
           );
         }
       }
@@ -3907,8 +3907,8 @@ export function heartbeatService(db: Db) {
           ...runtimeServices,
           ...adapterManagedRuntimeServices,
         ];
-        context.paperclipRuntimeServices = combinedRuntimeServices;
-        context.paperclipRuntimePrimaryUrl =
+        context.petagentRuntimeServices = combinedRuntimeServices;
+        context.petagentRuntimePrimaryUrl =
           combinedRuntimeServices.find((service) => readNonEmptyString(service.url))?.url ?? null;
         await db
           .update(heartbeatRuns)
@@ -3930,7 +3930,7 @@ export function heartbeatService(db: Db) {
           } catch (err) {
             await onLog(
               "stderr",
-              `[paperclip] Failed to post adapter-managed runtime comment: ${err instanceof Error ? err.message : String(err)}\n`,
+              `[petagent] Failed to post adapter-managed runtime comment: ${err instanceof Error ? err.message : String(err)}\n`,
             );
           }
         }
@@ -4066,7 +4066,7 @@ export function heartbeatService(db: Db) {
           } catch (err) {
             await onLog(
               "stderr",
-              `[paperclip] Failed to post run summary comment: ${err instanceof Error ? err.message : String(err)}\n`,
+              `[petagent] Failed to post run summary comment: ${err instanceof Error ? err.message : String(err)}\n`,
             );
           }
         }

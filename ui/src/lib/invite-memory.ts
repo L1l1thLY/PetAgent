@@ -1,4 +1,4 @@
-const PENDING_INVITE_STORAGE_KEY = "paperclip:pending-invite-token";
+const PENDING_INVITE_STORAGE_KEY = "petagent:pending-invite-token";
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";

@@ -2,7 +2,7 @@
  * JSON-RPC 2.0 message types and protocol helpers for the host ↔ worker IPC
  * channel.
  *
- * The Paperclip plugin runtime uses JSON-RPC 2.0 over stdio to communicate
+ * The PetAgent plugin runtime uses JSON-RPC 2.0 over stdio to communicate
  * between the host process and each plugin worker process. This module defines:
  *
  * - Core JSON-RPC 2.0 envelope types (request, response, notification, error)
@@ -16,7 +16,7 @@
  */
 
 import type {
-  PaperclipPluginManifestV1,
+  PetAgentPluginManifestV1,
   PluginLauncherBounds,
   PluginLauncherRenderContextSnapshot,
   PluginLauncherRenderEnvironment,
@@ -54,7 +54,7 @@ export const JSONRPC_VERSION = "2.0" as const;
 
 /**
  * A unique request identifier. JSON-RPC 2.0 allows strings or numbers;
- * we use strings (UUIDs or monotonic counters) for all Paperclip messages.
+ * we use strings (UUIDs or monotonic counters) for all PetAgent messages.
  */
 export type JsonRpcId = string | number;
 
@@ -171,7 +171,7 @@ export type JsonRpcErrorCode =
   (typeof JSONRPC_ERROR_CODES)[keyof typeof JSONRPC_ERROR_CODES];
 
 /**
- * Paperclip plugin-specific error codes.
+ * PetAgent plugin-specific error codes.
  *
  * These live in the JSON-RPC "server error" reserved range (-32000 to -32099)
  * as specified by JSON-RPC 2.0 for implementation-defined server errors.
@@ -207,14 +207,14 @@ export type PluginRpcErrorCode =
  */
 export interface InitializeParams {
   /** Full plugin manifest snapshot. */
-  manifest: PaperclipPluginManifestV1;
+  manifest: PetAgentPluginManifestV1;
   /** Resolved operator configuration (validated against `instanceConfigSchema`). */
   config: Record<string, unknown>;
   /** Instance-level metadata. */
   instanceInfo: {
-    /** UUID of this Paperclip instance. */
+    /** UUID of this PetAgent instance. */
     instanceId: string;
-    /** Semver version of the running Paperclip host. */
+    /** Semver version of the running PetAgent host. */
     hostVersion: string;
   };
   /** Host API version. */

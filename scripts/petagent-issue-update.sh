@@ -5,20 +5,20 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  scripts/paperclip-issue-update.sh [--issue-id ID] [--status STATUS] [--comment TEXT] [--dry-run]
+  scripts/petagent-issue-update.sh [--issue-id ID] [--status STATUS] [--comment TEXT] [--dry-run]
 
 Reads a multiline markdown comment from stdin when stdin is piped. This preserves
 newlines when building the JSON payload for PATCH /api/issues/{issueId}.
 
 Examples:
-  scripts/paperclip-issue-update.sh --issue-id "$PAPERCLIP_TASK_ID" --status in_progress <<'MD'
+  scripts/petagent-issue-update.sh --issue-id "$PAPERCLIP_TASK_ID" --status in_progress <<'MD'
   Investigating formatting
 
   - Pulled the raw comment body
   - Comparing it with the run transcript
   MD
 
-  scripts/paperclip-issue-update.sh --issue-id "$PAPERCLIP_TASK_ID" --status done --dry-run <<'MD'
+  scripts/petagent-issue-update.sh --issue-id "$PAPERCLIP_TASK_ID" --status done --dry-run <<'MD'
   Done
 
   - Fixed the issue update helper
@@ -105,6 +105,6 @@ fi
 curl -sS -X PATCH \
   "$PAPERCLIP_API_URL/api/issues/$issue_id" \
   -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
-  -H "X-Paperclip-Run-Id: $PAPERCLIP_RUN_ID" \
+  -H "X-PetAgent-Run-Id: $PAPERCLIP_RUN_ID" \
   -H 'Content-Type: application/json' \
   --data-binary "$payload"

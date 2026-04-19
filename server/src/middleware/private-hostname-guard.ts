@@ -44,7 +44,7 @@ export function resolvePrivateHostnameAllowSet(opts: { allowedHostnames: string[
 
 function blockedHostnameMessage(hostname: string): string {
   return (
-    `Hostname '${hostname}' is not allowed for this Paperclip instance. ` +
+    `Hostname '${hostname}' is not allowed for this PetAgent instance. ` +
     `If you want to allow this hostname, please run pnpm petagent allowed-hostname ${hostname}`
   );
 }

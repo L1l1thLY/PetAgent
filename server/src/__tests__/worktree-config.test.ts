@@ -65,7 +65,7 @@ function buildLegacyConfig(sharedRoot: string) {
         baseDir: path.join(sharedRoot, "data", "storage"),
       },
       s3: {
-        bucket: "paperclip",
+        bucket: "petagent",
         region: "us-east-1",
         prefix: "",
         forcePathStyle: false,
@@ -83,20 +83,20 @@ function buildLegacyConfig(sharedRoot: string) {
 
 describe("worktree config repair", () => {
   it("repairs legacy repo-local worktree config and env files into an isolated instance", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktree-repair-"));
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-worktree-repair-"));
     const worktreeRoot = path.join(tempRoot, "PAP-884-ai-commits-component");
-    const paperclipDir = path.join(worktreeRoot, ".paperclip");
-    const configPath = path.join(paperclipDir, "config.json");
-    const envPath = path.join(paperclipDir, ".env");
-    const sharedRoot = path.join(tempRoot, ".paperclip", "instances", "default");
-    const isolatedHome = path.join(tempRoot, ".paperclip-worktrees");
+    const petagentDir = path.join(worktreeRoot, ".petagent");
+    const configPath = path.join(petagentDir, "config.json");
+    const envPath = path.join(petagentDir, ".env");
+    const sharedRoot = path.join(tempRoot, ".petagent", "instances", "default");
+    const isolatedHome = path.join(tempRoot, ".petagent-worktrees");
 
-    await fs.mkdir(paperclipDir, { recursive: true });
+    await fs.mkdir(petagentDir, { recursive: true });
     await fs.writeFile(configPath, JSON.stringify(buildLegacyConfig(sharedRoot), null, 2) + "\n", "utf8");
     await fs.writeFile(
       envPath,
       [
-        "# Paperclip environment variables",
+        "# PetAgent environment variables",
         "PAPERCLIP_IN_WORKTREE=true",
         "PAPERCLIP_WORKTREE_NAME=PAP-884-ai-commits-component",
         "PAPERCLIP_AGENT_JWT_SECRET=shared-secret",
@@ -140,22 +140,22 @@ describe("worktree config repair", () => {
   });
 
   it("avoids sibling worktree ports when repairing legacy configs", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktree-repair-ports-"));
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-worktree-repair-ports-"));
     const worktreeRoot = path.join(tempRoot, "PAP-880-thumbs-capture-for-evals-feature");
-    const paperclipDir = path.join(worktreeRoot, ".paperclip");
-    const configPath = path.join(paperclipDir, "config.json");
-    const envPath = path.join(paperclipDir, ".env");
-    const sharedRoot = path.join(tempRoot, ".paperclip", "instances", "default");
-    const isolatedHome = path.join(tempRoot, ".paperclip-worktrees");
+    const petagentDir = path.join(worktreeRoot, ".petagent");
+    const configPath = path.join(petagentDir, "config.json");
+    const envPath = path.join(petagentDir, ".env");
+    const sharedRoot = path.join(tempRoot, ".petagent", "instances", "default");
+    const isolatedHome = path.join(tempRoot, ".petagent-worktrees");
     const siblingInstanceRoot = path.join(isolatedHome, "instances", "pap-878-create-a-mine-tab-in-inbox");
 
-    await fs.mkdir(paperclipDir, { recursive: true });
+    await fs.mkdir(petagentDir, { recursive: true });
     await fs.mkdir(siblingInstanceRoot, { recursive: true });
     await fs.writeFile(configPath, JSON.stringify(buildLegacyConfig(sharedRoot), null, 2) + "\n", "utf8");
     await fs.writeFile(
       envPath,
       [
-        "# Paperclip environment variables",
+        "# PetAgent environment variables",
         "PAPERCLIP_IN_WORKTREE=true",
         "PAPERCLIP_WORKTREE_NAME=PAP-880-thumbs-capture-for-evals-feature",
         "",
@@ -207,17 +207,17 @@ describe("worktree config repair", () => {
   });
 
   it("does not persist transient runtime home overrides over repo-local worktree env", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktree-runtime-override-"));
-    const isolatedHome = path.join(tempRoot, ".paperclip-worktrees");
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-worktree-runtime-override-"));
+    const isolatedHome = path.join(tempRoot, ".petagent-worktrees");
     const transientHome = path.join(tempRoot, "tests", "e2e", ".tmp", "multiuser-authenticated");
     const worktreeRoot = path.join(tempRoot, "PAP-989-multi-user-implementation-using-plan-from-pap-958");
-    const paperclipDir = path.join(worktreeRoot, ".paperclip");
-    const configPath = path.join(paperclipDir, "config.json");
-    const envPath = path.join(paperclipDir, ".env");
+    const petagentDir = path.join(worktreeRoot, ".petagent");
+    const configPath = path.join(petagentDir, "config.json");
+    const envPath = path.join(petagentDir, ".env");
     const instanceId = "pap-989-multi-user-implementation-using-plan-from-pap-958";
     const stableInstanceRoot = path.join(isolatedHome, "instances", instanceId);
 
-    await fs.mkdir(paperclipDir, { recursive: true });
+    await fs.mkdir(petagentDir, { recursive: true });
     await fs.writeFile(
       configPath,
       JSON.stringify(
@@ -252,7 +252,7 @@ describe("worktree config repair", () => {
               baseDir: path.join(transientHome, "instances", instanceId, "data", "storage"),
             },
             s3: {
-              bucket: "paperclip",
+              bucket: "petagent",
               region: "us-east-1",
               prefix: "",
               forcePathStyle: false,
@@ -274,7 +274,7 @@ describe("worktree config repair", () => {
     await fs.writeFile(
       envPath,
       [
-        "# Paperclip environment variables",
+        "# PetAgent environment variables",
         `PAPERCLIP_HOME=${JSON.stringify(isolatedHome)}`,
         `PAPERCLIP_INSTANCE_ID=${JSON.stringify(instanceId)}`,
         `PAPERCLIP_CONFIG=${JSON.stringify(configPath)}`,
@@ -314,19 +314,19 @@ describe("worktree config repair", () => {
   });
 
   it("rebalances duplicate ports for already isolated worktree configs", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktree-rebalance-"));
-    const isolatedHome = path.join(tempRoot, ".paperclip-worktrees");
-    const repoWorktreesRoot = path.join(tempRoot, "repo", ".paperclip", "worktrees");
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-worktree-rebalance-"));
+    const isolatedHome = path.join(tempRoot, ".petagent-worktrees");
+    const repoWorktreesRoot = path.join(tempRoot, "repo", ".petagent", "worktrees");
     const siblingWorktreeRoot = path.join(repoWorktreesRoot, "PAP-878-create-a-mine-tab-in-inbox");
     const siblingInstanceRoot = path.join(isolatedHome, "instances", "pap-878-create-a-mine-tab-in-inbox");
     const currentWorktreeRoot = path.join(repoWorktreesRoot, "PAP-884-ai-commits-component");
-    const paperclipDir = path.join(currentWorktreeRoot, ".paperclip");
-    const configPath = path.join(paperclipDir, "config.json");
-    const envPath = path.join(paperclipDir, ".env");
+    const petagentDir = path.join(currentWorktreeRoot, ".petagent");
+    const configPath = path.join(petagentDir, "config.json");
+    const envPath = path.join(petagentDir, ".env");
     const currentInstanceRoot = path.join(isolatedHome, "instances", "pap-884-ai-commits-component");
-    const siblingConfigPath = path.join(siblingWorktreeRoot, ".paperclip", "config.json");
+    const siblingConfigPath = path.join(siblingWorktreeRoot, ".petagent", "config.json");
 
-    await fs.mkdir(paperclipDir, { recursive: true });
+    await fs.mkdir(petagentDir, { recursive: true });
     await fs.mkdir(path.dirname(siblingConfigPath), { recursive: true });
     await fs.writeFile(
       configPath,
@@ -362,7 +362,7 @@ describe("worktree config repair", () => {
               baseDir: path.join(currentInstanceRoot, "data", "storage"),
             },
             s3: {
-              bucket: "paperclip",
+              bucket: "petagent",
               region: "us-east-1",
               prefix: "",
               forcePathStyle: false,
@@ -384,7 +384,7 @@ describe("worktree config repair", () => {
     await fs.writeFile(
       envPath,
       [
-        "# Paperclip environment variables",
+        "# PetAgent environment variables",
         "PAPERCLIP_IN_WORKTREE=true",
         "PAPERCLIP_WORKTREE_NAME=PAP-884-ai-commits-component",
         "",
@@ -436,14 +436,14 @@ describe("worktree config repair", () => {
   });
 
   it("persists runtime-selected worktree ports back into config", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktree-ports-"));
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-worktree-ports-"));
     const worktreeRoot = path.join(tempRoot, "PAP-878-create-a-mine-tab-in-inbox");
-    const paperclipDir = path.join(worktreeRoot, ".paperclip");
-    const configPath = path.join(paperclipDir, "config.json");
-    const isolatedHome = path.join(tempRoot, ".paperclip-worktrees");
+    const petagentDir = path.join(worktreeRoot, ".petagent");
+    const configPath = path.join(petagentDir, "config.json");
+    const isolatedHome = path.join(tempRoot, ".petagent-worktrees");
     const instanceRoot = path.join(isolatedHome, "instances", "pap-878-create-a-mine-tab-in-inbox");
 
-    await fs.mkdir(paperclipDir, { recursive: true });
+    await fs.mkdir(petagentDir, { recursive: true });
     await fs.writeFile(
       configPath,
       JSON.stringify(
@@ -478,7 +478,7 @@ describe("worktree config repair", () => {
               baseDir: path.join(instanceRoot, "data", "storage"),
             },
             s3: {
-              bucket: "paperclip",
+              bucket: "petagent",
               region: "us-east-1",
               prefix: "",
               forcePathStyle: false,

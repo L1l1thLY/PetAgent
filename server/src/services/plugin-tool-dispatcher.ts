@@ -24,7 +24,7 @@
 
 import type { Db } from "@petagent/db";
 import type {
-  PaperclipPluginManifestV1,
+  PetAgentPluginManifestV1,
   PluginRecord,
 } from "@petagent/shared";
 import type { ToolRunContext, ToolResult } from "@petagent/plugin-sdk";
@@ -155,7 +155,7 @@ export interface PluginToolDispatcher {
    */
   registerPluginTools(
     pluginId: string,
-    manifest: PaperclipPluginManifestV1,
+    manifest: PetAgentPluginManifestV1,
   ): void;
 
   /**
@@ -428,7 +428,7 @@ export function createPluginToolDispatcher(
 
     registerPluginTools(
       pluginId: string,
-      manifest: PaperclipPluginManifestV1,
+      manifest: PetAgentPluginManifestV1,
     ): void {
       registry.registerPlugin(pluginId, manifest);
     },

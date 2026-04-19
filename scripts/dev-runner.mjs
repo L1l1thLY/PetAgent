@@ -15,7 +15,7 @@ const autoRestartPollIntervalMs = 2500;
 const gracefulShutdownTimeoutMs = 10_000;
 const changedPathSampleLimit = 5;
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const devServerStatusFilePath = path.join(repoRoot, ".paperclip", "dev-server-status.json");
+const devServerStatusFilePath = path.join(repoRoot, ".petagent", "dev-server-status.json");
 
 const watchedDirectories = [
   "cli",
@@ -48,7 +48,7 @@ const ignoredDirectoryNames = new Set([
 ]);
 
 const ignoredRelativePaths = new Set([
-  ".paperclip/dev-server-status.json",
+  ".petagent/dev-server-status.json",
 ]);
 
 const tailscaleAuthFlagNames = new Set([
@@ -93,9 +93,9 @@ if (tailscaleAuth) {
   env.PAPERCLIP_DEPLOYMENT_EXPOSURE = "private";
   env.PAPERCLIP_AUTH_BASE_URL_MODE = "auto";
   env.HOST = "0.0.0.0";
-  console.log("[paperclip] dev mode: authenticated/private (tailscale-friendly) on 0.0.0.0");
+  console.log("[petagent] dev mode: authenticated/private (tailscale-friendly) on 0.0.0.0");
 } else {
-  console.log("[paperclip] dev mode: local_trusted (default)");
+  console.log("[petagent] dev mode: local_trusted (default)");
 }
 
 const pnpmBin = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
@@ -292,7 +292,7 @@ async function getMigrationStatusPayload() {
     process.stderr.write(
       status.stderr ||
         status.stdout ||
-        `[paperclip] Command failed with code ${status.code}: pnpm --filter @petagent/db exec tsx src/migration-status.ts --json\n`,
+        `[petagent] Command failed with code ${status.code}: pnpm --filter @petagent/db exec tsx src/migration-status.ts --json\n`,
     );
     process.exit(status.code);
   }
@@ -303,7 +303,7 @@ async function getMigrationStatusPayload() {
     process.stderr.write(
       status.stderr ||
         status.stdout ||
-        "[paperclip] migration-status returned invalid JSON payload\n",
+        "[petagent] migration-status returned invalid JSON payload\n",
     );
     throw toError(error, "Unable to parse migration-status JSON output");
   }
@@ -354,7 +354,7 @@ async function maybePreflightMigrations(options = {}) {
   if (!shouldApply) {
     if (exitOnDecline) {
       process.stderr.write(
-        `[paperclip] Pending migrations detected (${formatPendingMigrationSummary(pendingMigrations)}). ` +
+        `[petagent] Pending migrations detected (${formatPendingMigrationSummary(pendingMigrations)}). ` +
           "Refusing to start watch mode against a stale schema.\n",
       );
       process.exit(1);
@@ -382,7 +382,7 @@ async function maybePreflightMigrations(options = {}) {
 }
 
 async function buildPluginSdk() {
-  console.log("[paperclip] building plugin sdk...");
+  console.log("[petagent] building plugin sdk...");
   const result = await runPnpm(
     ["--filter", "@petagent/plugin-sdk", "build"],
     { stdio: "inherit" },
@@ -392,7 +392,7 @@ async function buildPluginSdk() {
     return;
   }
   if (result.code !== 0) {
-    console.error("[paperclip] plugin sdk build failed");
+    console.error("[petagent] plugin sdk build failed");
     process.exit(result.code);
   }
 }

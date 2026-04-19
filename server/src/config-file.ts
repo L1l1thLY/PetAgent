@@ -1,15 +1,15 @@
 import fs from "node:fs";
-import { paperclipConfigSchema, type PaperclipConfig } from "@petagent/shared";
-import { resolvePaperclipConfigPath } from "./paths.js";
+import { petagentConfigSchema, type PetAgentConfig } from "@petagent/shared";
+import { resolvePetAgentConfigPath } from "./paths.js";
 
-export function readConfigFile(): PaperclipConfig | null {
-  const configPath = resolvePaperclipConfigPath();
+export function readConfigFile(): PetAgentConfig | null {
+  const configPath = resolvePetAgentConfigPath();
 
   if (!fs.existsSync(configPath)) return null;
 
   try {
     const raw = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-    return paperclipConfigSchema.parse(raw);
+    return petagentConfigSchema.parse(raw);
   } catch {
     return null;
   }

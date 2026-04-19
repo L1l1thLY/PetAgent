@@ -1,3 +1,3 @@
 [Pod]
-PodName=paperclip
+PodName=petagent
 PublishPort=3100:3100

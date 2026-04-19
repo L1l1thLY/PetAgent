@@ -18,7 +18,7 @@ import {
   type StorageProvider,
 } from "@petagent/shared";
 import { configExists, readConfig, resolveConfigPath, writeConfig } from "../config/store.js";
-import type { PaperclipConfig } from "../config/schema.js";
+import type { PetAgentConfig } from "../config/schema.js";
 import { ensureAgentJwtSecret, resolveAgentJwtEnvFile } from "../config/env.js";
 import { ensureLocalSecretsKeyFile } from "../config/secrets-key.js";
 import { promptDatabase } from "../prompts/database.js";
@@ -34,10 +34,10 @@ import {
   resolveDefaultBackupDir,
   resolveDefaultEmbeddedPostgresDir,
   resolveDefaultLogsDir,
-  resolvePaperclipInstanceId,
+  resolvePetAgentInstanceId,
 } from "../config/home.js";
 import { bootstrapCeoInvite } from "./auth-bootstrap-ceo.js";
-import { printPaperclipCliBanner } from "../utils/banner.js";
+import { printPetAgentCliBanner } from "../utils/banner.js";
 import {
   getTelemetryClient,
   trackInstallStarted,
@@ -54,7 +54,7 @@ type OnboardOptions = {
   bind?: BindMode;
 };
 
-type OnboardDefaults = Pick<PaperclipConfig, "database" | "logging" | "server" | "auth" | "storage" | "secrets">;
+type OnboardDefaults = Pick<PetAgentConfig, "database" | "logging" | "server" | "auth" | "storage" | "secrets">;
 
 const TAILNET_BIND_WARNING =
   "No Tailscale address was detected during setup. The saved config will stay on loopback until Tailscale is available or PAPERCLIP_TAILNET_BIND_HOST is set.";
@@ -116,7 +116,7 @@ function resolvePathFromEnv(rawValue: string | undefined): string | null {
   return path.resolve(expandHomePrefix(rawValue.trim()));
 }
 
-function describeServerBinding(server: Pick<PaperclipConfig["server"], "bind" | "customBindHost" | "host" | "port">): string {
+function describeServerBinding(server: Pick<PetAgentConfig["server"], "bind" | "customBindHost" | "host" | "port">): string {
   const bind = server.bind ?? inferBindModeFromHost(server.host);
   const detail =
     bind === "custom"
@@ -133,7 +133,7 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
   ignoredEnvKeys: Array<{ key: string; reason: string }>;
 } {
   const preferTrustedLocal = opts?.preferTrustedLocal ?? false;
-  const instanceId = resolvePaperclipInstanceId();
+  const instanceId = resolvePetAgentInstanceId();
   const defaultStorage = defaultStorageConfig();
   const defaultSecrets = defaultSecretsConfig();
   const databaseUrl = process.env.DATABASE_URL?.trim() || undefined;
@@ -318,7 +318,7 @@ function quickstartDefaultsFromEnv(opts?: { preferTrustedLocal?: boolean }): {
   return { defaults, usedEnvKeys, ignoredEnvKeys };
 }
 
-function canCreateBootstrapInviteImmediately(config: Pick<PaperclipConfig, "database" | "server">): boolean {
+function canCreateBootstrapInviteImmediately(config: Pick<PetAgentConfig, "database" | "server">): boolean {
   return config.server.deploymentMode === "authenticated" && config.database.mode !== "embedded-postgres";
 }
 
@@ -327,17 +327,17 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
     throw new Error(`Unsupported bind preset for onboard: ${opts.bind}. Use loopback, lan, or tailnet.`);
   }
 
-  printPaperclipCliBanner();
+  printPetAgentCliBanner();
   p.intro(pc.bgCyan(pc.black(" petagent onboard ")));
   const configPath = resolveConfigPath(opts.config);
-  const instance = describeLocalInstancePaths(resolvePaperclipInstanceId());
+  const instance = describeLocalInstancePaths(resolvePetAgentInstanceId());
   p.log.message(
     pc.dim(
       `Local home: ${instance.homeDir} | instance: ${instance.instanceId} | config: ${configPath}`,
     ),
   );
 
-  let existingConfig: PaperclipConfig | null = null;
+  let existingConfig: PetAgentConfig | null = null;
   if (configExists(opts.config)) {
     p.log.message(pc.dim(`${configPath} exists`));
 
@@ -354,7 +354,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
 
   if (existingConfig) {
     p.log.message(
-      pc.dim("Existing Paperclip install detected; keeping the current configuration unchanged."),
+      pc.dim("Existing PetAgent install detected; keeping the current configuration unchanged."),
     );
     p.log.message(pc.dim(`Use ${pc.cyan("petagent configure")} if you want to change settings.`));
 
@@ -403,7 +403,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
     let shouldRunNow = opts.run === true || opts.yes === true;
     if (!shouldRunNow && !opts.invokedByRun && process.stdin.isTTY && process.stdout.isTTY) {
       const answer = await p.confirm({
-        message: "Start Paperclip now?",
+        message: "Start PetAgent now?",
         initialValue: true,
       });
       if (!p.isCancel(answer)) {
@@ -418,7 +418,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
       return;
     }
 
-    p.outro("Existing Paperclip setup is ready.");
+    p.outro("Existing PetAgent setup is ready.");
     return;
   }
 
@@ -458,7 +458,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
   const tc = getTelemetryClient();
   if (tc) trackInstallStarted(tc);
 
-  let llm: PaperclipConfig["llm"] | undefined;
+  let llm: PetAgentConfig["llm"] | undefined;
   const { defaults: derivedDefaults, usedEnvKeys, ignoredEnvKeys } = quickstartDefaultsFromEnv({
     preferTrustedLocal: opts.yes === true && !opts.bind,
   });
@@ -600,7 +600,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
     p.log.info(`Using existing ${pc.cyan("PAPERCLIP_AGENT_JWT_SECRET")} in ${pc.dim(envFilePath)}`);
   }
 
-  const config: PaperclipConfig = {
+  const config: PetAgentConfig = {
     $meta: {
       version: 1,
       updatedAt: new Date().toISOString(),
@@ -663,7 +663,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
   let shouldRunNow = opts.run === true || opts.yes === true;
   if (!shouldRunNow && !opts.invokedByRun && process.stdin.isTTY && process.stdout.isTTY) {
     const answer = await p.confirm({
-      message: "Start Paperclip now?",
+      message: "Start PetAgent now?",
       initialValue: true,
     });
     if (!p.isCancel(answer)) {

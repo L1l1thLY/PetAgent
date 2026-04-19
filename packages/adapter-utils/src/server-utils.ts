@@ -66,7 +66,7 @@ const PAPERCLIP_SKILL_ROOT_RELATIVE_CANDIDATES = [
   "../../../../../skills",
 ];
 
-export interface PaperclipSkillEntry {
+export interface PetAgentSkillEntry {
   key: string;
   runtimeName: string;
   source: string;
@@ -81,7 +81,7 @@ export interface InstalledSkillTarget {
 
 interface PersistentSkillSnapshotOptions {
   adapterType: string;
-  availableEntries: PaperclipSkillEntry[];
+  availableEntries: PetAgentSkillEntry[];
   desiredSkills: string[];
   installed: Map<string, InstalledSkillTarget>;
   skillsHome: string;
@@ -113,14 +113,14 @@ function buildManagedSkillOrigin(entry: { required?: boolean }): Pick<
 > {
   if (entry.required) {
     return {
-      origin: "paperclip_required",
-      originLabel: "Required by Paperclip",
+      origin: "petagent_required",
+      originLabel: "Required by PetAgent",
       readOnly: false,
     };
   }
   return {
     origin: "company_managed",
-    originLabel: "Managed by Paperclip",
+    originLabel: "Managed by PetAgent",
     readOnly: false,
   };
 }
@@ -216,7 +216,7 @@ export function joinPromptSections(
     .join(separator);
 }
 
-type PaperclipWakeIssue = {
+type PetAgentWakeIssue = {
   id: string | null;
   identifier: string | null;
   title: string | null;
@@ -224,23 +224,23 @@ type PaperclipWakeIssue = {
   priority: string | null;
 };
 
-type PaperclipWakeExecutionPrincipal = {
+type PetAgentWakeExecutionPrincipal = {
   type: "agent" | "user" | null;
   agentId: string | null;
   userId: string | null;
 };
 
-type PaperclipWakeExecutionStage = {
+type PetAgentWakeExecutionStage = {
   wakeRole: "reviewer" | "approver" | "executor" | null;
   stageId: string | null;
   stageType: string | null;
-  currentParticipant: PaperclipWakeExecutionPrincipal | null;
-  returnAssignee: PaperclipWakeExecutionPrincipal | null;
+  currentParticipant: PetAgentWakeExecutionPrincipal | null;
+  returnAssignee: PetAgentWakeExecutionPrincipal | null;
   lastDecisionOutcome: string | null;
   allowedActions: string[];
 };
 
-type PaperclipWakeComment = {
+type PetAgentWakeComment = {
   id: string | null;
   issueId: string | null;
   body: string;
@@ -250,14 +250,14 @@ type PaperclipWakeComment = {
   authorId: string | null;
 };
 
-type PaperclipWakePayload = {
+type PetAgentWakePayload = {
   reason: string | null;
-  issue: PaperclipWakeIssue | null;
+  issue: PetAgentWakeIssue | null;
   checkedOutByHarness: boolean;
-  executionStage: PaperclipWakeExecutionStage | null;
+  executionStage: PetAgentWakeExecutionStage | null;
   commentIds: string[];
   latestCommentId: string | null;
-  comments: PaperclipWakeComment[];
+  comments: PetAgentWakeComment[];
   requestedCount: number;
   includedCount: number;
   missingCount: number;
@@ -265,7 +265,7 @@ type PaperclipWakePayload = {
   fallbackFetchNeeded: boolean;
 };
 
-function normalizePaperclipWakeIssue(value: unknown): PaperclipWakeIssue | null {
+function normalizePetAgentWakeIssue(value: unknown): PetAgentWakeIssue | null {
   const issue = parseObject(value);
   const id = asString(issue.id, "").trim() || null;
   const identifier = asString(issue.identifier, "").trim() || null;
@@ -282,7 +282,7 @@ function normalizePaperclipWakeIssue(value: unknown): PaperclipWakeIssue | null 
   };
 }
 
-function normalizePaperclipWakeComment(value: unknown): PaperclipWakeComment | null {
+function normalizePetAgentWakeComment(value: unknown): PetAgentWakeComment | null {
   const comment = parseObject(value);
   const author = parseObject(comment.author);
   const body = asString(comment.body, "");
@@ -298,7 +298,7 @@ function normalizePaperclipWakeComment(value: unknown): PaperclipWakeComment | n
   };
 }
 
-function normalizePaperclipWakeExecutionPrincipal(value: unknown): PaperclipWakeExecutionPrincipal | null {
+function normalizePetAgentWakeExecutionPrincipal(value: unknown): PetAgentWakeExecutionPrincipal | null {
   const principal = parseObject(value);
   const typeRaw = asString(principal.type, "").trim().toLowerCase();
   if (typeRaw !== "agent" && typeRaw !== "user") return null;
@@ -309,7 +309,7 @@ function normalizePaperclipWakeExecutionPrincipal(value: unknown): PaperclipWake
   };
 }
 
-function normalizePaperclipWakeExecutionStage(value: unknown): PaperclipWakeExecutionStage | null {
+function normalizePetAgentWakeExecutionStage(value: unknown): PetAgentWakeExecutionStage | null {
   const stage = parseObject(value);
   const wakeRoleRaw = asString(stage.wakeRole, "").trim().toLowerCase();
   const wakeRole =
@@ -321,8 +321,8 @@ function normalizePaperclipWakeExecutionStage(value: unknown): PaperclipWakeExec
         .filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
         .map((entry) => entry.trim())
     : [];
-  const currentParticipant = normalizePaperclipWakeExecutionPrincipal(stage.currentParticipant);
-  const returnAssignee = normalizePaperclipWakeExecutionPrincipal(stage.returnAssignee);
+  const currentParticipant = normalizePetAgentWakeExecutionPrincipal(stage.currentParticipant);
+  const returnAssignee = normalizePetAgentWakeExecutionPrincipal(stage.returnAssignee);
   const stageId = asString(stage.stageId, "").trim() || null;
   const stageType = asString(stage.stageType, "").trim() || null;
   const lastDecisionOutcome = asString(stage.lastDecisionOutcome, "").trim() || null;
@@ -342,12 +342,12 @@ function normalizePaperclipWakeExecutionStage(value: unknown): PaperclipWakeExec
   };
 }
 
-export function normalizePaperclipWakePayload(value: unknown): PaperclipWakePayload | null {
+export function normalizePetAgentWakePayload(value: unknown): PetAgentWakePayload | null {
   const payload = parseObject(value);
   const comments = Array.isArray(payload.comments)
     ? payload.comments
-        .map((entry) => normalizePaperclipWakeComment(entry))
-        .filter((entry): entry is PaperclipWakeComment => Boolean(entry))
+        .map((entry) => normalizePetAgentWakeComment(entry))
+        .filter((entry): entry is PetAgentWakeComment => Boolean(entry))
     : [];
   const commentWindow = parseObject(payload.commentWindow);
   const commentIds = Array.isArray(payload.commentIds)
@@ -355,15 +355,15 @@ export function normalizePaperclipWakePayload(value: unknown): PaperclipWakePayl
         .filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
         .map((entry) => entry.trim())
     : [];
-  const executionStage = normalizePaperclipWakeExecutionStage(payload.executionStage);
+  const executionStage = normalizePetAgentWakeExecutionStage(payload.executionStage);
 
-  if (comments.length === 0 && commentIds.length === 0 && !executionStage && !normalizePaperclipWakeIssue(payload.issue)) {
+  if (comments.length === 0 && commentIds.length === 0 && !executionStage && !normalizePetAgentWakeIssue(payload.issue)) {
     return null;
   }
 
   return {
     reason: asString(payload.reason, "").trim() || null,
-    issue: normalizePaperclipWakeIssue(payload.issue),
+    issue: normalizePetAgentWakeIssue(payload.issue),
     checkedOutByHarness: asBoolean(payload.checkedOutByHarness, false),
     executionStage,
     commentIds,
@@ -377,21 +377,21 @@ export function normalizePaperclipWakePayload(value: unknown): PaperclipWakePayl
   };
 }
 
-export function stringifyPaperclipWakePayload(value: unknown): string | null {
-  const normalized = normalizePaperclipWakePayload(value);
+export function stringifyPetAgentWakePayload(value: unknown): string | null {
+  const normalized = normalizePetAgentWakePayload(value);
   if (!normalized) return null;
   return JSON.stringify(normalized);
 }
 
-export function renderPaperclipWakePrompt(
+export function renderPetAgentWakePrompt(
   value: unknown,
   options: { resumedSession?: boolean } = {},
 ): string {
-  const normalized = normalizePaperclipWakePayload(value);
+  const normalized = normalizePetAgentWakePayload(value);
   if (!normalized) return "";
   const resumedSession = options.resumedSession === true;
   const executionStage = normalized.executionStage;
-  const principalLabel = (principal: PaperclipWakeExecutionPrincipal | null) => {
+  const principalLabel = (principal: PetAgentWakeExecutionPrincipal | null) => {
     if (!principal || !principal.type) return "unknown";
     if (principal.type === "agent") return principal.agentId ? `agent ${principal.agentId}` : "agent";
     return principal.userId ? `user ${principal.userId}` : "user";
@@ -399,9 +399,9 @@ export function renderPaperclipWakePrompt(
 
   const lines = resumedSession
       ? [
-        "## Paperclip Resume Delta",
+        "## PetAgent Resume Delta",
         "",
-        "You are resuming an existing Paperclip session.",
+        "You are resuming an existing PetAgent session.",
         "This heartbeat is scoped to the issue below. Do not switch to another issue until you have handled this wake.",
         "Focus on the new wake delta below and continue the current task without restating the full heartbeat boilerplate.",
         "Fetch the API thread only when `fallbackFetchNeeded` is true or you need broader history than this batch.",
@@ -413,7 +413,7 @@ export function renderPaperclipWakePrompt(
         `- fallback fetch needed: ${normalized.fallbackFetchNeeded ? "yes" : "no"}`,
       ]
     : [
-        "## Paperclip Wake Payload",
+        "## PetAgent Wake Payload",
         "",
         "Treat this wake payload as the highest-priority change for the current heartbeat.",
         "This heartbeat is scoped to the issue below. Do not switch to another issue until you have handled this wake.",
@@ -535,7 +535,7 @@ export function buildInvocationEnvForLogs(
   return redactEnvForLogs(merged);
 }
 
-export function buildPaperclipEnv(agent: { id: string; companyId: string }): Record<string, string> {
+export function buildPetAgentEnv(agent: { id: string; companyId: string }): Record<string, string> {
   const resolveHostForUrl = (rawHost: string): string => {
     const host = rawHost.trim();
     if (!host || host === "0.0.0.0" || host === "::") return "localhost";
@@ -688,7 +688,7 @@ export async function ensureAbsoluteDirectory(
   }
 }
 
-export async function resolvePaperclipSkillsDir(
+export async function resolvePetAgentSkillsDir(
   moduleDir: string,
   additionalCandidates: string[] = [],
 ): Promise<string | null> {
@@ -708,11 +708,11 @@ export async function resolvePaperclipSkillsDir(
   return null;
 }
 
-export async function listPaperclipSkillEntries(
+export async function listPetAgentSkillEntries(
   moduleDir: string,
   additionalCandidates: string[] = [],
-): Promise<PaperclipSkillEntry[]> {
-  const root = await resolvePaperclipSkillsDir(moduleDir, additionalCandidates);
+): Promise<PetAgentSkillEntry[]> {
+  const root = await resolvePetAgentSkillsDir(moduleDir, additionalCandidates);
   if (!root) return [];
 
   try {
@@ -720,11 +720,11 @@ export async function listPaperclipSkillEntries(
     return entries
       .filter((entry) => entry.isDirectory())
       .map((entry) => ({
-        key: `petagent/paperclip/${entry.name}`,
+        key: `petagent/petagent/${entry.name}`,
         runtimeName: entry.name,
         source: path.join(root, entry.name),
         required: true,
-        requiredReason: "Bundled Paperclip skills are always available for local adapters.",
+        requiredReason: "Bundled PetAgent skills are always available for local adapters.",
       }));
   } catch {
     return [];
@@ -798,7 +798,7 @@ export function buildPersistentSkillSnapshot(
 
   for (const desiredSkill of desiredSkills) {
     if (availableByKey.has(desiredSkill)) continue;
-    warnings.push(`Desired skill "${desiredSkill}" is not available from the Paperclip skills directory.`);
+    warnings.push(`Desired skill "${desiredSkill}" is not available from the PetAgent skills directory.`);
     entries.push({
       key: desiredSkill,
       runtimeName: null,
@@ -807,7 +807,7 @@ export function buildPersistentSkillSnapshot(
       state: "missing",
       sourcePath: null,
       targetPath: null,
-      detail: "Paperclip cannot find this skill in the local runtime skills directory.",
+      detail: "PetAgent cannot find this skill in the local runtime skills directory.",
       origin: "external_unknown",
       originLabel: "External or unavailable",
       readOnly: false,
@@ -844,9 +844,9 @@ export function buildPersistentSkillSnapshot(
   };
 }
 
-function normalizeConfiguredPaperclipRuntimeSkills(value: unknown): PaperclipSkillEntry[] {
+function normalizeConfiguredPetAgentRuntimeSkills(value: unknown): PetAgentSkillEntry[] {
   if (!Array.isArray(value)) return [];
-  const out: PaperclipSkillEntry[] = [];
+  const out: PetAgentSkillEntry[] = [];
   for (const rawEntry of value) {
     const entry = parseObject(rawEntry);
     const key = asString(entry.key, asString(entry.name, "")).trim();
@@ -867,24 +867,24 @@ function normalizeConfiguredPaperclipRuntimeSkills(value: unknown): PaperclipSki
   return out;
 }
 
-export async function readPaperclipRuntimeSkillEntries(
+export async function readPetAgentRuntimeSkillEntries(
   config: Record<string, unknown>,
   moduleDir: string,
   additionalCandidates: string[] = [],
-): Promise<PaperclipSkillEntry[]> {
-  const configuredEntries = normalizeConfiguredPaperclipRuntimeSkills(config.paperclipRuntimeSkills);
+): Promise<PetAgentSkillEntry[]> {
+  const configuredEntries = normalizeConfiguredPetAgentRuntimeSkills(config.petagentRuntimeSkills);
   if (configuredEntries.length > 0) return configuredEntries;
-  return listPaperclipSkillEntries(moduleDir, additionalCandidates);
+  return listPetAgentSkillEntries(moduleDir, additionalCandidates);
 }
 
-export async function readPaperclipSkillMarkdown(
+export async function readPetAgentSkillMarkdown(
   moduleDir: string,
   skillKey: string,
 ): Promise<string | null> {
   const normalized = skillKey.trim().toLowerCase();
   if (!normalized) return null;
 
-  const entries = await listPaperclipSkillEntries(moduleDir);
+  const entries = await listPetAgentSkillEntries(moduleDir);
   const match = entries.find((entry) => entry.key === normalized);
   if (!match) return null;
 
@@ -895,11 +895,11 @@ export async function readPaperclipSkillMarkdown(
   }
 }
 
-export function readPaperclipSkillSyncPreference(config: Record<string, unknown>): {
+export function readPetAgentSkillSyncPreference(config: Record<string, unknown>): {
   explicit: boolean;
   desiredSkills: string[];
 } {
-  const raw = config.paperclipSkillSync;
+  const raw = config.petagentSkillSync;
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     return { explicit: false, desiredSkills: [] };
   }
@@ -917,7 +917,7 @@ export function readPaperclipSkillSyncPreference(config: Record<string, unknown>
   };
 }
 
-function canonicalizeDesiredPaperclipSkillReference(
+function canonicalizeDesiredPetAgentSkillReference(
   reference: string,
   availableEntries: Array<{ key: string; runtimeName?: string | null }>,
 ): string {
@@ -940,11 +940,11 @@ function canonicalizeDesiredPaperclipSkillReference(
   return normalizedReference;
 }
 
-export function resolvePaperclipDesiredSkillNames(
+export function resolvePetAgentDesiredSkillNames(
   config: Record<string, unknown>,
   availableEntries: Array<{ key: string; runtimeName?: string | null; required?: boolean }>,
 ): string[] {
-  const preference = readPaperclipSkillSyncPreference(config);
+  const preference = readPetAgentSkillSyncPreference(config);
   const requiredSkills = availableEntries
     .filter((entry) => entry.required)
     .map((entry) => entry.key);
@@ -952,17 +952,17 @@ export function resolvePaperclipDesiredSkillNames(
     return Array.from(new Set(requiredSkills));
   }
   const desiredSkills = preference.desiredSkills
-    .map((reference) => canonicalizeDesiredPaperclipSkillReference(reference, availableEntries))
+    .map((reference) => canonicalizeDesiredPetAgentSkillReference(reference, availableEntries))
     .filter(Boolean);
   return Array.from(new Set([...requiredSkills, ...desiredSkills]));
 }
 
-export function writePaperclipSkillSyncPreference(
+export function writePetAgentSkillSyncPreference(
   config: Record<string, unknown>,
   desiredSkills: string[],
 ): Record<string, unknown> {
   const next = { ...config };
-  const raw = next.paperclipSkillSync;
+  const raw = next.petagentSkillSync;
   const current =
     typeof raw === "object" && raw !== null && !Array.isArray(raw)
       ? { ...(raw as Record<string, unknown>) }
@@ -974,11 +974,11 @@ export function writePaperclipSkillSyncPreference(
         .filter(Boolean),
     ),
   );
-  next.paperclipSkillSync = current;
+  next.petagentSkillSync = current;
   return next;
 }
 
-export async function ensurePaperclipSkillSymlink(
+export async function ensurePetAgentSkillSymlink(
   source: string,
   target: string,
   linkSkill: (source: string, target: string) => Promise<void> = (linkSource, linkTarget) =>
@@ -1082,7 +1082,7 @@ export async function runChildProcess(
 
     // Strip Claude Code nesting-guard env vars so spawned `claude` processes
     // don't refuse to start with "cannot be launched inside another session".
-    // These vars leak in when the Paperclip server itself is started from
+    // These vars leak in when the PetAgent server itself is started from
     // within a Claude Code session (e.g. `npx petagent run` in a terminal
     // owned by Claude Code) or when cron inherits a contaminated shell env.
     const CLAUDE_CODE_NESTING_VARS = [

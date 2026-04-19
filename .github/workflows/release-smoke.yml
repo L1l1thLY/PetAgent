@@ -3,8 +3,8 @@ name: Release Smoke
 on:
   workflow_dispatch:
     inputs:
-      paperclip_version:
-        description: Published Paperclip dist-tag to test
+      petagent_version:
+        description: Published PetAgent dist-tag to test
         required: true
         default: canary
         type: choice
@@ -23,7 +23,7 @@ on:
         type: string
   workflow_call:
     inputs:
-      paperclip_version:
+      petagent_version:
         required: true
         type: string
       host_port:
@@ -66,7 +66,7 @@ jobs:
           metadata_file="$RUNNER_TEMP/release-smoke.env"
           HOST_PORT="${{ inputs.host_port }}" \
           DATA_DIR="$RUNNER_TEMP/release-smoke-data" \
-          PAPERCLIPAI_VERSION="${{ inputs.paperclip_version }}" \
+          PAPERCLIPAI_VERSION="${{ inputs.petagent_version }}" \
           SMOKE_DETACH=true \
           SMOKE_METADATA_FILE="$metadata_file" \
           ./scripts/docker-onboard-smoke.sh

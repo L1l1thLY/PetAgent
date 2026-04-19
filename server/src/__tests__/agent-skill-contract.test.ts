@@ -16,7 +16,7 @@ describe("agent skill contract", () => {
       originLabel: "User-installed",
       locationLabel: "~/.claude/skills",
       readOnly: true,
-      detail: "Installed outside Paperclip management.",
+      detail: "Installed outside PetAgent management.",
     })).toMatchObject({
       origin: "user_installed",
       locationLabel: "~/.claude/skills",
@@ -31,8 +31,8 @@ describe("agent skill contract", () => {
       mode: "ephemeral",
       desiredSkills: [],
       entries: [{
-        key: "petagent/paperclip/paperclip",
-        runtimeName: "paperclip",
+        key: "petagent/petagent/petagent",
+        runtimeName: "petagent",
         desired: true,
         managed: true,
         state: "configured",
@@ -41,7 +41,7 @@ describe("agent skill contract", () => {
     })).toMatchObject({
       adapterType: "claude_local",
       entries: [{
-        key: "petagent/paperclip/paperclip",
+        key: "petagent/petagent/petagent",
         state: "configured",
       }],
     });

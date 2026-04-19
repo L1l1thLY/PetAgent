@@ -46,7 +46,7 @@ describeEmbeddedPostgres("routine run telemetry", () => {
   let tempDb: Awaited<ReturnType<typeof startEmbeddedPostgresTestDatabase>> | null = null;
 
   beforeAll(async () => {
-    tempDb = await startEmbeddedPostgresTestDatabase("paperclip-routine-telemetry-");
+    tempDb = await startEmbeddedPostgresTestDatabase("petagent-routine-telemetry-");
     db = createDb(tempDb.connectionString);
   }, 20_000);
 
@@ -75,7 +75,7 @@ describeEmbeddedPostgres("routine run telemetry", () => {
 
     await db.insert(companies).values({
       id: companyId,
-      name: "Paperclip",
+      name: "PetAgent",
       issuePrefix: `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`,
       requireBoardApprovalForNewAgents: false,
     });

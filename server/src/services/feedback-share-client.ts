@@ -2,7 +2,7 @@ import { gzipSync } from "node:zlib";
 import type { FeedbackTraceBundle } from "@petagent/shared";
 import type { Config } from "../config.js";
 
-const DEFAULT_FEEDBACK_EXPORT_BACKEND_URL = "https://telemetry.paperclip.ing";
+const DEFAULT_FEEDBACK_EXPORT_BACKEND_URL = "https://telemetry.petagent.ing";
 
 function buildFeedbackShareObjectKey(bundle: FeedbackTraceBundle, exportedAt: Date) {
   const year = String(exportedAt.getUTCFullYear());

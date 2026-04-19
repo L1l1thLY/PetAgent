@@ -1,7 +1,7 @@
 import type { Project } from "@petagent/shared";
 
-export const PROJECT_ORDER_UPDATED_EVENT = "paperclip:project-order-updated";
-const PROJECT_ORDER_STORAGE_PREFIX = "paperclip.projectOrder";
+export const PROJECT_ORDER_UPDATED_EVENT = "petagent:project-order-updated";
+const PROJECT_ORDER_STORAGE_PREFIX = "petagent.projectOrder";
 const ANONYMOUS_USER_ID = "anonymous";
 
 type ProjectOrderUpdatedDetail = {

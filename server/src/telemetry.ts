@@ -4,7 +4,7 @@ import {
   resolveTelemetryConfig,
   loadOrCreateState,
 } from "@petagent/shared/telemetry";
-import { resolvePaperclipInstanceRoot } from "./home-paths.js";
+import { resolvePetAgentInstanceRoot } from "./home-paths.js";
 import { serverVersion } from "./version.js";
 
 let client: TelemetryClient | null = null;
@@ -15,7 +15,7 @@ export function initTelemetry(fileConfig?: { enabled?: boolean }): TelemetryClie
   const config = resolveTelemetryConfig(fileConfig);
   if (!config.enabled) return null;
 
-  const stateDir = path.join(resolvePaperclipInstanceRoot(), "telemetry");
+  const stateDir = path.join(resolvePetAgentInstanceRoot(), "telemetry");
   client = new TelemetryClient(
     config,
     () => loadOrCreateState(stateDir, serverVersion),

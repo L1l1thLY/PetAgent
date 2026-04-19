@@ -19,8 +19,8 @@
 - New config/env settings:
   - `PAPERCLIP_AGENT_JWT_SECRET`
   - `PAPERCLIP_AGENT_JWT_TTL_SECONDS` (default: `172800`)
-  - `PAPERCLIP_AGENT_JWT_ISSUER` (default: `paperclip`)
-  - `PAPERCLIP_AGENT_JWT_AUDIENCE` (default: `paperclip-api`)
+  - `PAPERCLIP_AGENT_JWT_ISSUER` (default: `petagent`)
+  - `PAPERCLIP_AGENT_JWT_AUDIENCE` (default: `petagent-api`)
 
 ## 2) Dual authentication path in `actorMiddleware`
 
@@ -60,7 +60,7 @@
 ## 5) Documentation updates
 
 - Update operator-facing docs to remove manual key setup expectation for local adapters:
-  - `skills/paperclip/SKILL.md`
+  - `skills/petagent/SKILL.md`
   - `cli/src/commands/heartbeat-run.ts` output/help examples if they mention manual API key setup.
 
 ## 6) P0 acceptance criteria

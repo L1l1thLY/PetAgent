@@ -8,20 +8,20 @@ import {
   asNumber,
   asStringArray,
   parseObject,
-  buildPaperclipEnv,
+  buildPetAgentEnv,
   joinPromptSections,
   buildInvocationEnvForLogs,
   ensureAbsoluteDirectory,
   ensureCommandResolvable,
-  ensurePaperclipSkillSymlink,
+  ensurePetAgentSkillSymlink,
   ensurePathInEnv,
-  readPaperclipRuntimeSkillEntries,
+  readPetAgentRuntimeSkillEntries,
   resolveCommandForLogs,
-  resolvePaperclipDesiredSkillNames,
+  resolvePetAgentDesiredSkillNames,
   removeMaintainerOnlySkillSymlinks,
   renderTemplate,
-  renderPaperclipWakePrompt,
-  stringifyPaperclipWakePayload,
+  renderPetAgentWakePrompt,
+  stringifyPetAgentWakePayload,
   runChildProcess,
 } from "@petagent/adapter-utils/server-utils";
 import { isPiUnknownSessionError, parsePiJsonl } from "./parse.js";
@@ -29,7 +29,7 @@ import { ensurePiModelConfiguredAndAvailable } from "./models.js";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
-const PAPERCLIP_SESSIONS_DIR = path.join(os.homedir(), ".pi", "paperclips");
+const PAPERCLIP_SESSIONS_DIR = path.join(os.homedir(), ".pi", "petagents");
 const PI_AGENT_SKILLS_DIR = path.join(os.homedir(), ".pi", "agent", "skills");
 
 function firstNonEmptyLine(text: string): string {
@@ -71,7 +71,7 @@ async function ensurePiSkillsInjected(
   for (const skillName of removedSkills) {
     await onLog(
       "stderr",
-      `[paperclip] Removed maintainer-only Pi skill "${skillName}" from ${PI_AGENT_SKILLS_DIR}\n`,
+      `[petagent] Removed maintainer-only Pi skill "${skillName}" from ${PI_AGENT_SKILLS_DIR}\n`,
     );
   }
 
@@ -79,16 +79,16 @@ async function ensurePiSkillsInjected(
     const target = path.join(PI_AGENT_SKILLS_DIR, entry.runtimeName);
 
     try {
-      const result = await ensurePaperclipSkillSymlink(entry.source, target);
+      const result = await ensurePetAgentSkillSymlink(entry.source, target);
       if (result === "skipped") continue;
       await onLog(
         "stderr",
-        `[paperclip] ${result === "repaired" ? "Repaired" : "Injected"} Pi skill "${entry.runtimeName}" into ${PI_AGENT_SKILLS_DIR}\n`,
+        `[petagent] ${result === "repaired" ? "Repaired" : "Injected"} Pi skill "${entry.runtimeName}" into ${PI_AGENT_SKILLS_DIR}\n`,
       );
     } catch (err) {
       await onLog(
         "stderr",
-        `[paperclip] Failed to inject Pi skill "${entry.runtimeName}" into ${PI_AGENT_SKILLS_DIR}: ${err instanceof Error ? err.message : String(err)}\n`,
+        `[petagent] Failed to inject Pi skill "${entry.runtimeName}" into ${PI_AGENT_SKILLS_DIR}: ${err instanceof Error ? err.message : String(err)}\n`,
       );
     }
   }
@@ -113,7 +113,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
 
   const promptTemplate = asString(
     config.promptTemplate,
-    "You are agent {{agent.id}} ({{agent.name}}). Continue your Paperclip work.",
+    "You are agent {{agent.id}} ({{agent.name}}). Continue your PetAgent work.",
   );
   const command = asString(config.command, "pi");
   const model = asString(config.model, "").trim();
@@ -123,15 +123,15 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const provider = parseModelProvider(model);
   const modelId = parseModelId(model);
 
-  const workspaceContext = parseObject(context.paperclipWorkspace);
+  const workspaceContext = parseObject(context.petagentWorkspace);
   const workspaceCwd = asString(workspaceContext.cwd, "");
   const workspaceSource = asString(workspaceContext.source, "");
   const workspaceId = asString(workspaceContext.workspaceId, "");
   const workspaceRepoUrl = asString(workspaceContext.repoUrl, "");
   const workspaceRepoRef = asString(workspaceContext.repoRef, "");
   const agentHome = asString(workspaceContext.agentHome, "");
-  const workspaceHints = Array.isArray(context.paperclipWorkspaces)
-    ? context.paperclipWorkspaces.filter(
+  const workspaceHints = Array.isArray(context.petagentWorkspaces)
+    ? context.petagentWorkspaces.filter(
         (value): value is Record<string, unknown> => typeof value === "object" && value !== null,
       )
     : [];
@@ -145,15 +145,15 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   await ensureSessionsDir();
   
   // Inject skills
-  const piSkillEntries = await readPaperclipRuntimeSkillEntries(config, __moduleDir);
-  const desiredPiSkillNames = resolvePaperclipDesiredSkillNames(config, piSkillEntries);
+  const piSkillEntries = await readPetAgentRuntimeSkillEntries(config, __moduleDir);
+  const desiredPiSkillNames = resolvePetAgentDesiredSkillNames(config, piSkillEntries);
   await ensurePiSkillsInjected(onLog, piSkillEntries, desiredPiSkillNames);
 
   // Build environment
   const envConfig = parseObject(config.env);
   const hasExplicitApiKey =
     typeof envConfig.PAPERCLIP_API_KEY === "string" && envConfig.PAPERCLIP_API_KEY.trim().length > 0;
-  const env: Record<string, string> = { ...buildPaperclipEnv(agent) };
+  const env: Record<string, string> = { ...buildPetAgentEnv(agent) };
   env.PAPERCLIP_RUN_ID = runId;
   
   const wakeTaskId =
@@ -179,7 +179,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const linkedIssueIds = Array.isArray(context.issueIds)
     ? context.issueIds.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     : [];
-  const wakePayloadJson = stringifyPaperclipWakePayload(context.paperclipWake);
+  const wakePayloadJson = stringifyPetAgentWakePayload(context.petagentWake);
     
   if (wakeTaskId) env.PAPERCLIP_TASK_ID = wakeTaskId;
   if (wakeReason) env.PAPERCLIP_WAKE_REASON = wakeReason;
@@ -244,7 +244,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   if (runtimeSessionId && !canResumeSession) {
     await onLog(
       "stdout",
-      `[paperclip] Pi session "${runtimeSessionId}" was saved for cwd "${runtimeSessionCwd}" and will not be resumed in "${cwd}".\n`,
+      `[petagent] Pi session "${runtimeSessionId}" was saved for cwd "${runtimeSessionCwd}" and will not be resumed in "${cwd}".\n`,
     );
   }
 
@@ -276,13 +276,13 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         `${instructionsContents}\n\n` +
         `The above agent instructions were loaded from ${resolvedInstructionsFilePath}. ` +
         `Resolve any relative file references from ${instructionsFileDir}.\n\n` +
-        `You are agent {{agent.id}} ({{agent.name}}). Continue your Paperclip work.`;
+        `You are agent {{agent.id}} ({{agent.name}}). Continue your PetAgent work.`;
     } catch (err) {
       instructionsReadFailed = true;
       const reason = err instanceof Error ? err.message : String(err);
       await onLog(
         "stdout",
-        `[paperclip] Warning: could not read agent instructions file "${resolvedInstructionsFilePath}": ${reason}\n`,
+        `[petagent] Warning: could not read agent instructions file "${resolvedInstructionsFilePath}": ${reason}\n`,
       );
       // Fall back to base prompt template
       systemPromptExtension = promptTemplate;
@@ -306,10 +306,10 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     !canResumeSession && bootstrapPromptTemplate.trim().length > 0
       ? renderTemplate(bootstrapPromptTemplate, templateData).trim()
       : "";
-  const wakePrompt = renderPaperclipWakePrompt(context.paperclipWake, { resumedSession: canResumeSession });
+  const wakePrompt = renderPetAgentWakePrompt(context.petagentWake, { resumedSession: canResumeSession });
   const shouldUseResumeDeltaPrompt = canResumeSession && wakePrompt.length > 0;
   const renderedHeartbeatPrompt = shouldUseResumeDeltaPrompt ? "" : renderTemplate(promptTemplate, templateData);
-  const sessionHandoffNote = asString(context.paperclipSessionHandoffMarkdown, "").trim();
+  const sessionHandoffNote = asString(context.petagentSessionHandoffMarkdown, "").trim();
   const userPrompt = joinPromptSections([
     renderedBootstrapPrompt,
     wakePrompt,
@@ -355,7 +355,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     args.push("--tools", "read,bash,edit,write,grep,find,ls");
     args.push("--session", sessionFile);
 
-    // Add Paperclip skills directory so Pi can load the paperclip skill
+    // Add PetAgent skills directory so Pi can load the petagent skill
     args.push("--skill", PI_AGENT_SKILLS_DIR);
 
     if (extraArgs.length > 0) args.push(...extraArgs);
@@ -493,7 +493,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   ) {
     await onLog(
       "stdout",
-      `[paperclip] Pi session "${runtimeSessionId}" is unavailable; retrying with a fresh session.\n`,
+      `[petagent] Pi session "${runtimeSessionId}" is unavailable; retrying with a fresh session.\n`,
     );
     const newSessionPath = buildSessionPath(agent.id, new Date().toISOString());
     try {

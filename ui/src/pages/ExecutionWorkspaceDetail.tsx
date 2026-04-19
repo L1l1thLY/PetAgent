@@ -301,7 +301,7 @@ function ExecutionWorkspaceIssuesList({
       projects={projectOptions}
       liveIssueIds={liveIssueIds}
       projectId={project?.id}
-      viewStateKey="paperclip:execution-workspace-issues-view"
+      viewStateKey="petagent:execution-workspace-issues-view"
       onUpdateIssue={(id, data) => updateIssue.mutate({ id, data })}
     />
   );
@@ -470,7 +470,7 @@ export function ExecutionWorkspaceDetail() {
   if (workspaceId && activeTab === null) {
     let cachedTab: ExecutionWorkspaceTab = "configuration";
     try {
-      const storedTab = localStorage.getItem(`paperclip:execution-workspace-tab:${workspaceId}`);
+      const storedTab = localStorage.getItem(`petagent:execution-workspace-tab:${workspaceId}`);
       if (storedTab === "issues" || storedTab === "configuration" || storedTab === "runtime_logs") {
         cachedTab = storedTab;
       }
@@ -480,7 +480,7 @@ export function ExecutionWorkspaceDetail() {
 
   const handleTabChange = (tab: ExecutionWorkspaceTab) => {
     try {
-      localStorage.setItem(`paperclip:execution-workspace-tab:${workspace.id}`, tab);
+      localStorage.setItem(`petagent:execution-workspace-tab:${workspace.id}`, tab);
     } catch {}
     navigate(executionWorkspaceTabPath(workspace.id, tab));
   };
@@ -527,7 +527,7 @@ export function ExecutionWorkspaceDetail() {
           </div>
           <h1 className="truncate text-xl font-semibold sm:text-2xl">{workspace.name}</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Configure the concrete runtime workspace that Paperclip reuses for this issue flow.
+            Configure the concrete runtime workspace that PetAgent reuses for this issue flow.
             <span className="hidden sm:inline"> These settings stay attached to the execution workspace so future runs can keep local paths, repo refs, provisioning, teardown, and runtime-service behavior in sync with the actual workspace being reused.</span>
           </p>
         </div>
@@ -661,7 +661,7 @@ export function ExecutionWorkspaceDetail() {
                   />
                 </Field>
 
-                <Field label="Provision command" hint="Runs when Paperclip prepares this execution workspace">
+                <Field label="Provision command" hint="Runs when PetAgent prepares this execution workspace">
                   <textarea
                     className="min-h-20 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm outline-none sm:min-h-28"
                     value={form.provisionCommand}

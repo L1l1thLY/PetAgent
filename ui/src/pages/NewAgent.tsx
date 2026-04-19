@@ -184,7 +184,7 @@ export function NewAgent() {
     });
   }
 
-  const availableSkills = (companySkills ?? []).filter((skill) => !skill.key.startsWith("petagent/paperclip/"));
+  const availableSkills = (companySkills ?? []).filter((skill) => !skill.key.startsWith("petagent/petagent/"));
 
   function toggleSkill(key: string, checked: boolean) {
     setSelectedSkillKeys((prev) => {
@@ -278,7 +278,7 @@ export function NewAgent() {
             <div>
               <h2 className="text-sm font-medium">Company skills</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Optional skills from the company library. Built-in Paperclip runtime skills are added automatically.
+                Optional skills from the company library. Built-in PetAgent runtime skills are added automatically.
               </p>
             </div>
             {availableSkills.length === 0 ? (

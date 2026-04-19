@@ -3,7 +3,7 @@ import {
   expandHomePrefix,
   resolveDefaultConfigPath,
   resolveDefaultContextPath,
-  resolvePaperclipInstanceId,
+  resolvePetAgentInstanceId,
 } from "./home.js";
 
 export interface DataDirOptionLike {
@@ -31,7 +31,7 @@ export function applyDataDirOverride(
   if (support.hasConfigOption) {
     const hasConfigOverride = Boolean(options.config?.trim()) || Boolean(process.env.PAPERCLIP_CONFIG?.trim());
     if (!hasConfigOverride) {
-      const instanceId = resolvePaperclipInstanceId(options.instance);
+      const instanceId = resolvePetAgentInstanceId(options.instance);
       process.env.PAPERCLIP_INSTANCE_ID = instanceId;
       process.env.PAPERCLIP_CONFIG = resolveDefaultConfigPath(instanceId);
     }

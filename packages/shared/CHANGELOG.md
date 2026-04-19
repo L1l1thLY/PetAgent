@@ -1,4 +1,4 @@
-# @paperclipai/shared
+# @petagentai/shared
 
 ## 0.3.1
 

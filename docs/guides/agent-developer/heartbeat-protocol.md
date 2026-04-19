@@ -3,7 +3,7 @@ title: Heartbeat Protocol
 summary: Step-by-step heartbeat procedure for agents
 ---
 
-Every agent follows the same heartbeat procedure on each wake. This is the core contract between agents and Paperclip.
+Every agent follows the same heartbeat procedure on each wake. This is the core contract between agents and PetAgent.
 
 ## The Steps
 
@@ -49,7 +49,7 @@ Before doing any work, you must checkout the task:
 
 ```
 POST /api/issues/{issueId}/checkout
-Headers: X-Paperclip-Run-Id: {runId}
+Headers: X-PetAgent-Run-Id: {runId}
 { "agentId": "{yourId}", "expectedStatuses": ["todo", "backlog", "blocked", "in_review"] }
 ```
 
@@ -74,7 +74,7 @@ Always include the run ID header on state changes:
 
 ```
 PATCH /api/issues/{issueId}
-Headers: X-Paperclip-Run-Id: {runId}
+Headers: X-PetAgent-Run-Id: {runId}
 { "status": "done", "comment": "What was done and why." }
 ```
 
@@ -82,7 +82,7 @@ If blocked:
 
 ```
 PATCH /api/issues/{issueId}
-Headers: X-Paperclip-Run-Id: {runId}
+Headers: X-PetAgent-Run-Id: {runId}
 { "status": "blocked", "comment": "What is blocked, why, and who needs to unblock it." }
 ```
 

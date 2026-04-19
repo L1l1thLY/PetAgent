@@ -6,21 +6,21 @@ import {
   type ExternalStoreAdapter,
 } from "@assistant-ui/react";
 
-export interface PaperclipIssueRuntimeReassignment {
+export interface PetAgentIssueRuntimeReassignment {
   assigneeAgentId: string | null;
   assigneeUserId: string | null;
 }
 
-export interface PaperclipIssueRuntimeSendOptions {
+export interface PetAgentIssueRuntimeSendOptions {
   body: string;
   reopen?: boolean;
-  reassignment?: PaperclipIssueRuntimeReassignment;
+  reassignment?: PetAgentIssueRuntimeReassignment;
 }
 
-interface UsePaperclipIssueRuntimeOptions {
+interface UsePetAgentIssueRuntimeOptions {
   messages: readonly ThreadMessage[];
   isRunning: boolean;
-  onSend: (options: PaperclipIssueRuntimeSendOptions) => Promise<void>;
+  onSend: (options: PetAgentIssueRuntimeSendOptions) => Promise<void>;
   onCancel?: (() => Promise<void>) | undefined;
 }
 
@@ -37,12 +37,12 @@ function readTextContent(message: AppendMessage) {
     .trim();
 }
 
-export function usePaperclipIssueRuntime({
+export function usePetAgentIssueRuntime({
   messages,
   isRunning,
   onSend,
   onCancel,
-}: UsePaperclipIssueRuntimeOptions) {
+}: UsePetAgentIssueRuntimeOptions) {
   const onSendRef = useRef(onSend);
   const onCancelRef = useRef(onCancel);
 

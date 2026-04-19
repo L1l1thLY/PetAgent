@@ -1,0 +1,23 @@
+[Unit]
+Description=PetAgent AI Agent Orchestrator
+Requires=petagent-db.service
+After=petagent-db.service
+
+[Container]
+Image=petagent-local
+ContainerName=petagent
+Pod=petagent.pod
+Volume=%h/.local/share/petagent:/petagent:Z
+Environment=HOST=0.0.0.0
+Environment=PAPERCLIP_HOME=/petagent
+Environment=PAPERCLIP_DEPLOYMENT_MODE=authenticated
+Environment=PAPERCLIP_DEPLOYMENT_EXPOSURE=private
+Environment=PAPERCLIP_PUBLIC_URL=http://localhost:3100
+EnvironmentFile=%h/.config/containers/systemd/petagent.env
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=120
+
+[Install]
+WantedBy=default.target

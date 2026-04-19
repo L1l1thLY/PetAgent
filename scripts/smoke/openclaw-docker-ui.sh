@@ -61,7 +61,7 @@ OPENCLAW_IMAGE="${OPENCLAW_IMAGE:-openclaw:local}"
 OPENCLAW_TMP_DIR="${OPENCLAW_TMP_DIR:-${TMPDIR:-/tmp}}"
 OPENCLAW_TMP_DIR="${OPENCLAW_TMP_DIR%/}"
 OPENCLAW_TMP_DIR="${OPENCLAW_TMP_DIR:-/tmp}"
-OPENCLAW_CONFIG_DIR="${OPENCLAW_CONFIG_DIR:-$OPENCLAW_TMP_DIR/openclaw-paperclip-smoke}"
+OPENCLAW_CONFIG_DIR="${OPENCLAW_CONFIG_DIR:-$OPENCLAW_TMP_DIR/openclaw-petagent-smoke}"
 OPENCLAW_WORKSPACE_DIR="${OPENCLAW_WORKSPACE_DIR:-$OPENCLAW_CONFIG_DIR/workspace}"
 OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
 OPENCLAW_BRIDGE_PORT="${OPENCLAW_BRIDGE_PORT:-18790}"
@@ -189,7 +189,7 @@ OPENCLAW_IMAGE=$OPENCLAW_IMAGE
 OPENAI_API_KEY=$OPENAI_API_KEY
 EOF
 
-COMPOSE_OVERRIDE="${OPENCLAW_DOCKER_DIR}/.paperclip-openclaw.override.yml"
+COMPOSE_OVERRIDE="${OPENCLAW_DOCKER_DIR}/.petagent-openclaw.override.yml"
 cat > "$COMPOSE_OVERRIDE" <<EOF
 services:
   openclaw-gateway:
@@ -209,7 +209,7 @@ compose() {
     "$@"
 }
 
-detect_paperclip_base_url() {
+detect_petagent_base_url() {
   local bridge_gateway candidate health_url
   bridge_gateway="$(docker network inspect openclaw-docker_default --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)"
   for candidate in "$PAPERCLIP_HOST_FROM_CONTAINER" "$bridge_gateway"; do
@@ -241,7 +241,7 @@ if [[ "$READY" != "1" ]]; then
   fail "gateway did not become healthy in ${OPENCLAW_WAIT_SECONDS}s"
 fi
 
-paperclip_base_url="$(detect_paperclip_base_url || true)"
+petagent_base_url="$(detect_petagent_base_url || true)"
 dashboard_output="$(compose run --rm openclaw-cli dashboard --no-open)"
 dashboard_url="$(grep -Eo 'https?://[^[:space:]]+#token=[^[:space:]]+' <<<"$dashboard_output" | head -n1 || true)"
 if [[ -z "$dashboard_url" ]]; then
@@ -266,20 +266,20 @@ Model:
   ${OPENCLAW_MODEL_PRIMARY} (fallback: ${OPENCLAW_MODEL_FALLBACK})
 State:
   OPENCLAW_RESET_STATE=$OPENCLAW_RESET_STATE
-Paperclip URL for OpenClaw container:
+PetAgent URL for OpenClaw container:
 EOF
-  if [[ -n "$paperclip_base_url" ]]; then
+  if [[ -n "$petagent_base_url" ]]; then
     cat <<EOF
-  $paperclip_base_url
+  $petagent_base_url
   (Use this base URL for invite/onboarding links from inside OpenClaw Docker.)
 EOF
   else
     cat <<EOF
   Auto-detect failed. Try: http://host.docker.internal:${PAPERCLIP_HOST_PORT}
   (Do not use http://127.0.0.1:${PAPERCLIP_HOST_PORT} inside the container.)
-  If Paperclip rejects the host, run on host machine:
-    pnpm paperclipai allowed-hostname host.docker.internal
-  Then restart Paperclip and re-run this script.
+  If PetAgent rejects the host, run on host machine:
+    pnpm petagentai allowed-hostname host.docker.internal
+  Then restart PetAgent and re-run this script.
 EOF
   fi
   cat <<EOF
@@ -299,20 +299,20 @@ Model:
   ${OPENCLAW_MODEL_PRIMARY} (fallback: ${OPENCLAW_MODEL_FALLBACK})
 State:
   OPENCLAW_RESET_STATE=$OPENCLAW_RESET_STATE
-Paperclip URL for OpenClaw container:
+PetAgent URL for OpenClaw container:
 EOF
-  if [[ -n "$paperclip_base_url" ]]; then
+  if [[ -n "$petagent_base_url" ]]; then
     cat <<EOF
-  $paperclip_base_url
+  $petagent_base_url
   (Use this base URL for invite/onboarding links from inside OpenClaw Docker.)
 EOF
   else
     cat <<EOF
   Auto-detect failed. Try: http://host.docker.internal:${PAPERCLIP_HOST_PORT}
   (Do not use http://127.0.0.1:${PAPERCLIP_HOST_PORT} inside the container.)
-  If Paperclip rejects the host, run on host machine:
-    pnpm paperclipai allowed-hostname host.docker.internal
-  Then restart Paperclip and re-run this script.
+  If PetAgent rejects the host, run on host machine:
+    pnpm petagentai allowed-hostname host.docker.internal
+  Then restart PetAgent and re-run this script.
 EOF
   fi
   cat <<EOF

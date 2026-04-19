@@ -149,7 +149,7 @@ async function probeGateway(input: {
               maxProtocol: 3,
               client: {
                 id: "gateway-client",
-                version: "paperclip-probe",
+                version: "petagent-probe",
                 platform: process.platform,
                 mode: "probe",
               },
@@ -296,7 +296,7 @@ export async function testEnvironment(
           code: "openclaw_gateway_probe_failed",
           level: "warn",
           message: "Gateway probe failed.",
-          hint: "Verify network reachability and gateway URL from the Paperclip server host.",
+          hint: "Verify network reachability and gateway URL from the PetAgent server host.",
         });
       }
     } catch (err) {

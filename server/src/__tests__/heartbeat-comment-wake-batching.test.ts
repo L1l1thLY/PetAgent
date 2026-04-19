@@ -63,13 +63,13 @@ async function getAvailablePort(): Promise<number> {
 }
 
 async function startTempDatabase() {
-  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "paperclip-heartbeat-comment-wake-"));
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "petagent-heartbeat-comment-wake-"));
   const port = await getAvailablePort();
   const EmbeddedPostgres = await getEmbeddedPostgresCtor();
   const instance = new EmbeddedPostgres({
     databaseDir: dataDir,
-    user: "paperclip",
-    password: "paperclip",
+    user: "petagent",
+    password: "petagent",
     port,
     persistent: true,
     initdbFlags: ["--encoding=UTF8", "--locale=C", "--lc-messages=C"],
@@ -79,9 +79,9 @@ async function startTempDatabase() {
   await instance.initialise();
   await instance.start();
 
-  const adminConnectionString = `postgres://paperclip:paperclip@127.0.0.1:${port}/postgres`;
-  await ensurePostgresDatabase(adminConnectionString, "paperclip");
-  const connectionString = `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`;
+  const adminConnectionString = `postgres://petagent:petagent@127.0.0.1:${port}/postgres`;
+  await ensurePostgresDatabase(adminConnectionString, "petagent");
+  const connectionString = `postgres://petagent:petagent@127.0.0.1:${port}/petagent`;
   await applyPendingMigrations(connectionString);
   return { connectionString, instance, dataDir };
 }
@@ -247,7 +247,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
-        name: "Paperclip",
+        name: "PetAgent",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
       });
@@ -400,7 +400,7 @@ describe("heartbeat comment wake batching", () => {
           )
           .then((rows) => rows[0] ?? null);
 
-      const deferredContext = (deferredWake?.payload as Record<string, unknown> | null)?._paperclipWakeContext as
+      const deferredContext = (deferredWake?.payload as Record<string, unknown> | null)?._petagentWakeContext as
         | Record<string, unknown>
         | undefined;
       expect(deferredContext?.wakeCommentIds).toEqual([comment2.id, comment3.id]);
@@ -414,7 +414,7 @@ describe("heartbeat comment wake batching", () => {
       }, 90_000);
 
       const secondPayload = gateway.getAgentPayloads()[1] ?? {};
-      expect(secondPayload.paperclip).toMatchObject({
+      expect(secondPayload.petagent).toMatchObject({
         wake: {
           commentIds: [comment2.id, comment3.id],
           latestCommentId: comment3.id,
@@ -440,7 +440,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
-        name: "Paperclip",
+        name: "PetAgent",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
       });
@@ -594,7 +594,7 @@ describe("heartbeat comment wake batching", () => {
       });
 
       const secondPayload = gateway.getAgentPayloads()[1] ?? {};
-      expect(secondPayload.paperclip).toMatchObject({
+      expect(secondPayload.petagent).toMatchObject({
         wake: {
           reason: "issue_commented",
           commentIds: [comment2.id],
@@ -626,7 +626,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
-        name: "Paperclip",
+        name: "PetAgent",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
       });
@@ -680,7 +680,7 @@ describe("heartbeat comment wake batching", () => {
       expect(firstRun).not.toBeNull();
       await waitFor(() => gateway.getAgentPayloads().length === 1);
       const firstPayload = gateway.getAgentPayloads()[0] ?? {};
-      expect(firstPayload.paperclip).toMatchObject({
+      expect(firstPayload.petagent).toMatchObject({
         wake: {
           reason: "issue_assigned",
           issue: {
@@ -694,7 +694,7 @@ describe("heartbeat comment wake batching", () => {
           commentIds: [],
         },
       });
-      expect(String(firstPayload.message ?? "")).toContain("## Paperclip Wake Payload");
+      expect(String(firstPayload.message ?? "")).toContain("## PetAgent Wake Payload");
       expect(String(firstPayload.message ?? "")).toContain("Do not switch to another issue until you have handled this wake.");
       expect(String(firstPayload.message ?? "")).toContain("- checkout: already claimed by the harness for this run");
       expect(String(firstPayload.message ?? "")).toContain(
@@ -778,7 +778,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
-        name: "Paperclip",
+        name: "PetAgent",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
       });
@@ -940,7 +940,7 @@ describe("heartbeat comment wake batching", () => {
     try {
       await db.insert(companies).values({
         id: companyId,
-        name: "Paperclip",
+        name: "PetAgent",
         issuePrefix,
         requireBoardApprovalForNewAgents: false,
       });

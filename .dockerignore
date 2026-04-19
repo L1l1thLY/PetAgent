@@ -1,6 +1,6 @@
 .git
 .github
-.paperclip
+.petagent
 .pnpm-store
 node_modules
 **/node_modules
