@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { PetAgent, Plus } from "lucide-react";
+import { Paperclip, Plus } from "lucide-react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import {
   DndContext,
@@ -202,7 +202,7 @@ export function CompanyRail() {
     <div className="flex flex-col items-center w-[72px] shrink-0 h-full bg-background border-r border-border">
       {/* Brand icon - aligned with top sections (implied line, no visible border) */}
       <div className="flex items-center justify-center h-12 w-full shrink-0">
-        <PetAgent className="h-5 w-5 text-foreground" />
+        <Paperclip className="h-5 w-5 text-foreground" />
       </div>
 
       {/* Company list */}

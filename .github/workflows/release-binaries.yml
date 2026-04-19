@@ -1,0 +1,94 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            platform: darwin
+            arch: arm64
+          - os: macos-13
+            platform: darwin
+            arch: x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build PetAgent CLI
+        run: pnpm --filter @petagent/cli build
+
+      - name: Package single-file binary
+        shell: bash
+        run: bash packaging/build-binary.sh
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: petagent-${{ matrix.platform }}-${{ matrix.arch }}
+          path: dist/binaries/*
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect binaries
+        run: |
+          mkdir -p release-assets
+          find artifacts -type f -exec cp {} release-assets/ \;
+          ls -la release-assets
+
+      - name: Compute SHA256
+        run: |
+          cd release-assets
+          shasum -a 256 * | tee ../SHA256SUMS.txt
+
+      - name: Reminder to update formula
+        run: |
+          echo "::notice::Draft release created. Update packaging/brew/petagent.rb sha256 fields from SHA256SUMS.txt before publishing."
+
+      - name: Create draft GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: ${{ github.ref_name }}
+          files: |
+            release-assets/*
+            SHA256SUMS.txt

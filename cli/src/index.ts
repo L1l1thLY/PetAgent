@@ -8,6 +8,7 @@ import { heartbeatRun } from "./commands/heartbeat-run.js";
 import { runCommand } from "./commands/run.js";
 import { bootstrapCeoInvite } from "./commands/auth-bootstrap-ceo.js";
 import { dbBackupCommand } from "./commands/db-backup.js";
+import { openBoard } from "./commands/open.js";
 import { registerContextCommands } from "./commands/client/context.js";
 import { registerCompanyCommands } from "./commands/client/company.js";
 import { registerIssueCommands } from "./commands/client/issue.js";
@@ -113,6 +114,19 @@ program
   .option("--repair", "Attempt automatic repairs during doctor", true)
   .option("--no-repair", "Disable automatic repairs during doctor")
   .action(runCommand);
+
+program
+  .command("open")
+  .description("Open the PetAgent Board in your default browser")
+  .option("--url <url>", "URL to open (overrides PETAGENT_UI_URL and default)")
+  .addHelpText(
+    "after",
+    "\nURL precedence: --url > PETAGENT_UI_URL env > http://localhost:3000/board\n",
+  )
+  .action(async (opts: { url?: string }) => {
+    const code = await openBoard({ url: opts.url });
+    if (code !== 0) process.exitCode = code;
+  });
 
 const heartbeat = program.command("heartbeat").description("Heartbeat utilities");
 
