@@ -63,3 +63,11 @@ export { pluginEntities } from "./plugin_entities.js";
 export { pluginJobs, pluginJobRuns } from "./plugin_jobs.js";
 export { pluginWebhookDeliveries } from "./plugin_webhooks.js";
 export { pluginLogs } from "./plugin_logs.js";
+export { agentSkills, agentSkillSubscriptions } from "./agent_skills.js";
+export { agentNotes, agentIssueSessions } from "./agent_notes.js";
+export { emotionalIncidents } from "./emotional_incidents.js";
+export {
+  petagentPlugins,
+  petagentPluginRoutes,
+  petagentPluginKpi,
+} from "./petagent_plugins.js";
