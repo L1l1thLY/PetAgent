@@ -43,10 +43,10 @@ interface AdapterSettings {
 // Paths
 // ---------------------------------------------------------------------------
 
-const PAPERCLIP_DIR = path.join(os.homedir(), ".petagent");
-const ADAPTER_PLUGINS_DIR = path.join(PAPERCLIP_DIR, "adapter-plugins");
-const ADAPTER_PLUGINS_STORE_PATH = path.join(PAPERCLIP_DIR, "adapter-plugins.json");
-const ADAPTER_SETTINGS_PATH = path.join(PAPERCLIP_DIR, "adapter-settings.json");
+const PETAGENT_DIR = path.join(os.homedir(), ".petagent");
+const ADAPTER_PLUGINS_DIR = path.join(PETAGENT_DIR, "adapter-plugins");
+const ADAPTER_PLUGINS_STORE_PATH = path.join(PETAGENT_DIR, "adapter-plugins.json");
+const ADAPTER_SETTINGS_PATH = path.join(PETAGENT_DIR, "adapter-settings.json");
 
 // ---------------------------------------------------------------------------
 // In-memory caches (invalidated on write)

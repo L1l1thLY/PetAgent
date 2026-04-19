@@ -201,7 +201,7 @@ export async function execute(
 | Helper | Purpose |
 |--------|---------|
 | `runChildProcess(command, opts)` | Spawn a child process with timeout, grace period, and streaming callbacks |
-| `buildPetAgentEnv(agent)` | Inject `PAPERCLIP_*` environment variables |
+| `buildPetAgentEnv(agent)` | Inject `PETAGENT_*` environment variables |
 | `renderTemplate(template, data)` | `{{variable}}` substitution in prompt templates |
 | `asString(v)`, `asNumber(v)`, `asBoolean(v)` | Safe config value extraction |
 

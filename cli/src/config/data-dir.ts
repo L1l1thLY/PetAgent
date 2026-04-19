@@ -26,21 +26,21 @@ export function applyDataDirOverride(
   if (!rawDataDir) return null;
 
   const resolvedDataDir = path.resolve(expandHomePrefix(rawDataDir));
-  process.env.PAPERCLIP_HOME = resolvedDataDir;
+  process.env.PETAGENT_HOME = resolvedDataDir;
 
   if (support.hasConfigOption) {
-    const hasConfigOverride = Boolean(options.config?.trim()) || Boolean(process.env.PAPERCLIP_CONFIG?.trim());
+    const hasConfigOverride = Boolean(options.config?.trim()) || Boolean(process.env.PETAGENT_CONFIG?.trim());
     if (!hasConfigOverride) {
       const instanceId = resolvePetAgentInstanceId(options.instance);
-      process.env.PAPERCLIP_INSTANCE_ID = instanceId;
-      process.env.PAPERCLIP_CONFIG = resolveDefaultConfigPath(instanceId);
+      process.env.PETAGENT_INSTANCE_ID = instanceId;
+      process.env.PETAGENT_CONFIG = resolveDefaultConfigPath(instanceId);
     }
   }
 
   if (support.hasContextOption) {
-    const hasContextOverride = Boolean(options.context?.trim()) || Boolean(process.env.PAPERCLIP_CONTEXT?.trim());
+    const hasContextOverride = Boolean(options.context?.trim()) || Boolean(process.env.PETAGENT_CONTEXT?.trim());
     if (!hasContextOverride) {
-      process.env.PAPERCLIP_CONTEXT = resolveDefaultContextPath();
+      process.env.PETAGENT_CONTEXT = resolveDefaultContextPath();
     }
   }
 

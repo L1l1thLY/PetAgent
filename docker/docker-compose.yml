@@ -25,9 +25,9 @@ services:
       DATABASE_URL: postgres://petagent:petagent@db:5432/petagent
       PORT: "3100"
       SERVE_UI: "true"
-      PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
-      PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
-      PAPERCLIP_PUBLIC_URL: "${PAPERCLIP_PUBLIC_URL:-http://localhost:3100}"
+      PETAGENT_DEPLOYMENT_MODE: "authenticated"
+      PETAGENT_DEPLOYMENT_EXPOSURE: "private"
+      PETAGENT_PUBLIC_URL: "${PETAGENT_PUBLIC_URL:-http://localhost:3100}"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
     volumes:
       - petagent-data:/petagent

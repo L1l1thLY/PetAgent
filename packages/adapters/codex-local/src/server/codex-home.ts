@@ -6,7 +6,7 @@ import type { AdapterExecutionContext } from "@petagent/adapter-utils";
 const TRUTHY_ENV_RE = /^(1|true|yes|on)$/i;
 const COPIED_SHARED_FILES = ["config.json", "config.toml", "instructions.md"] as const;
 const SYMLINKED_SHARED_FILES = ["auth.json"] as const;
-const DEFAULT_PAPERCLIP_INSTANCE_ID = "default";
+const DEFAULT_PETAGENT_INSTANCE_ID = "default";
 
 function nonEmpty(value: string | undefined): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
@@ -24,15 +24,15 @@ export function resolveSharedCodexHomeDir(
 }
 
 function isWorktreeMode(env: NodeJS.ProcessEnv): boolean {
-  return TRUTHY_ENV_RE.test(env.PAPERCLIP_IN_WORKTREE ?? "");
+  return TRUTHY_ENV_RE.test(env.PETAGENT_IN_WORKTREE ?? "");
 }
 
 export function resolveManagedCodexHomeDir(
   env: NodeJS.ProcessEnv,
   companyId?: string,
 ): string {
-  const petagentHome = nonEmpty(env.PAPERCLIP_HOME) ?? path.resolve(os.homedir(), ".petagent");
-  const instanceId = nonEmpty(env.PAPERCLIP_INSTANCE_ID) ?? DEFAULT_PAPERCLIP_INSTANCE_ID;
+  const petagentHome = nonEmpty(env.PETAGENT_HOME) ?? path.resolve(os.homedir(), ".petagent");
+  const instanceId = nonEmpty(env.PETAGENT_INSTANCE_ID) ?? DEFAULT_PETAGENT_INSTANCE_ID;
   return companyId
     ? path.resolve(petagentHome, "instances", instanceId, "companies", companyId, "codex-home")
     : path.resolve(petagentHome, "instances", instanceId, "codex-home");

@@ -48,4 +48,4 @@ The webhook receives a JSON payload with:
 }
 ```
 
-The external agent uses `PAPERCLIP_API_URL` and an API key to call back to PetAgent.
+The external agent uses `PETAGENT_API_URL` and an API key to call back to PetAgent.

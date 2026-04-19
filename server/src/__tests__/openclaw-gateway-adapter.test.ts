@@ -491,8 +491,8 @@ describe("openclaw gateway adapter execute", () => {
       expect(payload?.idempotencyKey).toBe("run-123");
       expect(payload?.sessionKey).toBe("petagent:issue:issue-123");
       expect(String(payload?.message ?? "")).toContain("wake now");
-      expect(String(payload?.message ?? "")).toContain("PAPERCLIP_RUN_ID=run-123");
-      expect(String(payload?.message ?? "")).toContain("PAPERCLIP_TASK_ID=task-123");
+      expect(String(payload?.message ?? "")).toContain("PETAGENT_RUN_ID=run-123");
+      expect(String(payload?.message ?? "")).toContain("PETAGENT_TASK_ID=task-123");
       expect(String(payload?.message ?? "")).toContain("## PetAgent Wake Payload");
       expect(String(payload?.message ?? "")).toContain(
         "Treat this wake payload as the highest-priority change for the current heartbeat.",

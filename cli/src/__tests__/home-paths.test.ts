@@ -16,8 +16,8 @@ describe("home path resolution", () => {
   });
 
   it("defaults to ~/.petagent and default instance", () => {
-    delete process.env.PAPERCLIP_HOME;
-    delete process.env.PAPERCLIP_INSTANCE_ID;
+    delete process.env.PETAGENT_HOME;
+    delete process.env.PETAGENT_INSTANCE_ID;
 
     const paths = describeLocalInstancePaths();
     expect(paths.homeDir).toBe(path.resolve(os.homedir(), ".petagent"));
@@ -25,8 +25,8 @@ describe("home path resolution", () => {
     expect(paths.configPath).toBe(path.resolve(os.homedir(), ".petagent", "instances", "default", "config.json"));
   });
 
-  it("supports PAPERCLIP_HOME and explicit instance ids", () => {
-    process.env.PAPERCLIP_HOME = "~/petagent-home";
+  it("supports PETAGENT_HOME and explicit instance ids", () => {
+    process.env.PETAGENT_HOME = "~/petagent-home";
 
     const home = resolvePetAgentHomeDir();
     expect(home).toBe(path.resolve(os.homedir(), "petagent-home"));

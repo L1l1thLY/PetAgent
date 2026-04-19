@@ -125,7 +125,7 @@ docker build -t petagent-local .
 docker run --name petagent \
   -p 3100:3100 \
   -e HOST=0.0.0.0 \
-  -e PAPERCLIP_HOME=/petagent \
+  -e PETAGENT_HOME=/petagent \
   -v "$(pwd)/data/docker-petagent:/petagent" \
   petagent-local
 ```
@@ -152,7 +152,7 @@ The server will automatically use embedded PostgreSQL and persist data at:
 Override home and instance:
 
 ```sh
-PAPERCLIP_HOME=/custom/path PAPERCLIP_INSTANCE_ID=dev pnpm petagentai run
+PETAGENT_HOME=/custom/path PETAGENT_INSTANCE_ID=dev pnpm petagentai run
 ```
 
 No Docker or external database is required for this mode.
@@ -175,7 +175,7 @@ When a local agent run has no resolved project/session workspace, PetAgent falls
 
 - `~/.petagent/instances/default/workspaces/<agent-id>`
 
-This path honors `PAPERCLIP_HOME` and `PAPERCLIP_INSTANCE_ID` in non-default setups.
+This path honors `PETAGENT_HOME` and `PETAGENT_INSTANCE_ID` in non-default setups.
 
 For `codex_local`, PetAgent also manages a per-company Codex home under the instance root and seeds it from the shared Codex login/config home (`$CODEX_HOME` or `~/.codex`):
 
@@ -217,9 +217,9 @@ Provisioned git worktrees also pause seeded routines that still have enabled sch
 
 That repo-local env also sets:
 
-- `PAPERCLIP_IN_WORKTREE=true`
-- `PAPERCLIP_WORKTREE_NAME=<worktree-name>`
-- `PAPERCLIP_WORKTREE_COLOR=<hex-color>`
+- `PETAGENT_IN_WORKTREE=true`
+- `PETAGENT_WORKTREE_NAME=<worktree-name>`
+- `PETAGENT_WORKTREE_COLOR=<hex-color>`
 
 The server/UI use those values for worktree-specific branding such as the top banner and dynamically colored favicon.
 
@@ -241,7 +241,7 @@ eval "$(petagentai worktree env)"
 | `--instance <id>` | Explicit isolated instance id |
 | `--home <path>` | Home root for worktree instances (default: `~/.petagent-worktrees`) |
 | `--from-config <path>` | Source config.json to seed from |
-| `--from-data-dir <path>` | Source PAPERCLIP_HOME used when deriving the source config |
+| `--from-data-dir <path>` | Source PETAGENT_HOME used when deriving the source config |
 | `--from-instance <id>` | Source instance id (default: `default`) |
 | `--server-port <port>` | Preferred server port |
 | `--db-port <port>` | Preferred embedded Postgres port |
@@ -279,7 +279,7 @@ For an already-created worktree where you want the CLI to decide whether to rebu
 | `--branch <name>` | Existing branch/worktree selector to repair, or a branch name to create under `.petagent/worktrees` |
 | `--home <path>` | Home root for worktree instances (default: `~/.petagent-worktrees`) |
 | `--from-config <path>` | Source config.json to seed from |
-| `--from-data-dir <path>` | Source `PAPERCLIP_HOME` used when deriving the source config |
+| `--from-data-dir <path>` | Source `PETAGENT_HOME` used when deriving the source config |
 | `--from-instance <id>` | Source instance id when deriving the source config (default: `default`) |
 | `--seed-mode <mode>` | Seed profile: `minimal` or `full` (default: `minimal`) |
 | `--no-seed` | Repair metadata only when bootstrapping a missing worktree config |
@@ -306,7 +306,7 @@ For an already-created worktree where you want to keep the existing repo-local c
 | `--from <worktree>` | Source worktree path, directory name, branch name, or `current` |
 | `--to <worktree>` | Target worktree path, directory name, branch name, or `current` (defaults to `current`) |
 | `--from-config <path>` | Source config.json to seed from |
-| `--from-data-dir <path>` | Source `PAPERCLIP_HOME` used when deriving the source config |
+| `--from-data-dir <path>` | Source `PETAGENT_HOME` used when deriving the source config |
 | `--from-instance <id>` | Source instance id when deriving the source config |
 | `--seed-mode <mode>` | Seed profile: `minimal` or `full` (default: `full`) |
 | `--yes` | Skip the destructive confirmation prompt |
@@ -338,7 +338,7 @@ pnpm petagentai worktree reseed \
 | `--instance <id>` | Explicit isolated instance id |
 | `--home <path>` | Home root for worktree instances (default: `~/.petagent-worktrees`) |
 | `--from-config <path>` | Source config.json to seed from |
-| `--from-data-dir <path>` | Source PAPERCLIP_HOME used when deriving the source config |
+| `--from-data-dir <path>` | Source PETAGENT_HOME used when deriving the source config |
 | `--from-instance <id>` | Source instance id (default: `default`) |
 | `--server-port <port>` | Preferred server port |
 | `--db-port <port>` | Preferred embedded Postgres port |
@@ -369,7 +369,7 @@ pnpm petagentai worktree env --json
 eval "$(pnpm petagentai worktree env)"
 ```
 
-For project execution worktrees, PetAgent can also run a project-defined provision command after it creates or reuses an isolated git worktree. Configure this on the project's execution workspace policy (`workspaceStrategy.provisionCommand`). The command runs inside the derived worktree and receives `PAPERCLIP_WORKSPACE_*`, `PAPERCLIP_PROJECT_ID`, `PAPERCLIP_AGENT_ID`, and `PAPERCLIP_ISSUE_*` environment variables so each repo can bootstrap itself however it wants.
+For project execution worktrees, PetAgent can also run a project-defined provision command after it creates or reuses an isolated git worktree. Configure this on the project's execution workspace policy (`workspaceStrategy.provisionCommand`). The command runs inside the derived worktree and receives `PETAGENT_WORKSPACE_*`, `PETAGENT_PROJECT_ID`, `PETAGENT_AGENT_ID`, and `PETAGENT_ISSUE_*` environment variables so each repo can bootstrap itself however it wants.
 
 ## Quick Health Checks
 
@@ -423,23 +423,23 @@ pnpm db:backup
 
 Environment overrides:
 
-- `PAPERCLIP_DB_BACKUP_ENABLED=true|false`
-- `PAPERCLIP_DB_BACKUP_INTERVAL_MINUTES=<minutes>`
-- `PAPERCLIP_DB_BACKUP_RETENTION_DAYS=<days>`
-- `PAPERCLIP_DB_BACKUP_DIR=/absolute/or/~/path`
+- `PETAGENT_DB_BACKUP_ENABLED=true|false`
+- `PETAGENT_DB_BACKUP_INTERVAL_MINUTES=<minutes>`
+- `PETAGENT_DB_BACKUP_RETENTION_DAYS=<days>`
+- `PETAGENT_DB_BACKUP_DIR=/absolute/or/~/path`
 
 ## Secrets in Dev
 
 Agent env vars now support secret references. By default, secret values are stored with local encryption and only secret refs are persisted in agent config.
 
 - Default local key path: `~/.petagent/instances/default/secrets/master.key`
-- Override key material directly: `PAPERCLIP_SECRETS_MASTER_KEY`
-- Override key file path: `PAPERCLIP_SECRETS_MASTER_KEY_FILE`
+- Override key material directly: `PETAGENT_SECRETS_MASTER_KEY`
+- Override key file path: `PETAGENT_SECRETS_MASTER_KEY_FILE`
 
 Strict mode (recommended outside local trusted machines):
 
 ```sh
-PAPERCLIP_SECRETS_STRICT_MODE=true
+PETAGENT_SECRETS_STRICT_MODE=true
 ```
 
 When strict mode is enabled, sensitive env keys (for example `*_API_KEY`, `*_TOKEN`, `*_SECRET`) must use secret references instead of inline plain values.
@@ -462,7 +462,7 @@ pnpm secrets:migrate-inline-env --apply # apply migration
 Company deletion is intended as a dev/debug capability and can be disabled at runtime:
 
 ```sh
-PAPERCLIP_ENABLE_COMPANY_DELETION=false
+PETAGENT_ENABLE_COMPANY_DELETION=false
 ```
 
 Default behavior:
@@ -525,12 +525,12 @@ What it validates:
 Required permissions:
 
 - This script performs board-governed actions (create invite, approve join, wakeup another agent).
-- In authenticated mode, run with board auth via `PAPERCLIP_AUTH_HEADER` or `PAPERCLIP_COOKIE`.
+- In authenticated mode, run with board auth via `PETAGENT_AUTH_HEADER` or `PETAGENT_COOKIE`.
 
 Optional auth flags (for authenticated mode):
 
-- `PAPERCLIP_AUTH_HEADER` (for example `Bearer ...`)
-- `PAPERCLIP_COOKIE` (session cookie header value)
+- `PETAGENT_AUTH_HEADER` (for example `Bearer ...`)
+- `PETAGENT_COOKIE` (session cookie header value)
 
 ## OpenClaw Docker UI One-Command Script
 
@@ -559,5 +559,5 @@ State behavior for this smoke script:
 Networking behavior for this smoke script:
 
 - auto-detects and prints a PetAgent host URL reachable from inside OpenClaw Docker
-- default container-side host alias is `host.docker.internal` (override with `PAPERCLIP_HOST_FROM_CONTAINER` / `PAPERCLIP_HOST_PORT`)
+- default container-side host alias is `host.docker.internal` (override with `PETAGENT_HOST_FROM_CONTAINER` / `PETAGENT_HOST_PORT`)
 - if PetAgent rejects container hostnames in authenticated/private mode, allow `host.docker.internal` via `pnpm petagentai allowed-hostname host.docker.internal` and restart PetAgent

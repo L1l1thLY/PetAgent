@@ -191,7 +191,7 @@ function nonEmpty(value: string | null | undefined): string | null {
 }
 
 function isCurrentSourceConfigPath(sourceConfigPath: string): boolean {
-  const currentConfigPath = process.env.PAPERCLIP_CONFIG;
+  const currentConfigPath = process.env.PETAGENT_CONFIG;
   if (!currentConfigPath || currentConfigPath.trim().length === 0) {
     return false;
   }
@@ -214,11 +214,11 @@ function resolveWorktreeMakeName(name: string): string {
 }
 
 function resolveWorktreeHome(explicit?: string): string {
-  return explicit ?? process.env.PAPERCLIP_WORKTREES_DIR ?? DEFAULT_WORKTREE_HOME;
+  return explicit ?? process.env.PETAGENT_WORKTREES_DIR ?? DEFAULT_WORKTREE_HOME;
 }
 
 function resolveWorktreeStartPoint(explicit?: string): string | undefined {
-  return explicit ?? nonEmpty(process.env.PAPERCLIP_WORKTREE_START_POINT) ?? undefined;
+  return explicit ?? nonEmpty(process.env.PETAGENT_WORKTREE_START_POINT) ?? undefined;
 }
 
 type ConfiguredStorage = {
@@ -844,12 +844,12 @@ export function resolveWorktreeReseedTargetPaths(input: {
   rootPath: string;
 }): WorktreeLocalPaths {
   const envEntries = readPetAgentEnvEntries(resolvePetAgentEnvFile(input.configPath));
-  const homeDir = nonEmpty(envEntries.PAPERCLIP_HOME);
-  const instanceId = nonEmpty(envEntries.PAPERCLIP_INSTANCE_ID);
+  const homeDir = nonEmpty(envEntries.PETAGENT_HOME);
+  const instanceId = nonEmpty(envEntries.PETAGENT_INSTANCE_ID);
 
   if (!homeDir || !instanceId) {
     throw new Error(
-      `Target config ${input.configPath} does not look like a worktree-local PetAgent instance. Expected PAPERCLIP_HOME and PAPERCLIP_INSTANCE_ID in the adjacent .env.`,
+      `Target config ${input.configPath} does not look like a worktree-local PetAgent instance. Expected PETAGENT_HOME and PETAGENT_INSTANCE_ID in the adjacent .env.`,
     );
   }
 
@@ -988,8 +988,8 @@ export function copySeededSecretsKey(input: {
 
   const allowProcessEnvFallback = isCurrentSourceConfigPath(input.sourceConfigPath);
   const sourceInlineMasterKey =
-    nonEmpty(input.sourceEnvEntries.PAPERCLIP_SECRETS_MASTER_KEY) ??
-    (allowProcessEnvFallback ? nonEmpty(process.env.PAPERCLIP_SECRETS_MASTER_KEY) : null);
+    nonEmpty(input.sourceEnvEntries.PETAGENT_SECRETS_MASTER_KEY) ??
+    (allowProcessEnvFallback ? nonEmpty(process.env.PETAGENT_SECRETS_MASTER_KEY) : null);
   if (sourceInlineMasterKey) {
     writeFileSync(input.targetKeyFilePath, sourceInlineMasterKey, {
       encoding: "utf8",
@@ -1004,8 +1004,8 @@ export function copySeededSecretsKey(input: {
   }
 
   const sourceKeyFileOverride =
-    nonEmpty(input.sourceEnvEntries.PAPERCLIP_SECRETS_MASTER_KEY_FILE) ??
-    (allowProcessEnvFallback ? nonEmpty(process.env.PAPERCLIP_SECRETS_MASTER_KEY_FILE) : null);
+    nonEmpty(input.sourceEnvEntries.PETAGENT_SECRETS_MASTER_KEY_FILE) ??
+    (allowProcessEnvFallback ? nonEmpty(process.env.PETAGENT_SECRETS_MASTER_KEY_FILE) : null);
   const sourceConfiguredKeyPath = sourceKeyFileOverride ?? input.sourceConfig.secrets.localEncrypted.keyFilePath;
   const sourceKeyFilePath = resolveRuntimeLikePath(sourceConfiguredKeyPath, input.sourceConfigPath);
 
@@ -1248,12 +1248,12 @@ async function runWorktreeInit(opts: WorktreeInitOptions): Promise<void> {
   writeConfig(targetConfig, paths.configPath);
   const sourceEnvEntries = readPetAgentEnvEntries(resolvePetAgentEnvFile(sourceConfigPath));
   const existingAgentJwtSecret =
-    nonEmpty(sourceEnvEntries.PAPERCLIP_AGENT_JWT_SECRET) ??
-    nonEmpty(process.env.PAPERCLIP_AGENT_JWT_SECRET);
+    nonEmpty(sourceEnvEntries.PETAGENT_AGENT_JWT_SECRET) ??
+    nonEmpty(process.env.PETAGENT_AGENT_JWT_SECRET);
   mergePetAgentEnvEntries(
     {
       ...buildWorktreeEnvEntries(paths, branding),
-      ...(existingAgentJwtSecret ? { PAPERCLIP_AGENT_JWT_SECRET: existingAgentJwtSecret } : {}),
+      ...(existingAgentJwtSecret ? { PETAGENT_AGENT_JWT_SECRET: existingAgentJwtSecret } : {}),
     },
     paths.envPath,
   );
@@ -1676,10 +1676,10 @@ export async function worktreeEnvCommand(opts: WorktreeEnvOptions): Promise<void
   const envPath = resolvePetAgentEnvFile(configPath);
   const envEntries = readPetAgentEnvEntries(envPath);
   const out = {
-    PAPERCLIP_CONFIG: configPath,
-    ...(envEntries.PAPERCLIP_HOME ? { PAPERCLIP_HOME: envEntries.PAPERCLIP_HOME } : {}),
-    ...(envEntries.PAPERCLIP_INSTANCE_ID ? { PAPERCLIP_INSTANCE_ID: envEntries.PAPERCLIP_INSTANCE_ID } : {}),
-    ...(envEntries.PAPERCLIP_CONTEXT ? { PAPERCLIP_CONTEXT: envEntries.PAPERCLIP_CONTEXT } : {}),
+    PETAGENT_CONFIG: configPath,
+    ...(envEntries.PETAGENT_HOME ? { PETAGENT_HOME: envEntries.PETAGENT_HOME } : {}),
+    ...(envEntries.PETAGENT_INSTANCE_ID ? { PETAGENT_INSTANCE_ID: envEntries.PETAGENT_INSTANCE_ID } : {}),
+    ...(envEntries.PETAGENT_CONTEXT ? { PETAGENT_CONTEXT: envEntries.PETAGENT_CONTEXT } : {}),
     ...envEntries,
   };
 
@@ -3001,7 +3001,7 @@ export async function worktreeRepairCommand(opts: WorktreeRepairOptions): Promis
   const targetConfig = existsSync(target.configPath) ? readConfig(target.configPath) : null;
   const targetEnvEntries = readPetAgentEnvEntries(resolvePetAgentEnvFile(target.configPath));
   const targetHasWorktreeEnv = Boolean(
-    nonEmpty(targetEnvEntries.PAPERCLIP_HOME) && nonEmpty(targetEnvEntries.PAPERCLIP_INSTANCE_ID),
+    nonEmpty(targetEnvEntries.PETAGENT_HOME) && nonEmpty(targetEnvEntries.PETAGENT_INSTANCE_ID),
   );
 
   if (targetConfig && targetHasWorktreeEnv && opts.noSeed) {
@@ -3061,11 +3061,11 @@ export function registerWorktreeCommands(program: Command): void {
     .command("worktree:make")
     .description("Create ~/NAME as a git worktree, then initialize an isolated PetAgent instance inside it")
     .argument("<name>", "Worktree name — auto-prefixed with petagent- if needed (created at ~/petagent-NAME)")
-    .option("--start-point <ref>", "Remote ref to base the new branch on (env: PAPERCLIP_WORKTREE_START_POINT)")
+    .option("--start-point <ref>", "Remote ref to base the new branch on (env: PETAGENT_WORKTREE_START_POINT)")
     .option("--instance <id>", "Explicit isolated instance id")
-    .option("--home <path>", `Home root for worktree instances (env: PAPERCLIP_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
+    .option("--home <path>", `Home root for worktree instances (env: PETAGENT_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
     .option("--from-config <path>", "Source config.json to seed from")
-    .option("--from-data-dir <path>", "Source PAPERCLIP_HOME used when deriving the source config")
+    .option("--from-data-dir <path>", "Source PETAGENT_HOME used when deriving the source config")
     .option("--from-instance <id>", "Source instance id when deriving the source config", "default")
     .option("--server-port <port>", "Preferred server port", (value) => Number(value))
     .option("--db-port <port>", "Preferred embedded Postgres port", (value) => Number(value))
@@ -3079,9 +3079,9 @@ export function registerWorktreeCommands(program: Command): void {
     .description("Create repo-local config/env and an isolated instance for this worktree")
     .option("--name <name>", "Display name used to derive the instance id")
     .option("--instance <id>", "Explicit isolated instance id")
-    .option("--home <path>", `Home root for worktree instances (env: PAPERCLIP_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
+    .option("--home <path>", `Home root for worktree instances (env: PETAGENT_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
     .option("--from-config <path>", "Source config.json to seed from")
-    .option("--from-data-dir <path>", "Source PAPERCLIP_HOME used when deriving the source config")
+    .option("--from-data-dir <path>", "Source PETAGENT_HOME used when deriving the source config")
     .option("--from-instance <id>", "Source instance id when deriving the source config", "default")
     .option("--server-port <port>", "Preferred server port", (value) => Number(value))
     .option("--db-port <port>", "Preferred embedded Postgres port", (value) => Number(value))
@@ -3122,7 +3122,7 @@ export function registerWorktreeCommands(program: Command): void {
     .option("--from <worktree>", "Source worktree path, directory name, branch name, or current")
     .option("--to <worktree>", "Target worktree path, directory name, branch name, or current (defaults to current)")
     .option("--from-config <path>", "Source config.json to seed from")
-    .option("--from-data-dir <path>", "Source PAPERCLIP_HOME used when deriving the source config")
+    .option("--from-data-dir <path>", "Source PETAGENT_HOME used when deriving the source config")
     .option("--from-instance <id>", "Source instance id when deriving the source config")
     .option("--seed-mode <mode>", "Seed profile: minimal or full (default: full)", "full")
     .option("--yes", "Skip the destructive confirmation prompt", false)
@@ -3133,9 +3133,9 @@ export function registerWorktreeCommands(program: Command): void {
     .command("repair")
     .description("Create or repair a linked worktree-local PetAgent instance without touching the primary checkout")
     .option("--branch <name>", "Existing branch/worktree selector to repair, or a branch name to create under .petagent/worktrees")
-    .option("--home <path>", `Home root for worktree instances (env: PAPERCLIP_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
+    .option("--home <path>", `Home root for worktree instances (env: PETAGENT_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
     .option("--from-config <path>", "Source config.json to seed from")
-    .option("--from-data-dir <path>", "Source PAPERCLIP_HOME used when deriving the source config")
+    .option("--from-data-dir <path>", "Source PETAGENT_HOME used when deriving the source config")
     .option("--from-instance <id>", "Source instance id when deriving the source config (default: default)")
     .option("--seed-mode <mode>", "Seed profile: minimal or full (default: minimal)", "minimal")
     .option("--no-seed", "Repair metadata only and skip reseeding when bootstrapping a missing worktree config", false)
@@ -3147,7 +3147,7 @@ export function registerWorktreeCommands(program: Command): void {
     .description("Safely remove a worktree, its branch, and its isolated instance data")
     .argument("<name>", "Worktree name — auto-prefixed with petagent- if needed")
     .option("--instance <id>", "Explicit instance id (if different from the worktree name)")
-    .option("--home <path>", `Home root for worktree instances (env: PAPERCLIP_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
+    .option("--home <path>", `Home root for worktree instances (env: PETAGENT_WORKTREES_DIR, default: ${DEFAULT_WORKTREE_HOME})`)
     .option("--force", "Bypass safety checks (uncommitted changes, unique commits)", false)
     .action(worktreeCleanupCommand);
 }

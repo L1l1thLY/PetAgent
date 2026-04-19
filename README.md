@@ -286,7 +286,7 @@ Telemetry is **enabled by default** and can be disabled with any of the followin
 
 | Method               | How                                                     |
 | -------------------- | ------------------------------------------------------- |
-| Environment variable | `PAPERCLIP_TELEMETRY_DISABLED=1`                        |
+| Environment variable | `PETAGENT_TELEMETRY_DISABLED=1`                        |
 | Standard convention  | `DO_NOT_TRACK=1`                                        |
 | CI environments      | Automatically disabled when `CI=true`                   |
 | Config file          | Set `telemetry.enabled: false` in your Paperclip config |

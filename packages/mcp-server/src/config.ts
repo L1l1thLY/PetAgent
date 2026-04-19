@@ -20,20 +20,20 @@ export function normalizeApiUrl(apiUrl: string): string {
 }
 
 export function readConfigFromEnv(env: NodeJS.ProcessEnv = process.env): PetAgentMcpConfig {
-  const apiUrl = nonEmpty(env.PAPERCLIP_API_URL);
+  const apiUrl = nonEmpty(env.PETAGENT_API_URL);
   if (!apiUrl) {
-    throw new Error("Missing PAPERCLIP_API_URL");
+    throw new Error("Missing PETAGENT_API_URL");
   }
-  const apiKey = nonEmpty(env.PAPERCLIP_API_KEY);
+  const apiKey = nonEmpty(env.PETAGENT_API_KEY);
   if (!apiKey) {
-    throw new Error("Missing PAPERCLIP_API_KEY");
+    throw new Error("Missing PETAGENT_API_KEY");
   }
 
   return {
     apiUrl: normalizeApiUrl(apiUrl),
     apiKey,
-    companyId: nonEmpty(env.PAPERCLIP_COMPANY_ID),
-    agentId: nonEmpty(env.PAPERCLIP_AGENT_ID),
-    runId: nonEmpty(env.PAPERCLIP_RUN_ID),
+    companyId: nonEmpty(env.PETAGENT_COMPANY_ID),
+    agentId: nonEmpty(env.PETAGENT_AGENT_ID),
+    runId: nonEmpty(env.PETAGENT_RUN_ID),
   };
 }

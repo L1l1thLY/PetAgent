@@ -55,5 +55,5 @@ Notes:
 - Unless explicitly overridden in adapter config, PetAgent runs Codex with a per-company managed CODEX_HOME under the active PetAgent instance and seeds auth/config from the shared Codex home (the CODEX_HOME env var, when set, or ~/.codex).
 - Some model/tool combinations reject certain effort levels (for example minimal with web search enabled).
 - Fast mode is currently supported on GPT-5.4 only. When enabled, PetAgent applies \`service_tier="fast"\` and \`features.fast_mode=true\`.
-- When PetAgent realizes a workspace/runtime for a run, it injects PAPERCLIP_WORKSPACE_* and PAPERCLIP_RUNTIME_* env vars for agent-side tooling.
+- When PetAgent realizes a workspace/runtime for a run, it injects PETAGENT_WORKSPACE_* and PETAGENT_RUNTIME_* env vars for agent-side tooling.
 `;

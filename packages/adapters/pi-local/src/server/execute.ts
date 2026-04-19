@@ -29,7 +29,7 @@ import { ensurePiModelConfiguredAndAvailable } from "./models.js";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
-const PAPERCLIP_SESSIONS_DIR = path.join(os.homedir(), ".pi", "petagents");
+const PETAGENT_SESSIONS_DIR = path.join(os.homedir(), ".pi", "petagents");
 const PI_AGENT_SKILLS_DIR = path.join(os.homedir(), ".pi", "agent", "skills");
 
 function firstNonEmptyLine(text: string): string {
@@ -99,13 +99,13 @@ function resolvePiBiller(env: Record<string, string>, provider: string | null): 
 }
 
 async function ensureSessionsDir(): Promise<string> {
-  await fs.mkdir(PAPERCLIP_SESSIONS_DIR, { recursive: true });
-  return PAPERCLIP_SESSIONS_DIR;
+  await fs.mkdir(PETAGENT_SESSIONS_DIR, { recursive: true });
+  return PETAGENT_SESSIONS_DIR;
 }
 
 function buildSessionPath(agentId: string, timestamp: string): string {
   const safeTimestamp = timestamp.replace(/[:.]/g, "-");
-  return path.join(PAPERCLIP_SESSIONS_DIR, `${safeTimestamp}-${agentId}.jsonl`);
+  return path.join(PETAGENT_SESSIONS_DIR, `${safeTimestamp}-${agentId}.jsonl`);
 }
 
 export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
@@ -152,9 +152,9 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   // Build environment
   const envConfig = parseObject(config.env);
   const hasExplicitApiKey =
-    typeof envConfig.PAPERCLIP_API_KEY === "string" && envConfig.PAPERCLIP_API_KEY.trim().length > 0;
+    typeof envConfig.PETAGENT_API_KEY === "string" && envConfig.PETAGENT_API_KEY.trim().length > 0;
   const env: Record<string, string> = { ...buildPetAgentEnv(agent) };
-  env.PAPERCLIP_RUN_ID = runId;
+  env.PETAGENT_RUN_ID = runId;
   
   const wakeTaskId =
     (typeof context.taskId === "string" && context.taskId.trim().length > 0 && context.taskId.trim()) ||
@@ -181,26 +181,26 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     : [];
   const wakePayloadJson = stringifyPetAgentWakePayload(context.petagentWake);
     
-  if (wakeTaskId) env.PAPERCLIP_TASK_ID = wakeTaskId;
-  if (wakeReason) env.PAPERCLIP_WAKE_REASON = wakeReason;
-  if (wakeCommentId) env.PAPERCLIP_WAKE_COMMENT_ID = wakeCommentId;
-  if (approvalId) env.PAPERCLIP_APPROVAL_ID = approvalId;
-  if (approvalStatus) env.PAPERCLIP_APPROVAL_STATUS = approvalStatus;
-  if (linkedIssueIds.length > 0) env.PAPERCLIP_LINKED_ISSUE_IDS = linkedIssueIds.join(",");
-  if (wakePayloadJson) env.PAPERCLIP_WAKE_PAYLOAD_JSON = wakePayloadJson;
-  if (workspaceCwd) env.PAPERCLIP_WORKSPACE_CWD = workspaceCwd;
-  if (workspaceSource) env.PAPERCLIP_WORKSPACE_SOURCE = workspaceSource;
-  if (workspaceId) env.PAPERCLIP_WORKSPACE_ID = workspaceId;
-  if (workspaceRepoUrl) env.PAPERCLIP_WORKSPACE_REPO_URL = workspaceRepoUrl;
-  if (workspaceRepoRef) env.PAPERCLIP_WORKSPACE_REPO_REF = workspaceRepoRef;
+  if (wakeTaskId) env.PETAGENT_TASK_ID = wakeTaskId;
+  if (wakeReason) env.PETAGENT_WAKE_REASON = wakeReason;
+  if (wakeCommentId) env.PETAGENT_WAKE_COMMENT_ID = wakeCommentId;
+  if (approvalId) env.PETAGENT_APPROVAL_ID = approvalId;
+  if (approvalStatus) env.PETAGENT_APPROVAL_STATUS = approvalStatus;
+  if (linkedIssueIds.length > 0) env.PETAGENT_LINKED_ISSUE_IDS = linkedIssueIds.join(",");
+  if (wakePayloadJson) env.PETAGENT_WAKE_PAYLOAD_JSON = wakePayloadJson;
+  if (workspaceCwd) env.PETAGENT_WORKSPACE_CWD = workspaceCwd;
+  if (workspaceSource) env.PETAGENT_WORKSPACE_SOURCE = workspaceSource;
+  if (workspaceId) env.PETAGENT_WORKSPACE_ID = workspaceId;
+  if (workspaceRepoUrl) env.PETAGENT_WORKSPACE_REPO_URL = workspaceRepoUrl;
+  if (workspaceRepoRef) env.PETAGENT_WORKSPACE_REPO_REF = workspaceRepoRef;
   if (agentHome) env.AGENT_HOME = agentHome;
-  if (workspaceHints.length > 0) env.PAPERCLIP_WORKSPACES_JSON = JSON.stringify(workspaceHints);
+  if (workspaceHints.length > 0) env.PETAGENT_WORKSPACES_JSON = JSON.stringify(workspaceHints);
 
   for (const [key, value] of Object.entries(envConfig)) {
     if (typeof value === "string") env[key] = value;
   }
   if (!hasExplicitApiKey && authToken) {
-    env.PAPERCLIP_API_KEY = authToken;
+    env.PETAGENT_API_KEY = authToken;
   }
   
   const runtimeEnv = Object.fromEntries(

@@ -84,5 +84,5 @@ pnpm petagentai configure --section server
 Runtime override via environment variable:
 
 ```sh
-PAPERCLIP_DEPLOYMENT_MODE=authenticated PAPERCLIP_BIND=lan pnpm petagentai run
+PETAGENT_DEPLOYMENT_MODE=authenticated PETAGENT_BIND=lan pnpm petagentai run
 ```

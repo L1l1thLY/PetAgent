@@ -51,12 +51,12 @@ function resolveGeminiBillingType(env: Record<string, string>): "api" | "subscri
 
 function renderPetAgentEnvNote(env: Record<string, string>): string {
   const petagentKeys = Object.keys(env)
-    .filter((key) => key.startsWith("PAPERCLIP_"))
+    .filter((key) => key.startsWith("PETAGENT_"))
     .sort();
   if (petagentKeys.length === 0) return "";
   return [
     "PetAgent runtime note:",
-    `The following PAPERCLIP_* environment variables are available in this run: ${petagentKeys.join(", ")}`,
+    `The following PETAGENT_* environment variables are available in this run: ${petagentKeys.join(", ")}`,
     "Do not assume these variables are missing without checking your shell environment.",
     "",
     "",
@@ -64,14 +64,14 @@ function renderPetAgentEnvNote(env: Record<string, string>): string {
 }
 
 function renderApiAccessNote(env: Record<string, string>): string {
-  if (!hasNonEmptyEnvValue(env, "PAPERCLIP_API_URL") || !hasNonEmptyEnvValue(env, "PAPERCLIP_API_KEY")) return "";
+  if (!hasNonEmptyEnvValue(env, "PETAGENT_API_URL") || !hasNonEmptyEnvValue(env, "PETAGENT_API_KEY")) return "";
   return [
     "PetAgent API access note:",
     "Use run_shell_command with curl to make PetAgent API requests.",
     "GET example:",
-    `  run_shell_command({ command: "curl -s -H \\"Authorization: Bearer $PAPERCLIP_API_KEY\\" \\"$PAPERCLIP_API_URL/api/agents/me\\"" })`,
+    `  run_shell_command({ command: "curl -s -H \\"Authorization: Bearer $PETAGENT_API_KEY\\" \\"$PETAGENT_API_URL/api/agents/me\\"" })`,
     "POST/PATCH example:",
-    `  run_shell_command({ command: "curl -s -X POST -H \\"Authorization: Bearer $PAPERCLIP_API_KEY\\" -H 'Content-Type: application/json' -H \\"X-PetAgent-Run-Id: $PAPERCLIP_RUN_ID\\" -d '{...}' \\"$PAPERCLIP_API_URL/api/issues/{id}/checkout\\"" })`,
+    `  run_shell_command({ command: "curl -s -X POST -H \\"Authorization: Bearer $PETAGENT_API_KEY\\" -H 'Content-Type: application/json' -H \\"X-PetAgent-Run-Id: $PETAGENT_RUN_ID\\" -d '{...}' \\"$PETAGENT_API_URL/api/issues/{id}/checkout\\"" })`,
     "",
     "",
   ].join("\n");
@@ -169,9 +169,9 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
 
   const envConfig = parseObject(config.env);
   const hasExplicitApiKey =
-    typeof envConfig.PAPERCLIP_API_KEY === "string" && envConfig.PAPERCLIP_API_KEY.trim().length > 0;
+    typeof envConfig.PETAGENT_API_KEY === "string" && envConfig.PETAGENT_API_KEY.trim().length > 0;
   const env: Record<string, string> = { ...buildPetAgentEnv(agent) };
-  env.PAPERCLIP_RUN_ID = runId;
+  env.PETAGENT_RUN_ID = runId;
   const wakeTaskId =
     (typeof context.taskId === "string" && context.taskId.trim().length > 0 && context.taskId.trim()) ||
     (typeof context.issueId === "string" && context.issueId.trim().length > 0 && context.issueId.trim()) ||
@@ -196,26 +196,26 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     ? context.issueIds.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     : [];
   const wakePayloadJson = stringifyPetAgentWakePayload(context.petagentWake);
-  if (wakeTaskId) env.PAPERCLIP_TASK_ID = wakeTaskId;
-  if (wakeReason) env.PAPERCLIP_WAKE_REASON = wakeReason;
-  if (wakeCommentId) env.PAPERCLIP_WAKE_COMMENT_ID = wakeCommentId;
-  if (approvalId) env.PAPERCLIP_APPROVAL_ID = approvalId;
-  if (approvalStatus) env.PAPERCLIP_APPROVAL_STATUS = approvalStatus;
-  if (linkedIssueIds.length > 0) env.PAPERCLIP_LINKED_ISSUE_IDS = linkedIssueIds.join(",");
-  if (wakePayloadJson) env.PAPERCLIP_WAKE_PAYLOAD_JSON = wakePayloadJson;
-  if (effectiveWorkspaceCwd) env.PAPERCLIP_WORKSPACE_CWD = effectiveWorkspaceCwd;
-  if (workspaceSource) env.PAPERCLIP_WORKSPACE_SOURCE = workspaceSource;
-  if (workspaceId) env.PAPERCLIP_WORKSPACE_ID = workspaceId;
-  if (workspaceRepoUrl) env.PAPERCLIP_WORKSPACE_REPO_URL = workspaceRepoUrl;
-  if (workspaceRepoRef) env.PAPERCLIP_WORKSPACE_REPO_REF = workspaceRepoRef;
+  if (wakeTaskId) env.PETAGENT_TASK_ID = wakeTaskId;
+  if (wakeReason) env.PETAGENT_WAKE_REASON = wakeReason;
+  if (wakeCommentId) env.PETAGENT_WAKE_COMMENT_ID = wakeCommentId;
+  if (approvalId) env.PETAGENT_APPROVAL_ID = approvalId;
+  if (approvalStatus) env.PETAGENT_APPROVAL_STATUS = approvalStatus;
+  if (linkedIssueIds.length > 0) env.PETAGENT_LINKED_ISSUE_IDS = linkedIssueIds.join(",");
+  if (wakePayloadJson) env.PETAGENT_WAKE_PAYLOAD_JSON = wakePayloadJson;
+  if (effectiveWorkspaceCwd) env.PETAGENT_WORKSPACE_CWD = effectiveWorkspaceCwd;
+  if (workspaceSource) env.PETAGENT_WORKSPACE_SOURCE = workspaceSource;
+  if (workspaceId) env.PETAGENT_WORKSPACE_ID = workspaceId;
+  if (workspaceRepoUrl) env.PETAGENT_WORKSPACE_REPO_URL = workspaceRepoUrl;
+  if (workspaceRepoRef) env.PETAGENT_WORKSPACE_REPO_REF = workspaceRepoRef;
   if (agentHome) env.AGENT_HOME = agentHome;
-  if (workspaceHints.length > 0) env.PAPERCLIP_WORKSPACES_JSON = JSON.stringify(workspaceHints);
+  if (workspaceHints.length > 0) env.PETAGENT_WORKSPACES_JSON = JSON.stringify(workspaceHints);
 
   for (const [key, value] of Object.entries(envConfig)) {
     if (typeof value === "string") env[key] = value;
   }
   if (!hasExplicitApiKey && authToken) {
-    env.PAPERCLIP_API_KEY = authToken;
+    env.PETAGENT_API_KEY = authToken;
   }
   const effectiveEnv = Object.fromEntries(
     Object.entries({ ...process.env, ...env }).filter(

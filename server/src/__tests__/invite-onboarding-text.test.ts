@@ -51,7 +51,7 @@ describe("buildInviteOnboardingTextDocument", () => {
     expect(text).toContain("Do NOT use /v1/responses or /hooks/*");
     expect(text).toContain("set the first reachable candidate as agentDefaultsPayload.petagentApiUrl");
     expect(text).toContain("~/.openclaw/workspace/petagent-claimed-api-key.json");
-    expect(text).toContain("PAPERCLIP_API_KEY");
+    expect(text).toContain("PETAGENT_API_KEY");
     expect(text).toContain("saved token field");
     expect(text).toContain("Gateway token unexpectedly short");
   });

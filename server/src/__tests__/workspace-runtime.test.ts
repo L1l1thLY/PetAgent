@@ -164,10 +164,10 @@ afterEach(async () => {
       leasedRunIds.delete(runId);
     }),
   );
-  delete process.env.PAPERCLIP_CONFIG;
-  delete process.env.PAPERCLIP_HOME;
-  delete process.env.PAPERCLIP_INSTANCE_ID;
-  delete process.env.PAPERCLIP_WORKTREES_DIR;
+  delete process.env.PETAGENT_CONFIG;
+  delete process.env.PETAGENT_HOME;
+  delete process.env.PETAGENT_INSTANCE_ID;
+  delete process.env.PETAGENT_WORKTREES_DIR;
   delete process.env.DATABASE_URL;
   await resetRuntimeServicesForTests();
 });
@@ -177,15 +177,15 @@ describe("sanitizeRuntimeServiceBaseEnv", () => {
     const sanitized = sanitizeRuntimeServiceBaseEnv({
       PATH: process.env.PATH,
       DATABASE_URL: "postgres://example.test/petagent",
-      PAPERCLIP_HOME: "/tmp/petagent-home",
-      PAPERCLIP_INSTANCE_ID: "runtime-instance",
+      PETAGENT_HOME: "/tmp/petagent-home",
+      PETAGENT_INSTANCE_ID: "runtime-instance",
       npm_config_tailscale_auth: "true",
       npm_config_authenticated_private: "true",
       HOST: "0.0.0.0",
     });
 
-    expect(sanitized.PAPERCLIP_HOME).toBeUndefined();
-    expect(sanitized.PAPERCLIP_INSTANCE_ID).toBeUndefined();
+    expect(sanitized.PETAGENT_HOME).toBeUndefined();
+    expect(sanitized.PETAGENT_INSTANCE_ID).toBeUndefined();
     expect(sanitized.DATABASE_URL).toBeUndefined();
     expect(sanitized.npm_config_tailscale_auth).toBeUndefined();
     expect(sanitized.npm_config_authenticated_private).toBeUndefined();
@@ -642,9 +642,9 @@ describe("realizeExecutionWorkspace", () => {
       [
         "#!/usr/bin/env bash",
         "set -euo pipefail",
-        "printf '%s\\n' \"$PAPERCLIP_WORKSPACE_BRANCH\" > .petagent-provision-branch",
-        "printf '%s\\n' \"$PAPERCLIP_WORKSPACE_BASE_CWD\" > .petagent-provision-base",
-        "printf '%s\\n' \"$PAPERCLIP_WORKSPACE_CREATED\" > .petagent-provision-created",
+        "printf '%s\\n' \"$PETAGENT_WORKSPACE_BRANCH\" > .petagent-provision-branch",
+        "printf '%s\\n' \"$PETAGENT_WORKSPACE_BASE_CWD\" > .petagent-provision-base",
+        "printf '%s\\n' \"$PETAGENT_WORKSPACE_CREATED\" > .petagent-provision-created",
       ].join("\n"),
       "utf8",
     );
@@ -820,9 +820,9 @@ describe("realizeExecutionWorkspace", () => {
     const sharedConfigPath = path.join(sharedConfigDir, "config.json");
     const sharedEnvPath = path.join(sharedConfigDir, ".env");
 
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = instanceId;
-    process.env.PAPERCLIP_WORKTREES_DIR = isolatedWorktreeHome;
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = instanceId;
+    process.env.PETAGENT_WORKTREES_DIR = isolatedWorktreeHome;
 
     await fs.mkdir(sharedConfigDir, { recursive: true });
     await fs.writeFile(
@@ -946,11 +946,11 @@ describe("realizeExecutionWorkspace", () => {
       );
       expect(envContents).not.toContain("DATABASE_URL=");
       const envVars = parseEnvContents(envContents);
-      expect(envVars.PAPERCLIP_HOME).toBe(isolatedWorktreeHome);
-      expect(envVars.PAPERCLIP_INSTANCE_ID).toBe(expectedInstanceId);
-      expect(await fs.realpath(envVars.PAPERCLIP_CONFIG!)).toBe(await fs.realpath(configPath));
-      expect(envVars.PAPERCLIP_IN_WORKTREE).toBe("true");
-      expect(envVars.PAPERCLIP_WORKTREE_NAME).toBe("PAP-885-show-worktree-banner");
+      expect(envVars.PETAGENT_HOME).toBe(isolatedWorktreeHome);
+      expect(envVars.PETAGENT_INSTANCE_ID).toBe(expectedInstanceId);
+      expect(await fs.realpath(envVars.PETAGENT_CONFIG!)).toBe(await fs.realpath(configPath));
+      expect(envVars.PETAGENT_IN_WORKTREE).toBe("true");
+      expect(envVars.PETAGENT_WORKTREE_NAME).toBe("PAP-885-show-worktree-banner");
 
       process.chdir(workspace.cwd);
       expect(resolvePetAgentConfigPath()).toBe(configPath);
@@ -1175,8 +1175,8 @@ describe("realizeExecutionWorkspace", () => {
           env: {
             ...process.env,
             PATH: `${fakeBin}:${process.env.PATH ?? ""}`,
-            PAPERCLIP_WORKSPACE_BASE_CWD: baseRoot,
-            PAPERCLIP_WORKSPACE_CWD: worktreeRoot,
+            PETAGENT_WORKSPACE_BASE_CWD: baseRoot,
+            PETAGENT_WORKSPACE_CWD: worktreeRoot,
           },
         });
       } catch (error) {
@@ -1252,8 +1252,8 @@ describe("realizeExecutionWorkspace", () => {
         env: {
           ...process.env,
           PATH: `${fakeBin}:${process.env.PATH ?? ""}`,
-          PAPERCLIP_WORKSPACE_BASE_CWD: baseRoot,
-          PAPERCLIP_WORKSPACE_CWD: worktreeRoot,
+          PETAGENT_WORKSPACE_BASE_CWD: baseRoot,
+          PETAGENT_WORKSPACE_CWD: worktreeRoot,
         },
       });
 
@@ -1533,7 +1533,7 @@ describe("realizeExecutionWorkspace", () => {
       [
         "#!/usr/bin/env bash",
         "set -euo pipefail",
-        "printf '%s\\n' \"$PAPERCLIP_WORKSPACE_BRANCH\" > .petagent-restored-branch",
+        "printf '%s\\n' \"$PETAGENT_WORKSPACE_BRANCH\" > .petagent-restored-branch",
       ].join("\n"),
       "utf8",
     );
@@ -2120,7 +2120,7 @@ describe("ensureRuntimeServicesForRun", () => {
       worktreePath: worktreeWorkspaceRoot,
     };
     const serviceCommand =
-      "node -e \"require('node:http').createServer((req,res)=>res.end(process.env.PAPERCLIP_HOME)).listen(Number(process.env.PORT), '127.0.0.1')\"";
+      "node -e \"require('node:http').createServer((req,res)=>res.end(process.env.PETAGENT_HOME)).listen(Number(process.env.PORT), '127.0.0.1')\"";
     const config = {
       workspaceRuntime: {
         services: [
@@ -2129,7 +2129,7 @@ describe("ensureRuntimeServicesForRun", () => {
             command: serviceCommand,
             cwd: ".",
             env: {
-              PAPERCLIP_HOME: "{{workspace.cwd}}/.petagent/runtime-services",
+              PETAGENT_HOME: "{{workspace.cwd}}/.petagent/runtime-services",
             },
             port: { type: "auto" },
             readiness: {
@@ -2210,9 +2210,9 @@ describe("ensureRuntimeServicesForRun", () => {
         [
           "const fs = require('node:fs');",
           `fs.writeFileSync(${JSON.stringify(envCapturePath)}, JSON.stringify({`,
-          "petagentConfig: process.env.PAPERCLIP_CONFIG ?? null,",
-          "petagentHome: process.env.PAPERCLIP_HOME ?? null,",
-          "petagentInstanceId: process.env.PAPERCLIP_INSTANCE_ID ?? null,",
+          "petagentConfig: process.env.PETAGENT_CONFIG ?? null,",
+          "petagentHome: process.env.PETAGENT_HOME ?? null,",
+          "petagentInstanceId: process.env.PETAGENT_INSTANCE_ID ?? null,",
           "databaseUrl: process.env.DATABASE_URL ?? null,",
           "customEnv: process.env.RUNTIME_CUSTOM_ENV ?? null,",
           "port: process.env.PORT ?? null,",
@@ -2222,9 +2222,9 @@ describe("ensureRuntimeServicesForRun", () => {
       ),
     ].join(" ");
 
-    process.env.PAPERCLIP_CONFIG = "/tmp/base-petagent-config.json";
-    process.env.PAPERCLIP_HOME = "/tmp/base-petagent-home";
-    process.env.PAPERCLIP_INSTANCE_ID = "base-instance";
+    process.env.PETAGENT_CONFIG = "/tmp/base-petagent-config.json";
+    process.env.PETAGENT_HOME = "/tmp/base-petagent-home";
+    process.env.PETAGENT_INSTANCE_ID = "base-instance";
     process.env.DATABASE_URL = "postgres://shared-db.example.com/petagent";
 
     const runId = "run-env";
@@ -2713,8 +2713,8 @@ describeEmbeddedPostgres("workspace runtime startup reconciliation", () => {
   it("adopts a live auto-port shared service after runtime state is reset", async () => {
     const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-runtime-reconcile-"));
     const petagentHome = await fs.mkdtemp(path.join(os.tmpdir(), "petagent-runtime-home-"));
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = `runtime-reconcile-${randomUUID()}`;
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = `runtime-reconcile-${randomUUID()}`;
 
     const companyId = randomUUID();
     const agentId = randomUUID();

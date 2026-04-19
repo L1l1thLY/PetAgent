@@ -34,7 +34,7 @@ interface StartedServer {
 
 export async function runCommand(opts: RunOptions): Promise<void> {
   const instanceId = resolvePetAgentInstanceId(opts.instance);
-  process.env.PAPERCLIP_INSTANCE_ID = instanceId;
+  process.env.PETAGENT_INSTANCE_ID = instanceId;
 
   const homeDir = resolvePetAgentHomeDir();
   fs.mkdirSync(homeDir, { recursive: true });
@@ -43,7 +43,7 @@ export async function runCommand(opts: RunOptions): Promise<void> {
   fs.mkdirSync(paths.instanceRoot, { recursive: true });
 
   const configPath = resolveConfigPath(opts.config);
-  process.env.PAPERCLIP_CONFIG = configPath;
+  process.env.PETAGENT_CONFIG = configPath;
   loadPetAgentEnvFile(configPath);
 
   p.intro(pc.bgCyan(pc.black(" petagent run ")));
@@ -98,8 +98,8 @@ function resolveBootstrapInviteBaseUrl(
   startedServer: StartedServer,
 ): string {
   const explicitBaseUrl =
-    process.env.PAPERCLIP_PUBLIC_URL ??
-    process.env.PAPERCLIP_AUTH_PUBLIC_BASE_URL ??
+    process.env.PETAGENT_PUBLIC_URL ??
+    process.env.PETAGENT_AUTH_PUBLIC_BASE_URL ??
     process.env.BETTER_AUTH_URL ??
     process.env.BETTER_AUTH_BASE_URL ??
     (config.auth.baseUrlMode === "explicit" ? config.auth.publicBaseUrl : undefined);
@@ -141,10 +141,10 @@ function getMissingModuleSpecifier(err: unknown): string | null {
 }
 
 function maybeEnableUiDevMiddleware(entrypoint: string): void {
-  if (process.env.PAPERCLIP_UI_DEV_MIDDLEWARE !== undefined) return;
+  if (process.env.PETAGENT_UI_DEV_MIDDLEWARE !== undefined) return;
   const normalized = entrypoint.replaceAll("\\", "/");
   if (normalized.endsWith("/server/src/index.ts") || normalized.endsWith("@petagent/server/src/index.ts")) {
-    process.env.PAPERCLIP_UI_DEV_MIDDLEWARE = "true";
+    process.env.PETAGENT_UI_DEV_MIDDLEWARE = "true";
   }
 }
 

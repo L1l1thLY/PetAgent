@@ -21,11 +21,11 @@ Defaults:
 Override with environment variables:
 
 ```sh
-PAPERCLIP_PORT=3200 PAPERCLIP_DATA_DIR=../data/pc \
+PETAGENT_PORT=3200 PETAGENT_DATA_DIR=../data/pc \
   docker compose -f docker/docker-compose.quickstart.yml up --build
 ```
 
-**Note:** `PAPERCLIP_DATA_DIR` is resolved relative to the compose file (`docker/`), so `../data/pc` maps to `data/pc` in the project root.
+**Note:** `PETAGENT_DATA_DIR` is resolved relative to the compose file (`docker/`), so `../data/pc` maps to `data/pc` in the project root.
 
 ## Manual Docker Build
 
@@ -34,7 +34,7 @@ docker build -t petagent-local .
 docker run --name petagent \
   -p 3100:3100 \
   -e HOST=0.0.0.0 \
-  -e PAPERCLIP_HOME=/petagent \
+  -e PETAGENT_HOME=/petagent \
   -v "$(pwd)/data/docker-petagent:/petagent" \
   petagent-local
 ```
@@ -61,7 +61,7 @@ Pass API keys to enable local adapter runs inside the container:
 docker run --name petagent \
   -p 3100:3100 \
   -e HOST=0.0.0.0 \
-  -e PAPERCLIP_HOME=/petagent \
+  -e PETAGENT_HOME=/petagent \
   -e OPENAI_API_KEY=sk-... \
   -e ANTHROPIC_API_KEY=sk-... \
   -v "$(pwd)/data/docker-petagent:/petagent" \

@@ -8,11 +8,11 @@ async function writeFakeGeminiCommand(commandPath: string): Promise<void> {
   const script = `#!/usr/bin/env node
 const fs = require("node:fs");
 
-const capturePath = process.env.PAPERCLIP_TEST_CAPTURE_PATH;
+const capturePath = process.env.PETAGENT_TEST_CAPTURE_PATH;
 const payload = {
   argv: process.argv.slice(2),
   petagentEnvKeys: Object.keys(process.env)
-    .filter((key) => key.startsWith("PAPERCLIP_"))
+    .filter((key) => key.startsWith("PETAGENT_"))
     .sort(),
 };
 if (capturePath) {
@@ -78,7 +78,7 @@ describe("gemini execute", () => {
           cwd: workspace,
           model: "gemini-2.5-pro",
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            PETAGENT_TEST_CAPTURE_PATH: capturePath,
           },
           promptTemplate: "Follow the petagent heartbeat.",
         },
@@ -105,15 +105,15 @@ describe("gemini execute", () => {
       expect(promptArg).toContain("PetAgent runtime note:");
       expect(capture.petagentEnvKeys).toEqual(
         expect.arrayContaining([
-          "PAPERCLIP_AGENT_ID",
-          "PAPERCLIP_API_KEY",
-          "PAPERCLIP_API_URL",
-          "PAPERCLIP_COMPANY_ID",
-          "PAPERCLIP_RUN_ID",
+          "PETAGENT_AGENT_ID",
+          "PETAGENT_API_KEY",
+          "PETAGENT_API_URL",
+          "PETAGENT_COMPANY_ID",
+          "PETAGENT_RUN_ID",
         ]),
       );
       expect(invocationPrompt).toContain("PetAgent runtime note:");
-      expect(invocationPrompt).toContain("PAPERCLIP_API_URL");
+      expect(invocationPrompt).toContain("PETAGENT_API_URL");
       expect(invocationPrompt).toContain("PetAgent API access note:");
       expect(invocationPrompt).toContain("run_shell_command");
       expect(result.question).toBeNull();
@@ -146,7 +146,7 @@ describe("gemini execute", () => {
         config: {
           command: commandPath,
           cwd: workspace,
-          env: { PAPERCLIP_TEST_CAPTURE_PATH: capturePath },
+          env: { PETAGENT_TEST_CAPTURE_PATH: capturePath },
         },
         context: {},
         authToken: "t",
@@ -201,7 +201,7 @@ describe("gemini execute", () => {
           cwd: workspace,
           model: "gemini-2.5-pro",
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            PETAGENT_TEST_CAPTURE_PATH: capturePath,
           },
           promptTemplate: "Follow the petagent heartbeat.",
         },

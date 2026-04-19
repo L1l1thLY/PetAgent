@@ -43,7 +43,7 @@ PetAgent currently applies that only when the selected model is `gpt-5.4`. On ot
 
 ## Managed `CODEX_HOME`
 
-When PetAgent is running inside a managed worktree instance (`PAPERCLIP_IN_WORKTREE=true`), the adapter instead uses a worktree-isolated `CODEX_HOME` under the PetAgent instance so Codex skills, sessions, logs, and other runtime state do not leak across checkouts. It seeds that isolated home from the user's main Codex home for shared auth/config continuity.
+When PetAgent is running inside a managed worktree instance (`PETAGENT_IN_WORKTREE=true`), the adapter instead uses a worktree-isolated `CODEX_HOME` under the PetAgent instance so Codex skills, sessions, logs, and other runtime state do not leak across checkouts. It seeds that isolated home from the user's main Codex home for shared auth/config continuity.
 
 ## Manual Local CLI
 

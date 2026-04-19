@@ -17,10 +17,10 @@
   - `exp`
   - optional `jti` (run token id)
 - New config/env settings:
-  - `PAPERCLIP_AGENT_JWT_SECRET`
-  - `PAPERCLIP_AGENT_JWT_TTL_SECONDS` (default: `172800`)
-  - `PAPERCLIP_AGENT_JWT_ISSUER` (default: `petagent`)
-  - `PAPERCLIP_AGENT_JWT_AUDIENCE` (default: `petagent-api`)
+  - `PETAGENT_AGENT_JWT_SECRET`
+  - `PETAGENT_AGENT_JWT_TTL_SECONDS` (default: `172800`)
+  - `PETAGENT_AGENT_JWT_ISSUER` (default: `petagent`)
+  - `PETAGENT_AGENT_JWT_AUDIENCE` (default: `petagent-api`)
 
 ## 2) Dual authentication path in `actorMiddleware`
 
@@ -48,14 +48,14 @@
    - `packages/adapters/claude-local/src/server/execute.ts`
    - `packages/adapters/codex-local/src/server/execute.ts`
 
-   inject `PAPERCLIP_API_KEY` from context token.
+   inject `PETAGENT_API_KEY` from context token.
 
 - Preserve existing behavior for explicit user-defined env vars in `adapterConfig.env`:
-  - if user already sets `PAPERCLIP_API_KEY`, do not overwrite it.
+  - if user already sets `PETAGENT_API_KEY`, do not overwrite it.
 - Continue injecting:
-  - `PAPERCLIP_AGENT_ID`
-  - `PAPERCLIP_COMPANY_ID`
-  - `PAPERCLIP_API_URL`
+  - `PETAGENT_AGENT_ID`
+  - `PETAGENT_COMPANY_ID`
+  - `PETAGENT_API_URL`
 
 ## 5) Documentation updates
 
@@ -65,7 +65,7 @@
 
 ## 6) P0 acceptance criteria
 
-- Local adapters authenticate without manual `PAPERCLIP_API_KEY` config.
+- Local adapters authenticate without manual `PETAGENT_API_KEY` config.
 - Existing static keys (`agent_api_keys`) still work unchanged.
 - Auth remains company-scoped (`req.actor.companyId` used by existing checks).
 - JWT generation and verification errors are logged as non-leaking structured events.

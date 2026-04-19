@@ -340,19 +340,19 @@ function buildPetAgentEnvForWake(ctx: AdapterExecutionContext, wakePayload: Wake
   const petagentApiUrlOverride = resolvePetAgentApiUrlOverride(ctx.config.petagentApiUrl);
   const petagentEnv: Record<string, string> = {
     ...buildPetAgentEnv(ctx.agent),
-    PAPERCLIP_RUN_ID: ctx.runId,
+    PETAGENT_RUN_ID: ctx.runId,
   };
 
   if (petagentApiUrlOverride) {
-    petagentEnv.PAPERCLIP_API_URL = petagentApiUrlOverride;
+    petagentEnv.PETAGENT_API_URL = petagentApiUrlOverride;
   }
-  if (wakePayload.taskId) petagentEnv.PAPERCLIP_TASK_ID = wakePayload.taskId;
-  if (wakePayload.wakeReason) petagentEnv.PAPERCLIP_WAKE_REASON = wakePayload.wakeReason;
-  if (wakePayload.wakeCommentId) petagentEnv.PAPERCLIP_WAKE_COMMENT_ID = wakePayload.wakeCommentId;
-  if (wakePayload.approvalId) petagentEnv.PAPERCLIP_APPROVAL_ID = wakePayload.approvalId;
-  if (wakePayload.approvalStatus) petagentEnv.PAPERCLIP_APPROVAL_STATUS = wakePayload.approvalStatus;
+  if (wakePayload.taskId) petagentEnv.PETAGENT_TASK_ID = wakePayload.taskId;
+  if (wakePayload.wakeReason) petagentEnv.PETAGENT_WAKE_REASON = wakePayload.wakeReason;
+  if (wakePayload.wakeCommentId) petagentEnv.PETAGENT_WAKE_COMMENT_ID = wakePayload.wakeCommentId;
+  if (wakePayload.approvalId) petagentEnv.PETAGENT_APPROVAL_ID = wakePayload.approvalId;
+  if (wakePayload.approvalStatus) petagentEnv.PETAGENT_APPROVAL_STATUS = wakePayload.approvalStatus;
   if (wakePayload.issueIds.length > 0) {
-    petagentEnv.PAPERCLIP_LINKED_ISSUE_IDS = wakePayload.issueIds.join(",");
+    petagentEnv.PETAGENT_LINKED_ISSUE_IDS = wakePayload.issueIds.join(",");
   }
 
   return petagentEnv;
@@ -365,16 +365,16 @@ function buildWakeText(
 ): string {
   const claimedApiKeyPath = "~/.openclaw/workspace/petagent-claimed-api-key.json";
   const orderedKeys = [
-    "PAPERCLIP_RUN_ID",
-    "PAPERCLIP_AGENT_ID",
-    "PAPERCLIP_COMPANY_ID",
-    "PAPERCLIP_API_URL",
-    "PAPERCLIP_TASK_ID",
-    "PAPERCLIP_WAKE_REASON",
-    "PAPERCLIP_WAKE_COMMENT_ID",
-    "PAPERCLIP_APPROVAL_ID",
-    "PAPERCLIP_APPROVAL_STATUS",
-    "PAPERCLIP_LINKED_ISSUE_IDS",
+    "PETAGENT_RUN_ID",
+    "PETAGENT_AGENT_ID",
+    "PETAGENT_COMPANY_ID",
+    "PETAGENT_API_URL",
+    "PETAGENT_TASK_ID",
+    "PETAGENT_WAKE_REASON",
+    "PETAGENT_WAKE_COMMENT_ID",
+    "PETAGENT_APPROVAL_ID",
+    "PETAGENT_APPROVAL_STATUS",
+    "PETAGENT_LINKED_ISSUE_IDS",
   ];
 
   const envLines: string[] = [];
@@ -385,7 +385,7 @@ function buildWakeText(
   }
 
   const issueIdHint = payload.taskId ?? payload.issueId ?? "";
-  const apiBaseHint = petagentEnv.PAPERCLIP_API_URL ?? "<set PAPERCLIP_API_URL>";
+  const apiBaseHint = petagentEnv.PETAGENT_API_URL ?? "<set PETAGENT_API_URL>";
 
   const lines = [
     "PetAgent wake event for a cloud adapter.",
@@ -394,9 +394,9 @@ function buildWakeText(
     "",
     "Set these values in your run context:",
     ...envLines,
-    `PAPERCLIP_API_KEY=<token from ${claimedApiKeyPath}>`,
+    `PETAGENT_API_KEY=<token from ${claimedApiKeyPath}>`,
     "",
-    `Load PAPERCLIP_API_KEY from ${claimedApiKeyPath} (the token you saved after claim-api-key).`,
+    `Load PETAGENT_API_KEY from ${claimedApiKeyPath} (the token you saved after claim-api-key).`,
     "",
     `api_base=${apiBaseHint}`,
     `task_id=${payload.taskId ?? ""}`,
@@ -408,23 +408,23 @@ function buildWakeText(
     `linked_issue_ids=${payload.issueIds.join(",")}`,
     "",
     "HTTP rules:",
-    "- Use Authorization: Bearer $PAPERCLIP_API_KEY on every API call.",
-    "- Use X-PetAgent-Run-Id: $PAPERCLIP_RUN_ID on every mutating API call.",
+    "- Use Authorization: Bearer $PETAGENT_API_KEY on every API call.",
+    "- Use X-PetAgent-Run-Id: $PETAGENT_RUN_ID on every mutating API call.",
     "- Use only /api endpoints listed below.",
     "- Do NOT call guessed endpoints like /api/cloud-adapter/*, /api/cloud-adapters/*, /api/adapters/cloud/*, or /api/heartbeat.",
     "",
     "Workflow:",
     "1) GET /api/agents/me",
-    `2) Determine issueId: PAPERCLIP_TASK_ID if present, otherwise issue_id (${issueIdHint}).`,
+    `2) Determine issueId: PETAGENT_TASK_ID if present, otherwise issue_id (${issueIdHint}).`,
     "3) If issueId exists:",
-    "   - POST /api/issues/{issueId}/checkout with {\"agentId\":\"$PAPERCLIP_AGENT_ID\",\"expectedStatuses\":[\"todo\",\"backlog\",\"blocked\",\"in_review\"]}",
+    "   - POST /api/issues/{issueId}/checkout with {\"agentId\":\"$PETAGENT_AGENT_ID\",\"expectedStatuses\":[\"todo\",\"backlog\",\"blocked\",\"in_review\"]}",
     "   - GET /api/issues/{issueId}",
     "   - GET /api/issues/{issueId}/comments",
     "   - Execute the issue instructions exactly.",
     "   - If instructions require a comment, POST /api/issues/{issueId}/comments with {\"body\":\"...\"}.",
     "   - PATCH /api/issues/{issueId} with {\"status\":\"done\",\"comment\":\"what changed and why\"}.",
     "4) If issueId does not exist:",
-    "   - GET /api/companies/$PAPERCLIP_COMPANY_ID/issues?assigneeAgentId=$PAPERCLIP_AGENT_ID&status=todo,in_progress,in_review,blocked",
+    "   - GET /api/companies/$PETAGENT_COMPANY_ID/issues?assigneeAgentId=$PETAGENT_AGENT_ID&status=todo,in_progress,in_review,blocked",
     "   - Pick in_progress first, then in_review when you were woken by a comment, then todo, then blocked, then execute step 3.",
     "",
     "Useful endpoints for issue work:",
@@ -489,7 +489,7 @@ function buildStandardPetAgentPayload(
     wakeCommentId: wakePayload.wakeCommentId,
     approvalId: wakePayload.approvalId,
     approvalStatus: wakePayload.approvalStatus,
-    apiUrl: petagentEnv.PAPERCLIP_API_URL ?? null,
+    apiUrl: petagentEnv.PETAGENT_API_URL ?? null,
   };
   const structuredWake = parseObject(ctx.context.petagentWake);
   if (Object.keys(structuredWake).length > 0) {

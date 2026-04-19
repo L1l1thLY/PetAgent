@@ -11,14 +11,14 @@ Reads a multiline markdown comment from stdin when stdin is piped. This preserve
 newlines when building the JSON payload for PATCH /api/issues/{issueId}.
 
 Examples:
-  scripts/petagent-issue-update.sh --issue-id "$PAPERCLIP_TASK_ID" --status in_progress <<'MD'
+  scripts/petagent-issue-update.sh --issue-id "$PETAGENT_TASK_ID" --status in_progress <<'MD'
   Investigating formatting
 
   - Pulled the raw comment body
   - Comparing it with the run transcript
   MD
 
-  scripts/petagent-issue-update.sh --issue-id "$PAPERCLIP_TASK_ID" --status done --dry-run <<'MD'
+  scripts/petagent-issue-update.sh --issue-id "$PETAGENT_TASK_ID" --status done --dry-run <<'MD'
   Done
 
   - Fixed the issue update helper
@@ -33,7 +33,7 @@ require_command() {
   fi
 }
 
-issue_id="${PAPERCLIP_TASK_ID:-}"
+issue_id="${PETAGENT_TASK_ID:-}"
 status=""
 comment_arg=""
 dry_run=0
@@ -69,7 +69,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$issue_id" ]]; then
-  printf 'Missing issue id. Pass --issue-id or set PAPERCLIP_TASK_ID.\n' >&2
+  printf 'Missing issue id. Pass --issue-id or set PETAGENT_TASK_ID.\n' >&2
   exit 1
 fi
 
@@ -97,14 +97,14 @@ if [[ "$dry_run" == "1" ]]; then
   exit 0
 fi
 
-if [[ -z "${PAPERCLIP_API_URL:-}" || -z "${PAPERCLIP_API_KEY:-}" || -z "${PAPERCLIP_RUN_ID:-}" ]]; then
-  printf 'Missing PAPERCLIP_API_URL, PAPERCLIP_API_KEY, or PAPERCLIP_RUN_ID.\n' >&2
+if [[ -z "${PETAGENT_API_URL:-}" || -z "${PETAGENT_API_KEY:-}" || -z "${PETAGENT_RUN_ID:-}" ]]; then
+  printf 'Missing PETAGENT_API_URL, PETAGENT_API_KEY, or PETAGENT_RUN_ID.\n' >&2
   exit 1
 fi
 
 curl -sS -X PATCH \
-  "$PAPERCLIP_API_URL/api/issues/$issue_id" \
-  -H "Authorization: Bearer $PAPERCLIP_API_KEY" \
-  -H "X-PetAgent-Run-Id: $PAPERCLIP_RUN_ID" \
+  "$PETAGENT_API_URL/api/issues/$issue_id" \
+  -H "Authorization: Bearer $PETAGENT_API_KEY" \
+  -H "X-PetAgent-Run-Id: $PETAGENT_RUN_ID" \
   -H 'Content-Type: application/json' \
   --data-binary "$payload"

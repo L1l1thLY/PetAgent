@@ -34,7 +34,7 @@ Current CLI behavior:
 - `petagentai onboard` and `petagentai configure --section server` set deployment mode in config
 - server onboarding/configure ask for reachability intent and write `server.bind`
 - `petagentai run --bind <loopback|lan|tailnet>` passes a quickstart bind preset into first-run onboarding when config is missing
-- runtime can override mode with `PAPERCLIP_DEPLOYMENT_MODE`
+- runtime can override mode with `PETAGENT_DEPLOYMENT_MODE`
 - `petagentai run` and `petagentai doctor` still do not expose a direct low-level `--mode` flag
 
 Canonical behavior is documented in `doc/DEPLOYMENT-MODES.md`.
@@ -77,8 +77,8 @@ pnpm petagentai context use default
 To avoid storing secrets in context, set `apiKeyEnvVarName` and keep the key in env:
 
 ```sh
-pnpm petagentai context set --api-key-env-var-name PAPERCLIP_API_KEY
-export PAPERCLIP_API_KEY=...
+pnpm petagentai context set --api-key-env-var-name PETAGENT_API_KEY
+export PETAGENT_API_KEY=...
 ```
 
 ## Company Commands
@@ -98,8 +98,8 @@ pnpm petagentai company delete 5cbe79ee-acb3-4597-896e-7662742593cd --yes --conf
 
 Notes:
 
-- Deletion is server-gated by `PAPERCLIP_ENABLE_COMPANY_DELETION`.
-- With agent authentication, company deletion is company-scoped. Use the current company ID/prefix (for example via `--company-id` or `PAPERCLIP_COMPANY_ID`), not another company.
+- Deletion is server-gated by `PETAGENT_ENABLE_COMPANY_DELETION`.
+- With agent authentication, company deletion is company-scoped. Use the current company ID/prefix (for example via `--company-id` or `PETAGENT_COMPANY_ID`), not another company.
 
 ## Issue Commands
 
@@ -125,7 +125,7 @@ pnpm petagentai agent local-cli <agent-id-or-shortname> --company-id <company-id
 
 - creates a new long-lived agent API key
 - installs missing PetAgent skills into `~/.codex/skills` and `~/.claude/skills`
-- prints `export ...` lines for `PAPERCLIP_API_URL`, `PAPERCLIP_COMPANY_ID`, `PAPERCLIP_AGENT_ID`, and `PAPERCLIP_API_KEY`
+- prints `export ...` lines for `PETAGENT_API_URL`, `PETAGENT_COMPANY_ID`, `PETAGENT_AGENT_ID`, and `PETAGENT_API_KEY`
 
 Example for shortname-based local setup:
 
@@ -180,7 +180,7 @@ Default local instance root is `~/.petagent/instances/default`:
 Override base home or instance with env vars:
 
 ```sh
-PAPERCLIP_HOME=/custom/home PAPERCLIP_INSTANCE_ID=dev pnpm petagentai run
+PETAGENT_HOME=/custom/home PETAGENT_INSTANCE_ID=dev pnpm petagentai run
 ```
 
 ## Storage Configuration

@@ -25,15 +25,15 @@ function makeAgent(adapterConfig: Record<string, unknown>): TestAgent {
 }
 
 describe("agent instructions service", () => {
-  const originalPetAgentHome = process.env.PAPERCLIP_HOME;
-  const originalPetAgentInstanceId = process.env.PAPERCLIP_INSTANCE_ID;
+  const originalPetAgentHome = process.env.PETAGENT_HOME;
+  const originalPetAgentInstanceId = process.env.PETAGENT_INSTANCE_ID;
   const cleanupDirs = new Set<string>();
 
   afterEach(async () => {
-    if (originalPetAgentHome === undefined) delete process.env.PAPERCLIP_HOME;
-    else process.env.PAPERCLIP_HOME = originalPetAgentHome;
-    if (originalPetAgentInstanceId === undefined) delete process.env.PAPERCLIP_INSTANCE_ID;
-    else process.env.PAPERCLIP_INSTANCE_ID = originalPetAgentInstanceId;
+    if (originalPetAgentHome === undefined) delete process.env.PETAGENT_HOME;
+    else process.env.PETAGENT_HOME = originalPetAgentHome;
+    if (originalPetAgentInstanceId === undefined) delete process.env.PETAGENT_INSTANCE_ID;
+    else process.env.PETAGENT_INSTANCE_ID = originalPetAgentInstanceId;
 
     await Promise.all([...cleanupDirs].map(async (dir) => {
       await fs.rm(dir, { recursive: true, force: true });
@@ -46,8 +46,8 @@ describe("agent instructions service", () => {
     const externalRoot = await makeTempDir("petagent-agent-instructions-external-");
     cleanupDirs.add(petagentHome);
     cleanupDirs.add(externalRoot);
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "test-instance";
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = "test-instance";
 
     await fs.writeFile(path.join(externalRoot, "AGENTS.md"), "# External Agent\n", "utf8");
     await fs.mkdir(path.join(externalRoot, "docs"), { recursive: true });
@@ -96,8 +96,8 @@ describe("agent instructions service", () => {
     const externalRoot = await makeTempDir("petagent-agent-instructions-new-external-");
     cleanupDirs.add(petagentHome);
     cleanupDirs.add(externalRoot);
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "test-instance";
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = "test-instance";
 
     await fs.mkdir(managedRoot, { recursive: true });
     await fs.writeFile(path.join(managedRoot, "AGENTS.md"), "# Managed Agent\n", "utf8");
@@ -165,8 +165,8 @@ describe("agent instructions service", () => {
   it("recovers a managed bundle from disk when bundle config metadata is missing", async () => {
     const petagentHome = await makeTempDir("petagent-agent-instructions-recover-");
     cleanupDirs.add(petagentHome);
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "test-instance";
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = "test-instance";
 
     const managedRoot = path.join(
       petagentHome,
@@ -198,8 +198,8 @@ describe("agent instructions service", () => {
     const staleRoot = await makeTempDir("petagent-agent-instructions-stale-root-");
     cleanupDirs.add(petagentHome);
     cleanupDirs.add(staleRoot);
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "test-instance";
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = "test-instance";
 
     const managedRoot = path.join(
       petagentHome,
@@ -241,8 +241,8 @@ describe("agent instructions service", () => {
     const staleRoot = await makeTempDir("petagent-agent-instructions-heal-write-stale-");
     cleanupDirs.add(petagentHome);
     cleanupDirs.add(staleRoot);
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "test-instance";
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = "test-instance";
 
     const managedRoot = path.join(
       petagentHome,
@@ -281,8 +281,8 @@ describe("agent instructions service", () => {
     const staleRoot = await makeTempDir("petagent-agent-instructions-heal-delete-stale-");
     cleanupDirs.add(petagentHome);
     cleanupDirs.add(staleRoot);
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "test-instance";
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = "test-instance";
 
     const managedRoot = path.join(
       petagentHome,
@@ -323,8 +323,8 @@ describe("agent instructions service", () => {
     const staleRoot = await makeTempDir("petagent-agent-instructions-partial-root-");
     cleanupDirs.add(petagentHome);
     cleanupDirs.add(staleRoot);
-    process.env.PAPERCLIP_HOME = petagentHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "test-instance";
+    process.env.PETAGENT_HOME = petagentHome;
+    process.env.PETAGENT_INSTANCE_ID = "test-instance";
 
     const managedRoot = path.join(
       petagentHome,

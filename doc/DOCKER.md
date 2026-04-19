@@ -31,7 +31,7 @@ docker build -t petagent-local . && \
 docker run --name petagent \
   -p 3100:3100 \
   -e HOST=0.0.0.0 \
-  -e PAPERCLIP_HOME=/petagent \
+  -e PETAGENT_HOME=/petagent \
   -e BETTER_AUTH_SECRET=$(openssl rand -hex 32) \
   -v "$(pwd)/data/docker-petagent:/petagent" \
   petagent-local
@@ -67,13 +67,13 @@ Defaults:
 Optional overrides:
 
 ```sh
-PAPERCLIP_PORT=3200 PAPERCLIP_DATA_DIR=../data/pc \
+PETAGENT_PORT=3200 PETAGENT_DATA_DIR=../data/pc \
   docker compose -f docker/docker-compose.quickstart.yml up --build
 ```
 
-**Note:** `PAPERCLIP_DATA_DIR` is resolved relative to the compose file (`docker/`), so `../data/pc` maps to `data/pc` in the project root.
+**Note:** `PETAGENT_DATA_DIR` is resolved relative to the compose file (`docker/`), so `../data/pc` maps to `data/pc` in the project root.
 
-If you change host port or use a non-local domain, set `PAPERCLIP_PUBLIC_URL` to the external URL you will use in browser/auth flows.
+If you change host port or use a non-local domain, set `PETAGENT_PUBLIC_URL` to the external URL you will use in browser/auth flows.
 
 Pass `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` to enable local adapter runs.
 
@@ -105,21 +105,21 @@ For authenticated deployments, set one canonical public URL and let PetAgent der
 services:
   petagent:
     environment:
-      PAPERCLIP_DEPLOYMENT_MODE: authenticated
-      PAPERCLIP_DEPLOYMENT_EXPOSURE: private
-      PAPERCLIP_PUBLIC_URL: https://desk.koker.net
+      PETAGENT_DEPLOYMENT_MODE: authenticated
+      PETAGENT_DEPLOYMENT_EXPOSURE: private
+      PETAGENT_PUBLIC_URL: https://desk.koker.net
 ```
 
-`PAPERCLIP_PUBLIC_URL` is used as the primary source for:
+`PETAGENT_PUBLIC_URL` is used as the primary source for:
 
 - auth public base URL
 - Better Auth base URL defaults
 - bootstrap invite URL defaults
 - hostname allowlist defaults (hostname extracted from URL)
 
-Granular overrides remain available if needed (`PAPERCLIP_AUTH_PUBLIC_BASE_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`, `PAPERCLIP_ALLOWED_HOSTNAMES`).
+Granular overrides remain available if needed (`PETAGENT_AUTH_PUBLIC_BASE_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`, `PETAGENT_ALLOWED_HOSTNAMES`).
 
-Set `PAPERCLIP_ALLOWED_HOSTNAMES` explicitly only when you need additional hostnames beyond the public URL host (for example Tailscale/LAN aliases or multiple private hostnames).
+Set `PETAGENT_ALLOWED_HOSTNAMES` explicitly only when you need additional hostnames beyond the public URL host (for example Tailscale/LAN aliases or multiple private hostnames).
 
 ## Claude + Codex Local Adapters in Docker
 
@@ -134,7 +134,7 @@ If you want local adapter runs inside the container, pass API keys when starting
 docker run --name petagent \
   -p 3100:3100 \
   -e HOST=0.0.0.0 \
-  -e PAPERCLIP_HOME=/petagent \
+  -e PETAGENT_HOME=/petagent \
   -e OPENAI_API_KEY=... \
   -e ANTHROPIC_API_KEY=... \
   -v "$(pwd)/data/docker-petagent:/petagent" \
@@ -232,7 +232,7 @@ Useful overrides:
 
 ```sh
 HOST_PORT=3200 PAPERCLIPAI_VERSION=latest ./scripts/docker-onboard-smoke.sh
-PAPERCLIP_DEPLOYMENT_MODE=authenticated PAPERCLIP_DEPLOYMENT_EXPOSURE=private ./scripts/docker-onboard-smoke.sh
+PETAGENT_DEPLOYMENT_MODE=authenticated PETAGENT_DEPLOYMENT_EXPOSURE=private ./scripts/docker-onboard-smoke.sh
 SMOKE_DETACH=true SMOKE_METADATA_FILE=/tmp/petagent-smoke.env PAPERCLIPAI_VERSION=latest ./scripts/docker-onboard-smoke.sh
 ```
 
@@ -242,7 +242,7 @@ Notes:
 - Container runtime user id defaults to your local `id -u` so the mounted data dir stays writable while avoiding root runtime.
 - Smoke script defaults to `authenticated/private` mode so `HOST=0.0.0.0` can be exposed to the host.
 - Smoke script defaults host port to `3131` to avoid conflicts with local PetAgent on `3100`.
-- Smoke script also defaults `PAPERCLIP_PUBLIC_URL` to `http://localhost:<HOST_PORT>` so bootstrap invite URLs and auth callbacks use the reachable host port instead of the container's internal `3100`.
+- Smoke script also defaults `PETAGENT_PUBLIC_URL` to `http://localhost:<HOST_PORT>` so bootstrap invite URLs and auth callbacks use the reachable host port instead of the container's internal `3100`.
 - In authenticated mode, the smoke script defaults `SMOKE_AUTO_BOOTSTRAP=true` and drives the real bootstrap path automatically: it signs up a real user, runs `petagentai auth bootstrap-ceo` inside the container to mint a real bootstrap invite, accepts that invite over HTTP, and verifies board session access.
 - Run the script in the foreground to watch the onboarding flow; stop with `Ctrl+C` after validation.
 - Set `SMOKE_DETACH=true` to leave the container running for automation and optionally write shell-ready metadata to `SMOKE_METADATA_FILE`.

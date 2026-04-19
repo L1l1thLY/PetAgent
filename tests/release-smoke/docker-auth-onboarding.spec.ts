@@ -1,11 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const ADMIN_EMAIL =
-  process.env.PAPERCLIP_RELEASE_SMOKE_EMAIL ??
+  process.env.PETAGENT_RELEASE_SMOKE_EMAIL ??
   process.env.SMOKE_ADMIN_EMAIL ??
   "smoke-admin@petagent.local";
 const ADMIN_PASSWORD =
-  process.env.PAPERCLIP_RELEASE_SMOKE_PASSWORD ??
+  process.env.PETAGENT_RELEASE_SMOKE_PASSWORD ??
   process.env.SMOKE_ADMIN_PASSWORD ??
   "petagent-smoke-password";
 

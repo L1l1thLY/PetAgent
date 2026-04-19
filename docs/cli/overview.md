@@ -53,8 +53,8 @@ pnpm petagentai context use default
 To avoid storing secrets in context, use an env var:
 
 ```sh
-pnpm petagentai context set --api-key-env-var-name PAPERCLIP_API_KEY
-export PAPERCLIP_API_KEY=...
+pnpm petagentai context set --api-key-env-var-name PETAGENT_API_KEY
+export PETAGENT_API_KEY=...
 ```
 
 Context is stored at `~/.petagent/context.json`.

@@ -89,7 +89,7 @@ Show resolved environment configuration:
 pnpm petagentai env
 ```
 
-This now includes bind-oriented deployment settings such as `PAPERCLIP_BIND` and `PAPERCLIP_BIND_HOST` when configured.
+This now includes bind-oriented deployment settings such as `PETAGENT_BIND` and `PETAGENT_BIND_HOST` when configured.
 
 ## `petagentai allowed-hostname`
 
@@ -112,7 +112,7 @@ pnpm petagentai allowed-hostname my-tailscale-host
 Override with:
 
 ```sh
-PAPERCLIP_HOME=/custom/home PAPERCLIP_INSTANCE_ID=dev pnpm petagentai run
+PETAGENT_HOME=/custom/home PETAGENT_INSTANCE_ID=dev pnpm petagentai run
 ```
 
 Or pass `--data-dir` directly on any command:

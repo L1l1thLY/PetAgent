@@ -87,7 +87,7 @@ Key responsibilities:
 | Helper | Source | Purpose |
 |--------|--------|---------|
 | `runChildProcess(cmd, opts)` | `@petagentai/adapter-utils/server-utils` | Spawn with timeout, grace, streaming |
-| `buildPetAgentEnv(agent)` | `@petagentai/adapter-utils/server-utils` | Inject `PAPERCLIP_*` env vars |
+| `buildPetAgentEnv(agent)` | `@petagentai/adapter-utils/server-utils` | Inject `PETAGENT_*` env vars |
 | `renderTemplate(tpl, data)` | `@petagentai/adapter-utils/server-utils` | `{{variable}}` substitution |
 | `asString(v)` | `@petagentai/adapter-utils` | Safe config value extraction |
 | `asNumber(v)` | `@petagentai/adapter-utils` | Safe number extraction |

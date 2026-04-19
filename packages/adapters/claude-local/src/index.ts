@@ -34,5 +34,5 @@ Operational fields:
 - graceSec (number, optional): SIGTERM grace period in seconds
 
 Notes:
-- When PetAgent realizes a workspace/runtime for a run, it injects PAPERCLIP_WORKSPACE_* and PAPERCLIP_RUNTIME_* env vars for agent-side tooling.
+- When PetAgent realizes a workspace/runtime for a run, it injects PETAGENT_WORKSPACE_* and PETAGENT_RUNTIME_* env vars for agent-side tooling.
 `;

@@ -6,7 +6,7 @@ import { createHash, type Hash } from "node:crypto";
 import type { AdapterExecutionContext } from "@petagent/adapter-utils";
 import { ensurePetAgentSkillSymlink, type PetAgentSkillEntry } from "@petagent/adapter-utils/server-utils";
 
-const DEFAULT_PAPERCLIP_INSTANCE_ID = "default";
+const DEFAULT_PETAGENT_INSTANCE_ID = "default";
 
 type SkillEntry = PetAgentSkillEntry;
 
@@ -25,8 +25,8 @@ function resolveManagedClaudePromptCacheRoot(
   env: NodeJS.ProcessEnv,
   companyId: string,
 ): string {
-  const petagentHome = nonEmpty(env.PAPERCLIP_HOME) ?? path.resolve(os.homedir(), ".petagent");
-  const instanceId = nonEmpty(env.PAPERCLIP_INSTANCE_ID) ?? DEFAULT_PAPERCLIP_INSTANCE_ID;
+  const petagentHome = nonEmpty(env.PETAGENT_HOME) ?? path.resolve(os.homedir(), ".petagent");
+  const instanceId = nonEmpty(env.PETAGENT_INSTANCE_ID) ?? DEFAULT_PETAGENT_INSTANCE_ID;
   return path.resolve(
     petagentHome,
     "instances",

@@ -61,17 +61,17 @@ Environment knobs:
 - `OPENCLAW_MODEL_FALLBACK` (default `openai/gpt-5.2-chat-latest`)
 - `OPENCLAW_CONFIG_DIR` (default `~/.openclaw-petagent-smoke`)
 - `OPENCLAW_RESET_STATE=1` (default) resets smoke agent state on each run to avoid stale auth/session drift
-- `PAPERCLIP_HOST_PORT` (default `3100`)
-- `PAPERCLIP_HOST_FROM_CONTAINER` (default `host.docker.internal`)
+- `PETAGENT_HOST_PORT` (default `3100`)
+- `PETAGENT_HOST_FROM_CONTAINER` (default `host.docker.internal`)
 
 ### Authenticated mode
 
 If your PetAgent deployment is `authenticated`, provide auth context:
 
 ```bash
-PAPERCLIP_AUTH_HEADER="Bearer <token>" pnpm smoke:openclaw-join
+PETAGENT_AUTH_HEADER="Bearer <token>" pnpm smoke:openclaw-join
 # or
-PAPERCLIP_COOKIE="your_session_cookie=..." pnpm smoke:openclaw-join
+PETAGENT_COOKIE="your_session_cookie=..." pnpm smoke:openclaw-join
 ```
 
 ### Network topology tips

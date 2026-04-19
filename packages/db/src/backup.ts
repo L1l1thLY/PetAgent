@@ -22,15 +22,15 @@ function expandHomePrefix(value: string): string {
 }
 
 function resolvePetAgentHomeDir(): string {
-  const envHome = process.env.PAPERCLIP_HOME?.trim();
+  const envHome = process.env.PETAGENT_HOME?.trim();
   if (envHome) return path.resolve(expandHomePrefix(envHome));
   return path.resolve(os.homedir(), ".petagent");
 }
 
 function resolvePetAgentInstanceId(): string {
-  const raw = process.env.PAPERCLIP_INSTANCE_ID?.trim() || "default";
+  const raw = process.env.PETAGENT_INSTANCE_ID?.trim() || "default";
   if (!/^[a-zA-Z0-9_-]+$/.test(raw)) {
-    throw new Error(`Invalid PAPERCLIP_INSTANCE_ID '${raw}'.`);
+    throw new Error(`Invalid PETAGENT_INSTANCE_ID '${raw}'.`);
   }
   return raw;
 }
