@@ -64,6 +64,9 @@ importers:
       '@petagent/db':
         specifier: workspace:*
         version: link:../packages/db
+      '@petagent/my-agent-adapter':
+        specifier: workspace:*
+        version: link:../packages/my-agent-adapter
       '@petagent/server':
         specifier: workspace:*
         version: link:../server
