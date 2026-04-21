@@ -30,6 +30,8 @@
     "@petagent/hooks": "workspace:*"
   },
   "devDependencies": {
+    "@petagent/role-template": "workspace:*",
+    "@petagent/templates": "workspace:*",
     "@types/node": "^24.6.0",
     "typescript": "^5.7.3"
   }
