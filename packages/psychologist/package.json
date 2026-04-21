@@ -1,0 +1,36 @@
+{
+  "name": "@petagent/psychologist",
+  "version": "0.1.0-m1",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./behavior-monitor": "./src/behavior_monitor.ts",
+    "./classifier": "./src/classifier.ts",
+    "./intervention-crafter": "./src/intervention_crafter.ts",
+    "./dispatcher": "./src/dispatcher.ts",
+    "./preventive": "./src/preventive.ts",
+    "./main": "./src/main.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@petagent/hooks": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "typescript": "^5.7.3"
+  }
+}

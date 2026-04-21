@@ -9,6 +9,7 @@ export default defineConfig({
       "packages/skills",
       "packages/role-template",
       "packages/my-agent-adapter",
+      "packages/psychologist",
       "packages/adapters/codex-local",
       "packages/adapters/opencode-local",
       "server",
