@@ -1,0 +1,23 @@
+schema: petagent/v1
+agents:
+  coordinator-1:
+    adapter:
+      type: petagent
+      config:
+        roleType: coordinator
+    budget:
+      monthlyUsd: 10
+  executor-1:
+    adapter:
+      type: petagent
+      config:
+        roleType: worker/executor
+    budget:
+      monthlyUsd: 30
+  therapist:
+    adapter:
+      type: petagent
+      config:
+        roleType: psychologist
+    budget:
+      monthlyUsd: 5

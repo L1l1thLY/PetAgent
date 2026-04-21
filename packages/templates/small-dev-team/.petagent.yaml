@@ -1,0 +1,58 @@
+schema: petagent/v1
+agents:
+  coordinator-1:
+    adapter:
+      type: petagent
+      config:
+        roleType: coordinator
+    budget:
+      monthlyUsd: 15
+  coordinator-2:
+    adapter:
+      type: petagent
+      config:
+        roleType: coordinator
+    budget:
+      monthlyUsd: 15
+  explorer-1:
+    adapter:
+      type: petagent
+      config:
+        roleType: worker/explorer
+    budget:
+      monthlyUsd: 10
+  planner-1:
+    adapter:
+      type: petagent
+      config:
+        roleType: worker/planner
+    budget:
+      monthlyUsd: 20
+  executor-1:
+    adapter:
+      type: petagent
+      config:
+        roleType: worker/executor
+    budget:
+      monthlyUsd: 40
+  executor-2:
+    adapter:
+      type: petagent
+      config:
+        roleType: worker/executor
+    budget:
+      monthlyUsd: 40
+  reviewer-1:
+    adapter:
+      type: petagent
+      config:
+        roleType: worker/reviewer
+    budget:
+      monthlyUsd: 25
+  therapist:
+    adapter:
+      type: petagent
+      config:
+        roleType: psychologist
+    budget:
+      monthlyUsd: 10
