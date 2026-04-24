@@ -5,7 +5,7 @@ color: cyan
 model: claude-haiku-4-5-20251001
 tools: [FileRead, Grep, Glob, WebSearch, WebFetch]
 disallowedTools: [FileEdit, FileWrite, Bash, NotebookEdit]
-skills: []
+skills: [use-grep-and-glob, summarize-findings]
 maxTurns: 30
 isolation: none
 background: false

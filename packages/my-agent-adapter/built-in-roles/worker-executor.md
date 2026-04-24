@@ -4,7 +4,7 @@ description: Fat worker — full tool access. Executes the actual work (code, co
 color: green
 model: claude-sonnet-4-6
 tools: ['*']
-skills: []
+skills: [write-failing-test-first, minimal-diff, verify-before-commit]
 maxTurns: 100
 isolation: worktree
 memory: project

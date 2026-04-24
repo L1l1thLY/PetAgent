@@ -4,7 +4,7 @@ description: Monitors agent emotional state via normalized event stream. Detects
 color: magenta
 model: claude-haiku-4-5-20251001
 tools: [InstructionsInject, BoardComment, IssuePause, IssueSplit]
-skills: []
+skills: [behavior-triangulation, metacognitive-reframing]
 background: true
 maxTurns: 20
 isolation: none

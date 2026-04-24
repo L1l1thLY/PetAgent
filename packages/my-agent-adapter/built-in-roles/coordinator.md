@@ -5,7 +5,7 @@ color: blue
 model: claude-haiku-4-5-20251001
 tools: [IssueCreate, IssueAssign, IssueComment, GoalRead, WorkerStatus, TaskDelegate]
 disallowedTools: [Bash, FileEdit, FileWrite, NotebookEdit]
-skills: [goal-decomposition, worker-routing]
+skills: [issue-decomposition, dispatch-by-role-strengths]
 maxTurns: 50
 isolation: none
 background: false

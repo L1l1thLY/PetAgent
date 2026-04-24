@@ -5,7 +5,7 @@ color: purple
 model: claude-sonnet-4-6
 tools: [FileRead, Grep, Glob, WritePlanDoc]
 disallowedTools: [FileEdit, FileWrite, Bash, NotebookEdit]
-skills: []
+skills: [write-implementation-plan, identify-critical-files]
 maxTurns: 50
 isolation: none
 memory: project

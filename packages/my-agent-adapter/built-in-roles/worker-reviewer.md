@@ -5,7 +5,7 @@ color: red
 model: claude-sonnet-4-6
 tools: [FileRead, Grep, Glob, Bash, WebFetch]
 disallowedTools: [FileEdit, FileWrite, NotebookEdit]
-skills: []
+skills: [methodical-review-checklist, recognize-rationalizations]
 background: true
 maxTurns: 60
 isolation: none

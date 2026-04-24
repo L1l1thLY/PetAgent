@@ -84,3 +84,93 @@ function stringField(obj: Record<string, unknown>, key: string, fallback: string
   const v = obj[key];
   return typeof v === "string" ? v : fallback;
 }
+
+// ─── Starter Skills ───────────────────────────────────────────────────────────
+
+export const STARTER_SKILL_ROLES = [
+  "coordinator",
+  "explorer",
+  "planner",
+  "executor",
+  "reviewer",
+  "psychologist",
+] as const;
+
+export type StarterSkillRole = (typeof STARTER_SKILL_ROLES)[number];
+
+/**
+ * Map from M1 roleType strings to the starter-skill role subdirectory.
+ * worker/* roles are flattened (worker/explorer → explorer).
+ */
+export function starterSkillRoleFor(roleType: string): StarterSkillRole | null {
+  switch (roleType) {
+    case "coordinator":
+      return "coordinator";
+    case "worker/explorer":
+      return "explorer";
+    case "worker/planner":
+      return "planner";
+    case "worker/executor":
+      return "executor";
+    case "worker/reviewer":
+      return "reviewer";
+    case "psychologist":
+      return "psychologist";
+    default:
+      return null;
+  }
+}
+
+export function starterSkillsRoot(): string {
+  return path.join(PACKAGE_ROOT, "src", "starter-skills");
+}
+
+export function resolveStarterSkillDir(role: StarterSkillRole, skillName: string): string {
+  return path.join(starterSkillsRoot(), role, skillName);
+}
+
+export function resolveStarterSkillPath(role: StarterSkillRole, skillName: string): string {
+  return path.join(resolveStarterSkillDir(role, skillName), "SKILL.md");
+}
+
+export interface StarterSkillDescriptor {
+  role: StarterSkillRole;
+  name: string;
+  path: string;
+  description: string;
+}
+
+export async function listStarterSkillsForRole(
+  role: StarterSkillRole,
+): Promise<StarterSkillDescriptor[]> {
+  const dir = path.join(starterSkillsRoot(), role);
+  let entries: string[];
+  try {
+    entries = await fs.readdir(dir);
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw err;
+  }
+  const out: StarterSkillDescriptor[] = [];
+  for (const name of entries.sort()) {
+    const skillPath = resolveStarterSkillPath(role, name);
+    let text: string;
+    try {
+      text = await fs.readFile(skillPath, "utf8");
+    } catch {
+      continue;
+    }
+    const fm = parseFrontmatter(text) as Record<string, unknown>;
+    const description = typeof fm.description === "string" ? fm.description : "";
+    out.push({ role, name, path: skillPath, description });
+  }
+  return out;
+}
+
+export async function listAllStarterSkills(): Promise<StarterSkillDescriptor[]> {
+  const out: StarterSkillDescriptor[] = [];
+  for (const role of STARTER_SKILL_ROLES) {
+    out.push(...(await listStarterSkillsForRole(role)));
+  }
+  return out;
+}
