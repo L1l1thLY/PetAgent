@@ -29,6 +29,8 @@ import { inboxDismissalRoutes } from "./routes/inbox-dismissals.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { emotionalIncidentsRoutes } from "./routes/emotional-incidents.js";
 import { roleTemplatesRoutes } from "./routes/role-templates.js";
+import { notificationsRoutes } from "./routes/notifications.js";
+import { InMemoryNotificationStore } from "./notifications/store.js";
 import { RoleTemplateLoader } from "@petagent/role-template";
 import * as os from "node:os";
 import { createRequire } from "node:module";
@@ -208,6 +210,11 @@ export async function createApp(
   api.use(
     roleTemplatesRoutes({
       loaderFactory: () => buildDefaultRoleTemplateLoader(),
+    }),
+  );
+  api.use(
+    notificationsRoutes({
+      store: new InMemoryNotificationStore(),
     }),
   );
   const hostServicesDisposers = new Map<string, () => void>();
