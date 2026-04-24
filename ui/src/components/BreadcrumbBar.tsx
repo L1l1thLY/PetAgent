@@ -15,6 +15,7 @@ import {
 import { Fragment, useMemo } from "react";
 import { PluginSlotOutlet, usePluginSlots } from "@/plugins/slots";
 import { PluginLauncherOutlet, usePluginLaunchers } from "@/plugins/launchers";
+import { NotificationBell } from "./NotificationBell";
 
 type GlobalToolbarContext = { companyId: string | null; companyPrefix: string | null };
 
@@ -55,8 +56,9 @@ export function BreadcrumbBar() {
 
   if (breadcrumbs.length === 0) {
     return (
-      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center justify-end">
+      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center justify-end gap-1">
         {globalToolbarSlots}
+        <NotificationBell />
       </div>
     );
   }
@@ -84,6 +86,7 @@ export function BreadcrumbBar() {
           </h1>
         </div>
         {globalToolbarSlots}
+        <NotificationBell />
       </div>
     );
   }
@@ -116,6 +119,7 @@ export function BreadcrumbBar() {
         </Breadcrumb>
       </div>
       {globalToolbarSlots}
+      <NotificationBell />
     </div>
   );
 }
