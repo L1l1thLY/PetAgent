@@ -55,6 +55,7 @@
     "@petagent/db": "workspace:*",
     "@petagent/hooks": "workspace:*",
     "@petagent/plugin-sdk": "workspace:*",
+    "@petagent/psychologist": "workspace:*",
     "@petagent/role-template": "workspace:*",
     "@petagent/shared": "workspace:*",
     "ajv": "^8.18.0",

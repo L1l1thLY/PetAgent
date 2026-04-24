@@ -649,6 +649,9 @@ importers:
       '@petagent/plugin-sdk':
         specifier: workspace:*
         version: link:../packages/plugins/sdk
+      '@petagent/psychologist':
+        specifier: workspace:*
+        version: link:../packages/psychologist
       '@petagent/role-template':
         specifier: workspace:*
         version: link:../packages/role-template
