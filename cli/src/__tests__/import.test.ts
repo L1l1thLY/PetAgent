@@ -214,26 +214,34 @@ describe("readTemplatePlan", () => {
 });
 
 describe("resolveReportsToMap", () => {
-  it("maps slug reportsTo to newly-created agent IDs", () => {
+  it("maps slug reportsTo to newly-created agent IDs, and self to self-id", () => {
     const hires: PlannedHire[] = [
-      { name: "Coord-1", title: "", reportsTo: null, body: {} },
-      { name: "Exec-1", title: "", reportsTo: "coordinator-1", body: {} },
+      { slug: "coordinator-1", name: "Coord-1", title: "", reportsTo: null, body: {} },
+      { slug: "executor-1", name: "Exec-1", title: "", reportsTo: "coordinator-1", body: {} },
     ];
     const created = [
       { slug: "coordinator-1", id: "uuid-1" },
       { slug: "executor-1", id: "uuid-2" },
     ];
     const out = resolveReportsToMap(hires, created);
-    expect(out[0]).toEqual({ slug: "coordinator-1", reportsToId: null });
-    expect(out[1]).toEqual({ slug: "executor-1", reportsToId: "uuid-1" });
+    expect(out[0]).toEqual({ slug: "coordinator-1", agentId: "uuid-1", reportsToId: null });
+    expect(out[1]).toEqual({ slug: "executor-1", agentId: "uuid-2", reportsToId: "uuid-1" });
   });
 
-  it("reports null when the referenced slug was not created", () => {
+  it("reports null reportsToId when the referenced slug was not in created set", () => {
     const hires: PlannedHire[] = [
-      { name: "X", title: "", reportsTo: "orphan", body: {} },
+      { slug: "real", name: "X", title: "", reportsTo: "orphan", body: {} },
     ];
     const created = [{ slug: "real", id: "u1" }];
     const out = resolveReportsToMap(hires, created);
     expect(out[0].reportsToId).toBeNull();
+    expect(out[0].agentId).toBe("u1");
+  });
+
+  it("throws if a hire's own slug is missing from the created set (internal invariant)", () => {
+    const hires: PlannedHire[] = [
+      { slug: "missing", name: "X", title: "", reportsTo: null, body: {} },
+    ];
+    expect(() => resolveReportsToMap(hires, [])).toThrow(/internal/);
   });
 });

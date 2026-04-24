@@ -66,6 +66,8 @@ interface PetAgentYamlShape {
 }
 
 export interface PlannedHire {
+  /** agents/<slug>/ directory name — stable identity in the template package. */
+  slug: string;
   name: string;
   title: string;
   reportsTo: string | null;
@@ -137,6 +139,7 @@ export async function readTemplatePlan(
       [],
     );
     hires.push({
+      slug,
       name: plan.pickedName,
       title,
       reportsTo,
@@ -171,16 +174,26 @@ function stringField(obj: Record<string, unknown>, key: string, fallback: string
  * Resolve a reportsTo slug → agentId after the agents have been created.
  * Second-pass is required because AGENTS.md references sibling slugs that
  * only become UUIDs once the POST returns.
+ *
+ * Returns one entry per hire:
+ *   - `agentId` — the UUID of the just-created agent
+ *   - `reportsToId` — the UUID of the manager, or null if no reportsTo
+ *     was declared OR the declared slug was not among the created set
  */
 export function resolveReportsToMap(
-  hires: PlannedHire[],
-  created: Array<{ slug: string; id: string }>,
-): Array<{ slug: string; reportsToId: string | null }> {
+  hires: ReadonlyArray<PlannedHire>,
+  created: ReadonlyArray<{ slug: string; id: string }>,
+): Array<{ slug: string; agentId: string; reportsToId: string | null }> {
   const bySlug = new Map(created.map((c) => [c.slug, c.id]));
-  return hires.map((h, idx) => ({
-    slug: created[idx].slug,
-    reportsToId: h.reportsTo ? bySlug.get(h.reportsTo) ?? null : null,
-  }));
+  return hires.map((h) => {
+    const self = bySlug.get(h.slug);
+    if (!self) throw new Error(`internal: hire ${h.slug} not in created set`);
+    return {
+      slug: h.slug,
+      agentId: self,
+      reportsToId: h.reportsTo ? bySlug.get(h.reportsTo) ?? null : null,
+    };
+  });
 }
 
 export function registerImportCommand(program: Command): void {
@@ -229,17 +242,38 @@ export function registerImportCommand(program: Command): void {
               throw new Error(`agent creation returned null for ${hire.name}`);
             }
             created.push({
-              slug: hire.reportsTo ? hire.reportsTo : hire.name, // map key is the slug-like name
+              slug: hire.slug,
               id: response.id,
               name: response.name,
             });
             console.log(`hired ${response.name} (${response.id})`);
           }
+
+          // Second pass: wire reportsTo slug → UUID references now that every
+          // agent exists. One PATCH per hire that declared reportsTo with a
+          // slug the create pass produced.
+          const edges = resolveReportsToMap(plan.hires, created);
+          let patched = 0;
+          let orphaned = 0;
+          for (const hire of plan.hires) {
+            if (hire.reportsTo == null) continue;
+            const edge = edges.find((e) => e.slug === hire.slug);
+            if (!edge) continue;
+            if (edge.reportsToId === null) {
+              console.log(
+                `  skipped reportsTo for ${hire.name}: slug "${hire.reportsTo}" not in imported set`,
+              );
+              orphaned += 1;
+              continue;
+            }
+            await ctx.api.patch(`/api/agents/${edge.agentId}`, {
+              reportsTo: edge.reportsToId,
+            });
+            patched += 1;
+          }
+
           console.log(
-            `Imported template "${plan.companyName}" (${plan.companySlug}) — ${created.length} agents.`,
-          );
-          console.log(
-            `Note: reportsTo links between newly-created agents are not yet wired automatically; update them via \`petagent agent ...\` if your template declares them.`,
+            `Imported template "${plan.companyName}" (${plan.companySlug}) — ${created.length} agents, ${patched} reportsTo link(s) wired${orphaned > 0 ? `, ${orphaned} orphan(s)` : ""}.`,
           );
         } catch (err) {
           handleCommandError(err);
