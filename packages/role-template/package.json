@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema.ts",
-    "./loader": "./src/loader.ts"
+    "./loader": "./src/loader.ts",
+    "./watcher": "./src/watcher.ts"
   },
   "publishConfig": {
     "access": "public",
@@ -26,7 +27,16 @@
     "js-yaml": "^4.1.0",
     "zod": "^3.25.0"
   },
+  "peerDependencies": {
+    "chokidar": "^4.0.3"
+  },
+  "peerDependenciesMeta": {
+    "chokidar": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "chokidar": "^4.0.3",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.6.0",
     "typescript": "^5.7.3"

@@ -9,7 +9,8 @@ export type HookEventType =
   | "memory.written"
   | "approval.requested"
   | "approval.resolved"
-  | "company.created";
+  | "company.created"
+  | "role.template_changed";
 
 export interface HookEvent {
   type: HookEventType;

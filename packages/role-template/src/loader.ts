@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import { EventEmitter } from "node:events";
 import * as path from "node:path";
 import * as yaml from "js-yaml";
 import { RoleTemplateSchema, type RoleTemplate, type RoleSource } from "./schema.js";
@@ -16,12 +17,70 @@ export interface LoadResult {
   path: string;
 }
 
+export interface RoleTemplateReloadEvent {
+  loaded: LoadResult[];
+  reloadedAt: Date;
+  reason: "initial" | "reload";
+}
+
 const LOW_TO_HIGH: RoleSource[] = ["built-in", "plugin", "project", "user"];
 
 export class RoleTemplateLoader {
+  private current: LoadResult[] = [];
+  private readonly emitter = new EventEmitter();
+
   constructor(private readonly opts: LoaderOptions) {}
 
+  /** Load from every configured source. Also publishes a "loaded" event. */
   async loadAll(): Promise<LoadResult[]> {
+    const results = await this.scanAll();
+    this.current = results;
+    this.emitter.emit("loaded", {
+      loaded: results,
+      reloadedAt: new Date(),
+      reason: this.current === results && results.length === 0 ? "initial" : "initial",
+    } satisfies RoleTemplateReloadEvent);
+    return results;
+  }
+
+  /** Re-scan every source and update the cached set. */
+  async reload(): Promise<LoadResult[]> {
+    const results = await this.scanAll();
+    this.current = results;
+    this.emitter.emit("loaded", {
+      loaded: results,
+      reloadedAt: new Date(),
+      reason: "reload",
+    } satisfies RoleTemplateReloadEvent);
+    return results;
+  }
+
+  /** Return the last-loaded set without re-scanning. */
+  snapshot(): LoadResult[] {
+    return [...this.current];
+  }
+
+  /** Look up a single role by its roleType in the cached set. */
+  get(roleType: string): LoadResult | undefined {
+    return this.current.find((entry) => entry.template.roleType === roleType);
+  }
+
+  /** Subscribe to load/reload events. Returns an unsubscribe function. */
+  onLoaded(listener: (event: RoleTemplateReloadEvent) => void): () => void {
+    this.emitter.on("loaded", listener);
+    return () => this.emitter.off("loaded", listener);
+  }
+
+  /** Directories that feed this loader, in lowest → highest priority order. */
+  watchedDirs(): string[] {
+    const dirs: string[] = [];
+    for (const source of LOW_TO_HIGH) {
+      dirs.push(...this.dirsFor(source));
+    }
+    return dirs;
+  }
+
+  private async scanAll(): Promise<LoadResult[]> {
     const byName = new Map<string, LoadResult>();
     for (const source of LOW_TO_HIGH) {
       const dirs = this.dirsFor(source);
