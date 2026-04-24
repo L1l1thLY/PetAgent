@@ -2,6 +2,7 @@ export * from "./plugin.js";
 export * from "./plugin_registry.js";
 export * from "./adapter.js";
 export * from "./capabilities.js";
+export * from "./mcp.js";
 export * from "./default_worker_names.js";
 export * from "./runtime/types.js";
 export * from "./runtime/managed_agents.js";

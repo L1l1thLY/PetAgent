@@ -7,6 +7,21 @@ export const StructuredOutputProtocolSchema = z.object({
   sentinel: z.string().optional(),
 });
 
+export const SESSION_HOOK_EVENTS = [
+  "on_start",
+  "after_tool_use",
+  "before_stop",
+  "on_error",
+] as const;
+export type SessionHookEvent = (typeof SESSION_HOOK_EVENTS)[number];
+
+export const SessionHookSpecSchema = z.object({
+  event: z.enum(SESSION_HOOK_EVENTS),
+  command: z.string().min(1),
+  timeoutMs: z.number().int().positive().optional(),
+});
+export type SessionHookSpec = z.infer<typeof SessionHookSpecSchema>;
+
 export const RoleTemplateSchema = z.object({
   roleType: z.string(),
   description: z.string().min(1),
@@ -15,7 +30,7 @@ export const RoleTemplateSchema = z.object({
   color: z.string().optional(),
   tools: z.array(z.string()).optional(),
   disallowedTools: z.array(z.string()).optional(),
-  mcpServers: z.array(z.any()).optional(),
+  mcpServers: z.array(z.string().min(1)).optional(),
   skills: z.array(z.string()).optional(),
   model: z.string().optional(),
   effort: z
@@ -28,7 +43,7 @@ export const RoleTemplateSchema = z.object({
   permissionMode: z
     .enum(["strict", "approve-all", "auto", "readonly"])
     .optional(),
-  hooks: z.array(z.any()).optional(),
+  hooks: z.array(SessionHookSpecSchema).optional(),
   structured_output_protocol: StructuredOutputProtocolSchema.optional(),
 });
 

@@ -8,6 +8,7 @@
     "./plugin": "./src/plugin.ts",
     "./registry": "./src/plugin_registry.ts",
     "./capabilities": "./src/capabilities.ts",
+    "./mcp": "./src/mcp.ts",
     "./runtime/managed-agents": "./src/runtime/managed_agents.ts",
     "./runtime/local-process": "./src/runtime/local_process.ts",
     "./runtime/worktree": "./src/runtime/worktree.ts"

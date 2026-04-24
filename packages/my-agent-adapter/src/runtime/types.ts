@@ -1,4 +1,5 @@
 import type { PluginContext } from "../plugin.js";
+import type { SessionHookSpec } from "@petagent/role-template";
 
 export type Isolation = "none" | "worktree" | "remote";
 
@@ -9,6 +10,10 @@ export interface RuntimeInvocation {
   model?: string;
   effort?: "low" | "medium" | "high" | number;
   background?: boolean;
+  /** Per-role MCP server subset (spec §3.8). Shortnames to intersect against the host registry. */
+  mcpServers?: string[];
+  /** Per-role session-lifecycle hooks (spec §3.9). Register at start, clean on stop. */
+  hooks?: SessionHookSpec[];
 }
 
 export interface RuntimeResult {
