@@ -4,9 +4,9 @@ PetAgent 的所有重要变更都记录在这里。
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)。
 
-## [Unreleased] — M1 进行中
+## [0.2.0-m1] - 2026-04-23
 
-里程碑 1（M1）"Agent 家族 + Psychologist + Plugin 架构"分组实施中。当前已完成 Group 1-10；Group 11（V1 范围拉回 spec 对齐）与 Group 12（Web UI 全套改造）尚未开始。完整 v0.2.0-m1 tag 会在 Group 11 + 12 全部 ship 后再打。
+里程碑 1（M1）"Agent 家族 + Psychologist + Plugin 架构 + V1 UI 改造" 完成。全部 68 个 task ship；累计新增 ~518 个单测全绿；工作区 1922/2039 pass（4 个失败均为 M0 固有 embedded-postgres 并发初始化竞态 + worktree 5s 文件系统超时，与 M1 改动无关）。
 
 ### 新增包
 
@@ -45,12 +45,39 @@ PetAgent 的所有重要变更都记录在这里。
 - `NOTICES.md` 加 Hermes MIT attribution 表（按文件标注 port 范围）+ Hermes LICENSE 全文。
 - Claude Code 架构借鉴声明保留（spec §13.6）；未 port 任何代码。
 
-### 已记录的 M1 范围内待办
+### V1 范围拉回（Group 11）
 
-- Group 11（V1 范围拉回，10 tasks）：Per-Role MCP 集成（spec §3.8）、Per-Role Hooks session 生命周期（§3.9）、Hybrid Team Coordinator SKIP Reviewer 逻辑（§3.4）、Transparency γ 可配置化（§7.4 / §17.4）、Worker built-in starter skills（§11）、Role Template FS Watcher 热加载（§20）、Secrets 加密存储（§16.1）、`petagent setup` 向导（§14.2）、`petagent status`、`petagent import <template>`（§15）。
-- Group 12（Web UI 全套改造，6 tasks）：Board 主视图改造（员工栏 + Issue 对话流，§17.1）、拖拽招人（§17.2）、角色面板（§17.3）、情绪介入透明面板（§17.4）、通知中心（§17.6）、邮件通道 + Budget 阈值告警（§18.1）。
-- Psychologist concrete 实现（drizzle-backed `BehavioralRecordsStore` + `IncidentStore` + Anthropic-backed `ClassifierTransport` + `PsychologistActions` 接 server agent API）—— Group 7 仅 ship 端口接口，concrete 落地排在 Group 11/12 之后或 M2。
-- M1 真 E2E：Group 9 Task 50 用合成烟测替代（覆盖完整 psych 干预链 + cooldown + 恢复/升级），真 server-driven E2E 待 concrete 实现完成后补。
+- Per-Role MCP (§3.8) —— `McpManager` 端口 + `StaticMcpServerRegistry` + 严格/宽松模式；`mcpServers` schema 收紧到 `string[]`。
+- Per-Role Hooks session 生命周期 (§3.9) —— `SessionHookManager` + `HookCommandRunner` 端口；四事件 on_start/after_tool_use/before_stop/on_error；错误隔离。
+- Hybrid Team Coordinator SKIP Reviewer (§3.4) —— `capabilities.ts` + `shouldSkipReviewer`；Coordinator 提示更新。
+- Transparency γ 可配置化 (§7.4) —— opaque/semi/transparent 三档；backend redaction + UI toggle。
+- Worker built-in starter skills (§11) —— 13 条 SKILL.md + role template 预填。
+- Role Template FS Watcher (§20) —— chokidar + debounce + `role.template_changed` hook event。
+- Secrets 加密存储 (§16.1) —— `@petagent/secrets` 新包：AES-256-GCM + scrypt 主密钥派生 + optional keytar + `PreferredSecretsStore`；CLI `petagent secrets set/get/delete/list/rotate`。
+- CLI 命令：`petagent setup` 交互式向导 (§14.2)、`petagent status` 今日摘要 (§15)、`petagent import <template>` (§15)。
+
+### Web UI 全套改造（Group 12，§17）
+
+- Board 主视图 (§17.1) —— `/board` 页：EmployeeBar 按 role 分组 + 三栏 Kanban + IssueCard 含 ⚠️ 连续失败标记 + ToolUseEmoji 映射（💭/📖/✍️/🔧/💡/⏸️ 等）+ 角色头像（🎯/🔎/🗺️/⚙️/🧪/🧠）。
+- 拖拽招人 (§17.2) —— `RolePalette` 可拖拽 role 卡 + `HireDialog` 表单（Name/Model/Budget/Isolation/Skills/ReportsTo）；DataTransfer 用 `application/x-petagent-role` MIME。
+- 角色面板 (§17.3) —— `/roles` 页按 source 分组（built-in / plugin / project / user，联动 §3.10 优先级）、prompt 预览、tools/disallowed/skills/mcp 显示；New-role textarea（V1 只读反馈，V2 加写路径）。
+- 情绪介入透明面板 (§17.4) —— `/interventions` 页时间轴 + 按 agent/severity/outcome 过滤 + 搜索 + CSV 导出；响应 server-side γ 透明度 redaction。
+- 通知中心 (§17.6) —— `NotificationBell` 顶栏铃铛 + 下拉列表 + 30s 轮询；后端 `InMemoryNotificationStore` + pure `classifyHookEvent` + `classifyBudgetAlert`；DB 持久化 impl 推迟到 post-M1。
+- 邮件通道 + Budget 阈值告警 (§18.1) —— `evaluateBudgetThresholds` 纯函数 + 70%/90%/100% 三档 + `BudgetAlertNotifier` 端口 + `runBudgetAlertCycle`；nodemailer SMTP 发件器 + auto-pause 留 post-M1 wiring。
+
+### 已记录的 post-M1 wiring pass 待补
+
+- Psychologist 端口的 concrete 实现：drizzle-backed `BehavioralRecordsStore` + `IncidentStore` + Anthropic-backed `ClassifierTransport` + `PsychologistActions` wired to server agent API（Group 7 仅 ship 端口接口；Group 9 Task 50 用合成烟测替代真 E2E，真 E2E 要在 concrete stores 落地后补）。
+- `McpManager` / `SessionHookManager` 接入 3 种 runtime（managed_agents / local_process / worktree）的 glue（Group 11 Task 53 + 54 仅 ship 端口）。
+- Coordinator Router plugin 调用 `shouldSkipReviewer(executorAgentId, lookup)` 分支（Group 11 Task 55 仅 ship 能力查询 helper）。
+- role-template watcher 起来后向 HookBus 发 `role.template_changed` 事件（Group 11 Task 58 watcher 有 emit，HookBus 转发是 M1 end 未做）。
+- CLI `petagent import` 的 reportsTo 二次 patch（需要 slug→UUID 解析回写）。
+- `NotificationStore` drizzle-backed impl + DB migration + HookBus → notifications 订阅器（Group 12 Task 67 仅 ship 端口 + 内存实现 + 纯函数 classifier）。
+- `BudgetAlertNotifier` 的 nodemailer-backed SMTP 实现 + `budget-check` 定时 routine + 100% 阈值 auto-pause 所有 issue（Group 12 Task 68 仅 ship evaluator + 端口）。
+- `role-template` watcher 文件更新后 UI 实时刷新（Task 58 server-side watcher ok；UI /roles 页当前靠 query staleTime）。
+- `NotificationBell` 组件实际嵌入 AppShell header（当前只建好组件未挂载）。
+
+## [Unreleased]
 
 ## [0.1.0-m0] - 2026-04-19
 
