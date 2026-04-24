@@ -164,4 +164,8 @@ export const queryKeys = {
   adapters: {
     all: ["adapters"] as const,
   },
+  emotionalIncidents: {
+    list: (companyId: string, sinceDays: number, agentId?: string) =>
+      ["emotional-incidents", companyId, sinceDays, agentId ?? "__all__"] as const,
+  },
 };
