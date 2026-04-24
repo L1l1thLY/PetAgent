@@ -48,6 +48,7 @@
     "@petagent/adapter-utils": "workspace:*",
     "@petagent/db": "workspace:*",
     "@petagent/my-agent-adapter": "workspace:*",
+    "@petagent/secrets": "workspace:*",
     "@petagent/server": "workspace:*",
     "@petagent/shared": "workspace:*",
     "drizzle-orm": "0.38.4",

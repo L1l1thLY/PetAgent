@@ -249,6 +249,9 @@ export function buildWorktreeConfig(input: {
         keyFilePath: paths.secretsKeyFilePath,
       },
     },
+    transparency: {
+      gamma: source?.transparency?.gamma ?? "opaque",
+    },
   };
 }
 

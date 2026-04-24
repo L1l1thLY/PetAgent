@@ -616,6 +616,7 @@ export async function onboard(opts: OnboardOptions): Promise<void> {
     },
     storage,
     secrets,
+    transparency: { gamma: "opaque" },
   };
 
   const keyResult = ensureLocalSecretsKeyFile(config, configPath);

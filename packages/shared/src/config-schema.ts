@@ -141,7 +141,7 @@ export const petagentConfigSchema = z
         keyFilePath: "~/.petagent/instances/default/secrets/master.key",
       },
     }),
-    transparency: transparencyConfigSchema,
+    transparency: transparencyConfigSchema.optional(),
   })
   .superRefine((value, ctx) => {
     if (value.server.deploymentMode === "local_trusted" && value.server.exposure !== "private") {
