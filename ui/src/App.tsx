@@ -21,6 +21,7 @@ import { Approvals } from "./pages/Approvals";
 import { ApprovalDetail } from "./pages/ApprovalDetail";
 import { Interventions } from "./pages/Interventions";
 import { Roles } from "./pages/Roles";
+import { Board } from "./pages/Board";
 import { Costs } from "./pages/Costs";
 import { Activity } from "./pages/Activity";
 import { Inbox } from "./pages/Inbox";
@@ -110,6 +111,7 @@ function boardRoutes() {
       <Route path="approvals/pending" element={<Approvals />} />
       <Route path="approvals/all" element={<Approvals />} />
       <Route path="approvals/:approvalId" element={<ApprovalDetail />} />
+      <Route path="board" element={<Board />} />
       <Route path="interventions" element={<Interventions />} />
       <Route path="roles" element={<Roles />} />
       <Route path="costs" element={<Costs />} />
