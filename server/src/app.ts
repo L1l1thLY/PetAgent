@@ -28,6 +28,10 @@ import { sidebarPreferenceRoutes } from "./routes/sidebar-preferences.js";
 import { inboxDismissalRoutes } from "./routes/inbox-dismissals.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { emotionalIncidentsRoutes } from "./routes/emotional-incidents.js";
+import { roleTemplatesRoutes } from "./routes/role-templates.js";
+import { RoleTemplateLoader } from "@petagent/role-template";
+import * as os from "node:os";
+import { createRequire } from "node:module";
 import { llmRoutes } from "./routes/llms.js";
 import { authRoutes } from "./routes/auth.js";
 import { assetRoutes } from "./routes/assets.js";
@@ -199,6 +203,11 @@ export async function createApp(
   api.use(
     emotionalIncidentsRoutes(db, {
       getGamma: opts.getTransparencyGamma ?? (() => "opaque"),
+    }),
+  );
+  api.use(
+    roleTemplatesRoutes({
+      loaderFactory: () => buildDefaultRoleTemplateLoader(),
     }),
   );
   const hostServicesDisposers = new Map<string, () => void>();
@@ -429,4 +438,31 @@ export async function createApp(
   });
 
   return app;
+}
+
+/**
+ * Construct a RoleTemplateLoader using the conventional PetAgent paths:
+ *   - built-in: packages/my-agent-adapter/built-in-roles (resolved via
+ *     Node module resolution so it works in both dev and packaged installs)
+ *   - project:  ./.petagent/roles (relative to process.cwd())
+ *   - user:     ~/.petagent/roles
+ *
+ * Plugin sources are not yet discovered — plugin loading landing post-M1
+ * will need to supply its own loader factory via the app options surface.
+ */
+function buildDefaultRoleTemplateLoader(): RoleTemplateLoader {
+  const require = createRequire(import.meta.url);
+  let builtInDir: string;
+  try {
+    const adapterPkgPath = require.resolve("@petagent/my-agent-adapter/package.json");
+    builtInDir = path.join(path.dirname(adapterPkgPath), "built-in-roles");
+  } catch {
+    builtInDir = path.resolve(process.cwd(), "packages", "my-agent-adapter", "built-in-roles");
+  }
+  return new RoleTemplateLoader({
+    userDir: path.join(os.homedir(), ".petagent", "roles"),
+    projectDir: path.resolve(process.cwd(), ".petagent", "roles"),
+    pluginDirs: [],
+    builtInDir,
+  });
 }

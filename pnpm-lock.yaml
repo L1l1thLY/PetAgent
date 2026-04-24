@@ -649,6 +649,9 @@ importers:
       '@petagent/plugin-sdk':
         specifier: workspace:*
         version: link:../packages/plugins/sdk
+      '@petagent/role-template':
+        specifier: workspace:*
+        version: link:../packages/role-template
       '@petagent/shared':
         specifier: workspace:*
         version: link:../packages/shared
