@@ -2,6 +2,7 @@ export * from "./plugin.js";
 export * from "./plugin_registry.js";
 export * from "./adapter.js";
 export * from "./capabilities.js";
+export * from "./reviewer_routing.js";
 export * from "./mcp.js";
 export * from "./session_hooks.js";
 export * from "./default_worker_names.js";
