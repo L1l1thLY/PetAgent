@@ -31,6 +31,8 @@ import { emotionalIncidentsRoutes } from "./routes/emotional-incidents.js";
 import { roleTemplatesRoutes } from "./routes/role-templates.js";
 import { notificationsRoutes } from "./routes/notifications.js";
 import { InMemoryNotificationStore } from "./notifications/store.js";
+import { bridgeHookBusToNotifications } from "./notifications/hook_bridge.js";
+import { globalHookBus } from "@petagent/hooks";
 import { RoleTemplateLoader } from "@petagent/role-template";
 import * as os from "node:os";
 import { createRequire } from "node:module";
@@ -212,9 +214,14 @@ export async function createApp(
       loaderFactory: () => buildDefaultRoleTemplateLoader(),
     }),
   );
+  const notificationStore = new InMemoryNotificationStore();
+  bridgeHookBusToNotifications({
+    bus: globalHookBus,
+    store: notificationStore,
+  });
   api.use(
     notificationsRoutes({
-      store: new InMemoryNotificationStore(),
+      store: notificationStore,
     }),
   );
   const hostServicesDisposers = new Map<string, () => void>();
