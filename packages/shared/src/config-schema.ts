@@ -103,6 +103,13 @@ export const telemetryConfigSchema = z.object({
   enabled: z.boolean().default(true),
 }).default({});
 
+export const TRANSPARENCY_GAMMA_VALUES = ["opaque", "semi", "transparent"] as const;
+export type TransparencyGamma = (typeof TRANSPARENCY_GAMMA_VALUES)[number];
+
+export const transparencyConfigSchema = z.object({
+  gamma: z.enum(TRANSPARENCY_GAMMA_VALUES).default("opaque"),
+}).default({ gamma: "opaque" });
+
 export const petagentConfigSchema = z
   .object({
     $meta: configMetaSchema,
@@ -134,6 +141,7 @@ export const petagentConfigSchema = z
         keyFilePath: "~/.petagent/instances/default/secrets/master.key",
       },
     }),
+    transparency: transparencyConfigSchema,
   })
   .superRefine((value, ctx) => {
     if (value.server.deploymentMode === "local_trusted" && value.server.exposure !== "private") {
@@ -197,3 +205,4 @@ export type AuthConfig = z.infer<typeof authConfigSchema>;
 export type TelemetryConfig = z.infer<typeof telemetryConfigSchema>;
 export type ConfigMeta = z.infer<typeof configMetaSchema>;
 export type DatabaseBackupConfig = z.infer<typeof databaseBackupConfigSchema>;
+export type TransparencyConfig = z.infer<typeof transparencyConfigSchema>;

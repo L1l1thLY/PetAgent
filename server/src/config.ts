@@ -86,6 +86,7 @@ export interface Config {
   heartbeatSchedulerIntervalMs: number;
   companyDeletionEnabled: boolean;
   telemetryEnabled: boolean;
+  transparencyGamma: import("@petagent/shared").TransparencyGamma;
 }
 
 function detectTailnetBindHost(): string | undefined {
@@ -331,5 +332,16 @@ export function loadConfig(): Config {
     heartbeatSchedulerIntervalMs: Math.max(10000, Number(process.env.HEARTBEAT_SCHEDULER_INTERVAL_MS) || 30000),
     companyDeletionEnabled,
     telemetryEnabled: fileConfig?.telemetry?.enabled ?? true,
+    transparencyGamma: resolveTransparencyGamma(fileConfig?.transparency?.gamma),
   };
+}
+
+function resolveTransparencyGamma(
+  fromFile: import("@petagent/shared").TransparencyGamma | undefined,
+): import("@petagent/shared").TransparencyGamma {
+  const fromEnv = process.env.PETAGENT_TRANSPARENCY_GAMMA?.trim().toLowerCase();
+  if (fromEnv === "opaque" || fromEnv === "semi" || fromEnv === "transparent") {
+    return fromEnv;
+  }
+  return fromFile ?? "opaque";
 }

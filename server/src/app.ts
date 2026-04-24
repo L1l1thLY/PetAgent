@@ -124,6 +124,7 @@ export async function createApp(
     localPluginDir?: string;
     betterAuthHandler?: express.RequestHandler;
     resolveSession?: (req: ExpressRequest) => Promise<BetterAuthSessionResult | null>;
+    getTransparencyGamma?: () => import("@petagent/shared").TransparencyGamma;
   },
 ) {
   const app = express();
@@ -195,7 +196,11 @@ export async function createApp(
   api.use(sidebarPreferenceRoutes(db));
   api.use(inboxDismissalRoutes(db));
   api.use(instanceSettingsRoutes(db));
-  api.use(emotionalIncidentsRoutes(db));
+  api.use(
+    emotionalIncidentsRoutes(db, {
+      getGamma: opts.getTransparencyGamma ?? (() => "opaque"),
+    }),
+  );
   const hostServicesDisposers = new Map<string, () => void>();
   const workerManager = createPluginWorkerManager();
   const pluginRegistry = pluginRegistryService(db);

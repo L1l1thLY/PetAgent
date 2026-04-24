@@ -534,6 +534,7 @@ export async function startServer(): Promise<StartedServer> {
     companyDeletionEnabled: config.companyDeletionEnabled,
     betterAuthHandler,
     resolveSession,
+    getTransparencyGamma: () => config.transparencyGamma,
   });
   const server = createServer(app as unknown as Parameters<typeof createServer>[0]);
 
