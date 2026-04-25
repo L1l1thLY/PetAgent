@@ -24,10 +24,13 @@ New files:
 
 ```
 server/src/psychologist/
-  service_psychologist_actions.ts
-  service_psychologist_actions.test.ts
-  drizzle_capabilities_provider.ts
-  drizzle_capabilities_provider.test.ts
+  psych_capability_registry.ts        # adapter → psychologist AdapterCapabilities map
+  drizzle_capabilities_provider.ts    # CapabilitiesProvider impl
+  service_psychologist_actions.ts     # PsychologistActions impl
+server/src/__tests__/
+  psych-capability-registry.test.ts
+  drizzle-capabilities-provider.test.ts
+  service-psychologist-actions.test.ts
 ```
 
 Touched files:
@@ -100,19 +103,58 @@ interface ServicePsychologistActionsDeps {
 
 Implements `CapabilitiesProvider` from `@petagent/psychologist`.
 
+The psychologist's `AdapterCapabilities` (4 boolean fields below) is a separate concern from `@petagent/my-agent-adapter`'s `AdapterCapability` (which only carries `selfReviewsImplementation` for the Coordinator's Reviewer-skip routing). To avoid cross-contaminating the Coordinator capability schema, we ship a **psych-local registry** colocated with this provider:
+
 ```ts
+// server/src/psychologist/psych_capability_registry.ts
+
+import type { AdapterCapabilities } from "@petagent/psychologist";
+
+export const PSYCH_CAPABILITY_DEFAULTS: Readonly<Record<string, AdapterCapabilities>> = Object.freeze({
+  // PetAgent native workers — strong intervention (all four levels per spec §7.5)
+  petagent: {
+    supportsInstructionsBundle: true,
+    supportsBoardComment: true,
+    supportsIssuePause: true,
+    supportsIssueSplit: true,
+  },
+  // External Claude-Code-family adapters with managed instructions bundles —
+  // mild + moderate only per spec §7.5. Severe intervention (pause/split) is
+  // reserved for petagent-native agents to avoid surprising external runtimes.
+  claude_local:   { supportsInstructionsBundle: true,  supportsBoardComment: true, supportsIssuePause: false, supportsIssueSplit: false },
+  codex_local:    { supportsInstructionsBundle: true,  supportsBoardComment: true, supportsIssuePause: false, supportsIssueSplit: false },
+  cursor:         { supportsInstructionsBundle: true,  supportsBoardComment: true, supportsIssuePause: false, supportsIssueSplit: false },
+  opencode_local: { supportsInstructionsBundle: true,  supportsBoardComment: true, supportsIssuePause: false, supportsIssueSplit: false },
+  gemini_local:   { supportsInstructionsBundle: true,  supportsBoardComment: true, supportsIssuePause: false, supportsIssueSplit: false },
+  hermes_local:   { supportsInstructionsBundle: true,  supportsBoardComment: true, supportsIssuePause: false, supportsIssueSplit: false },
+});
+
+// Fallback for any adapter not listed: only Board Comment (any adapter can
+// receive comments — they're a UI artifact, not an adapter feature).
+export const PSYCH_CAPABILITY_FALLBACK: AdapterCapabilities = Object.freeze({
+  supportsInstructionsBundle: false,
+  supportsBoardComment: true,
+  supportsIssuePause: false,
+  supportsIssueSplit: false,
+});
+```
+
+```ts
+// server/src/psychologist/drizzle_capabilities_provider.ts
+
 interface DrizzleCapabilitiesProviderDeps {
   db: Db;
-  capabilityLookup?: AdapterCapabilityLookup; // default StaticCapabilityLookup over BUILTIN_ADAPTER_CAPABILITIES
+  defaults?: Readonly<Record<string, AdapterCapabilities>>; // default PSYCH_CAPABILITY_DEFAULTS
+  fallback?: AdapterCapabilities;                            // default PSYCH_CAPABILITY_FALLBACK
 }
 ```
 
 `forAgent(agentId)`:
 
 1. `SELECT adapterType FROM agents WHERE id = $1`.
-2. Look up `BUILTIN_ADAPTER_CAPABILITIES[adapterType]` via the injected lookup (so `m1-composition.test.ts` can override capabilities for synthetic agents).
-3. Map to `AdapterCapabilities` shape (`supportsInstructionsBundle`, `supportsBoardComment`, `supportsIssuePause`, `supportsIssueSplit`).
-4. Missing agent or unknown adapter → return all-false (most conservative).
+2. Look up `defaults[adapterType]`. Found → return that record.
+3. Unknown adapter → return `fallback` (Board Comment only).
+4. Missing agent (no row) → return all-false (most conservative; not even Board Comment, since we have no issue context).
 
 ## 4. Error Handling
 
@@ -134,12 +176,18 @@ Pure unit tests with fake `issueService`/`agentInstructions` recorders.
 - `assertTransition` failure on `pauseIssue` → degrades to comment-only
 - `systemActorAgentId` injected vs. default-null: both author paths work
 
-### `drizzle_capabilities_provider.test.ts` (4–5 cases, structural)
+### `psych-capability-registry.test.ts` (3–4 cases)
 
-- Known adapters (`petagent`, `claude_local`, `cursor`) map to the expected capability set
-- Missing agent → all-false
-- Unknown adapter → all-false
-- Override `capabilityLookup` flows through
+- `petagent` defaults grant all four capabilities
+- `claude_local` defaults grant `supportsInstructionsBundle` + `supportsBoardComment`, deny pause/split
+- `PSYCH_CAPABILITY_FALLBACK` grants only `supportsBoardComment`
+
+### `drizzle-capabilities-provider.test.ts` (4–5 cases, structural)
+
+- Known adapters (`petagent`, `claude_local`, `cursor`) map to their registry record
+- Unknown adapter → returns `PSYCH_CAPABILITY_FALLBACK` (Board Comment only)
+- Missing agent → returns all-false (no fallback)
+- Override `defaults` constructor option flows through
 
 ### `m1-composition.test.ts` (append one case)
 
