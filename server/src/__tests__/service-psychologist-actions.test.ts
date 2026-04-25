@@ -261,3 +261,74 @@ describe("ServicePsychologistActions.postBoardComment", () => {
     expect(warnings.length).toBe(1);
   });
 });
+
+describe("ServicePsychologistActions.pauseIssue", () => {
+  it("PATCHes the active issue to blocked and posts the audit comment", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      systemActorAgentId: "psych-1",
+    });
+    await actions.pauseIssue("agent-1");
+    expect(issueService.updates).toEqual([
+      { id: "issue-1", data: { status: "blocked", actorAgentId: "psych-1" } },
+    ]);
+    expect(issueService.comments).toEqual([
+      {
+        issueId: "issue-1",
+        body: "Paused for therapy session.",
+        agentId: "psych-1",
+        userId: undefined,
+        runId: null,
+      },
+    ]);
+  });
+
+  it("respects an injected pauseAuditMessage", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      pauseAuditMessage: "deep breath",
+    });
+    await actions.pauseIssue("agent-1");
+    expect(issueService.comments[0].body).toBe("deep breath");
+  });
+
+  it("degrades to comment-only when status transition is rejected", async () => {
+    const issueService = new FakeIssueService([makeIssue({ status: "done" })]);
+    issueService.forceTransitionRejection = true;
+    const agentInstructions = new FakeAgentInstructions();
+    const { logger, warnings } = makeWarnLogger();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue({ status: "done" })] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      logger,
+    });
+    await actions.pauseIssue("agent-1");
+    expect(issueService.comments.length).toBe(1);
+    expect(warnings.length).toBe(1);
+  });
+
+  it("warns and no-ops when there is no active issue", async () => {
+    const issueService = new FakeIssueService([]);
+    const agentInstructions = new FakeAgentInstructions();
+    const { logger, warnings } = makeWarnLogger();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      logger,
+    });
+    await expect(actions.pauseIssue("agent-1")).resolves.toBeUndefined();
+    expect(issueService.updates).toEqual([]);
+    expect(issueService.comments).toEqual([]);
+    expect(warnings.length).toBe(1);
+  });
+});

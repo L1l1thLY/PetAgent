@@ -128,9 +128,36 @@ export class ServicePsychologistActions implements PsychologistActions {
     }
   }
 
-  async pauseIssue(_agentId: string): Promise<void> {
-    // implemented in Task 5
-    throw new Error("not yet implemented");
+  async pauseIssue(agentId: string): Promise<void> {
+    const issue = await this.findActiveIssue(agentId).catch(() => null);
+    if (!issue) {
+      this.logger.warn("psychologist.pauseIssue: no active issue", { agentId });
+      return;
+    }
+    let transitioned = false;
+    try {
+      await this.issueService.update(issue.id, {
+        status: "blocked",
+        actorAgentId: this.systemActorAgentId,
+      });
+      transitioned = true;
+    } catch (err) {
+      this.logger.warn("psychologist.pauseIssue: status transition rejected, degrading to comment-only", {
+        agentId,
+        issueId: issue.id,
+        err: String(err),
+      });
+    }
+    try {
+      await this.issueService.addComment(issue.id, this.pauseAuditMessage, this.actorForComment());
+    } catch (err) {
+      this.logger.warn("psychologist.pauseIssue: audit comment failed", {
+        agentId,
+        issueId: issue.id,
+        transitioned,
+        err: String(err),
+      });
+    }
   }
 
   async splitIssue(_agentId: string, _reason: string): Promise<void> {
