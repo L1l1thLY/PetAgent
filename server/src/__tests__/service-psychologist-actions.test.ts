@@ -332,3 +332,100 @@ describe("ServicePsychologistActions.pauseIssue", () => {
     expect(warnings.length).toBe(1);
   });
 });
+
+describe("ServicePsychologistActions.splitIssue", () => {
+  it("creates a child issue inheriting parent / project / goal and adds an audit comment", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      systemActorAgentId: "psych-1",
+    });
+    await actions.splitIssue("agent-1", "Refactor the auth flow into a clean module");
+    expect(issueService.created).toEqual([
+      {
+        companyId: "co-1",
+        data: {
+          title: "Refactor the auth flow into a clean module",
+          description: "Refactor the auth flow into a clean module",
+          parentId: "issue-1",
+          projectId: "proj-1",
+          goalId: "goal-1",
+          status: "todo",
+        },
+      },
+    ]);
+    expect(issueService.comments).toEqual([
+      {
+        issueId: "issue-1",
+        body: "Recommended split into NEW-1: Refactor the auth flow into a clean module",
+        agentId: "psych-1",
+        userId: undefined,
+        runId: null,
+      },
+    ]);
+  });
+
+  it("truncates a long reason to 120 chars in the title", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+    });
+    const longReason = "x".repeat(500);
+    await actions.splitIssue("agent-1", longReason);
+    const created = issueService.created[0].data;
+    expect(created.title.length).toBe(120);
+    expect(created.description).toBe(longReason);
+  });
+
+  it("respects an injected splitAuditMessageTemplate", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      splitAuditMessageTemplate: (childIdentifier, reason) =>
+        `child=${childIdentifier} reason=${reason}`,
+    });
+    await actions.splitIssue("agent-1", "shrink scope");
+    expect(issueService.comments[0].body).toBe("child=NEW-1 reason=shrink scope");
+  });
+
+  it("warns and no-ops when there is no active issue", async () => {
+    const issueService = new FakeIssueService([]);
+    const agentInstructions = new FakeAgentInstructions();
+    const { logger, warnings } = makeWarnLogger();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      logger,
+    });
+    await expect(actions.splitIssue("agent-1", "no parent")).resolves.toBeUndefined();
+    expect(issueService.created).toEqual([]);
+    expect(warnings.length).toBe(1);
+  });
+
+  it("never throws when issueService.create rejects", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    issueService.create = async () => {
+      throw new Error("validation");
+    };
+    const agentInstructions = new FakeAgentInstructions();
+    const { logger, warnings } = makeWarnLogger();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      logger,
+    });
+    await expect(actions.splitIssue("agent-1", "x")).resolves.toBeUndefined();
+    expect(warnings.length).toBe(1);
+  });
+});

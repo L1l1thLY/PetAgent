@@ -160,9 +160,40 @@ export class ServicePsychologistActions implements PsychologistActions {
     }
   }
 
-  async splitIssue(_agentId: string, _reason: string): Promise<void> {
-    // implemented in Task 6
-    throw new Error("not yet implemented");
+  async splitIssue(agentId: string, reason: string): Promise<void> {
+    try {
+      const parent = await this.findActiveIssue(agentId);
+      if (!parent) {
+        this.logger.warn("psychologist.splitIssue: no active issue", { agentId });
+        return;
+      }
+      const title = reason.length > 120 ? reason.slice(0, 120) : reason;
+      const child = await this.issueService.create(parent.companyId, {
+        title,
+        description: reason,
+        parentId: parent.id,
+        projectId: parent.projectId,
+        goalId: parent.goalId,
+        status: "todo",
+      });
+      const childIdentifier = child.identifier ?? child.id;
+      try {
+        await this.issueService.addComment(
+          parent.id,
+          this.splitAuditMessageTemplate(childIdentifier, reason),
+          this.actorForComment(),
+        );
+      } catch (err) {
+        this.logger.warn("psychologist.splitIssue: audit comment failed", {
+          agentId,
+          parentIssueId: parent.id,
+          childIssueId: child.id,
+          err: String(err),
+        });
+      }
+    } catch (err) {
+      this.logger.warn("psychologist.splitIssue failed", { agentId, err: String(err) });
+    }
   }
 
   private async findAgent(agentId: string): Promise<AgentRow | null> {
