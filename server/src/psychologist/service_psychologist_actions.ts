@@ -115,9 +115,17 @@ export class ServicePsychologistActions implements PsychologistActions {
     }
   }
 
-  async postBoardComment(_agentId: string, _content: string): Promise<void> {
-    // implemented in Task 4
-    throw new Error("not yet implemented");
+  async postBoardComment(agentId: string, content: string): Promise<void> {
+    try {
+      const issue = await this.findActiveIssue(agentId);
+      if (!issue) {
+        this.logger.warn("psychologist.postBoardComment: no active issue", { agentId });
+        return;
+      }
+      await this.issueService.addComment(issue.id, content, this.actorForComment());
+    } catch (err) {
+      this.logger.warn("psychologist.postBoardComment failed", { agentId, err: String(err) });
+    }
   }
 
   async pauseIssue(_agentId: string): Promise<void> {

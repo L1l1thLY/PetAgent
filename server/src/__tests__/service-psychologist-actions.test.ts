@@ -194,3 +194,70 @@ describe("ServicePsychologistActions.injectInstructions", () => {
     expect(warnings.length).toBe(1);
   });
 });
+
+describe("ServicePsychologistActions.postBoardComment", () => {
+  it("posts to the agent's active issue with the configured actor", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      systemActorAgentId: "psych-1",
+    });
+    await actions.postBoardComment("agent-1", "you are doing fine");
+    expect(issueService.comments).toEqual([
+      {
+        issueId: "issue-1",
+        body: "you are doing fine",
+        agentId: "psych-1",
+        userId: undefined,
+        runId: null,
+      },
+    ]);
+  });
+
+  it("uses a system (no agent) actor when systemActorAgentId is unset", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+    });
+    await actions.postBoardComment("agent-1", "hello");
+    expect(issueService.comments[0].agentId).toBeUndefined();
+  });
+
+  it("warns and no-ops when there is no active issue", async () => {
+    const issueService = new FakeIssueService([]);
+    const agentInstructions = new FakeAgentInstructions();
+    const { logger, warnings } = makeWarnLogger();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      logger,
+    });
+    await expect(actions.postBoardComment("agent-1", "hello")).resolves.toBeUndefined();
+    expect(issueService.comments).toEqual([]);
+    expect(warnings.length).toBe(1);
+  });
+
+  it("never throws when addComment rejects", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    issueService.addComment = async () => {
+      throw new Error("network");
+    };
+    const agentInstructions = new FakeAgentInstructions();
+    const { logger, warnings } = makeWarnLogger();
+    const actions = new ServicePsychologistActions({
+      db: makeFakeDb({ agents: [makeAgent()], issues: [makeIssue()] }),
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      logger,
+    });
+    await expect(actions.postBoardComment("agent-1", "hello")).resolves.toBeUndefined();
+    expect(warnings.length).toBe(1);
+  });
+});
