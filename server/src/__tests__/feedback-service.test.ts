@@ -16,6 +16,7 @@ import {
   documents,
   documentRevisions,
   ensurePostgresDatabase,
+  getEmbeddedPostgresTestSupport,
   withEmbeddedPostgresInitLock,
   feedbackExports,
   feedbackVotes,
@@ -99,7 +100,10 @@ async function closeDbClient(db: ReturnType<typeof createDb> | undefined) {
   await db?.$client?.end?.({ timeout: 0 });
 }
 
-describe("feedbackService.saveIssueVote", () => {
+const embeddedPostgresSupport = await getEmbeddedPostgresTestSupport();
+const describeIfPg = embeddedPostgresSupport.supported ? describe : describe.skip;
+
+describeIfPg("feedbackService.saveIssueVote", () => {
   let db!: ReturnType<typeof createDb>;
   let svc!: ReturnType<typeof feedbackService>;
   let instance: EmbeddedPostgresInstance | null = null;

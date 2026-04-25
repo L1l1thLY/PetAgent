@@ -14,6 +14,7 @@ import {
   companies,
   createDb,
   ensurePostgresDatabase,
+  getEmbeddedPostgresTestSupport,
   withEmbeddedPostgresInitLock,
   heartbeatRuns,
   issueComments,
@@ -219,7 +220,10 @@ async function createControlledGatewayServer() {
   };
 }
 
-describe("heartbeat comment wake batching", () => {
+const embeddedPostgresSupport = await getEmbeddedPostgresTestSupport();
+const describeIfPg = embeddedPostgresSupport.supported ? describe : describe.skip;
+
+describeIfPg("heartbeat comment wake batching", () => {
   let db!: ReturnType<typeof createDb>;
   let instance: EmbeddedPostgresInstance | null = null;
   let dataDir = "";

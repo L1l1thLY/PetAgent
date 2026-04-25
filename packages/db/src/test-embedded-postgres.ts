@@ -146,6 +146,28 @@ async function probeEmbeddedPostgresSupport(): Promise<EmbeddedPostgresTestSuppo
       await instance.initialise();
       await instance.start();
     });
+    // Probe pgvector availability: M1 migration 0058 runs `CREATE EXTENSION
+    // IF NOT EXISTS vector;` and fails outright if the bundled postgres
+    // distribution does not include pgvector. We can't apply migrations
+    // without it, so report the capability honestly rather than letting
+    // every embedded-postgres test fail at migration time.
+    const { default: postgres } = await import("postgres");
+    const probeConn = postgres(`postgres://petagent:petagent@127.0.0.1:${port}/postgres`, {
+      max: 1,
+      onnotice: () => {},
+    });
+    try {
+      const rows = await probeConn`SELECT 1 AS ok FROM pg_available_extensions WHERE name = 'vector' LIMIT 1`;
+      if (rows.length === 0) {
+        return {
+          supported: false,
+          reason:
+            "pgvector extension not available in the bundled embedded-postgres distribution; install pgvector or use a system postgres",
+        };
+      }
+    } finally {
+      await probeConn.end({ timeout: 1 }).catch(() => {});
+    }
     return { supported: true };
   } catch (error) {
     return {
