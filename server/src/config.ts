@@ -87,6 +87,7 @@ export interface Config {
   companyDeletionEnabled: boolean;
   telemetryEnabled: boolean;
   transparencyGamma: import("@petagent/shared").TransparencyGamma;
+  psychologistActorAgentId: string | null;
 }
 
 function detectTailnetBindHost(): string | undefined {
@@ -333,6 +334,7 @@ export function loadConfig(): Config {
     companyDeletionEnabled,
     telemetryEnabled: fileConfig?.telemetry?.enabled ?? true,
     transparencyGamma: resolveTransparencyGamma(fileConfig?.transparency?.gamma),
+    psychologistActorAgentId: resolvePsychologistActorAgentId(),
   };
 }
 
@@ -344,4 +346,9 @@ function resolveTransparencyGamma(
     return fromEnv;
   }
   return fromFile ?? "opaque";
+}
+
+function resolvePsychologistActorAgentId(): string | null {
+  const raw = process.env.PETAGENT_PSYCHOLOGIST_ACTOR_AGENT_ID?.trim();
+  return raw && raw.length > 0 ? raw : null;
 }
