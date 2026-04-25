@@ -11,7 +11,7 @@
  * column from the M1+Task-0 schema.
  */
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { Db } from "@petagent/db";
 import { agentNotes } from "@petagent/db";
 import type { GitStore } from "@petagent/safety-net";
@@ -126,6 +126,36 @@ export class NotesManager {
       .orderBy(desc(agentNotes.createdAt))
       .limit(limit);
     return rows.map((r) => rowToRecord(r as unknown as RawRow));
+  }
+
+  async search(args: {
+    agentId: string;
+    query: string;
+    topK?: number;
+    scope?: NoteScope;
+  }): Promise<NoteRecord[]> {
+    const topK = clamp(args.topK ?? 10, 1, 50);
+    const queryVec = await this.embedder.embed(args.query);
+    const vectorLiteral = `[${queryVec.join(",")}]`;
+    const scopeFilter = args.scope ?? null;
+    const result = await this.db.execute<RawRow & { distance: number }>(sql`
+      SELECT
+        id, company_id AS "companyId", agent_id AS "agentId",
+        scope, note_type AS "noteType", body, tags, metadata,
+        embedding, git_commit_sha AS "gitCommitSha",
+        issue_id AS "issueId", session_id AS "sessionId",
+        created_at AS "createdAt",
+        embedding <=> ${vectorLiteral}::vector AS distance
+      FROM agent_notes
+      WHERE agent_id = ${args.agentId}
+        AND company_id = ${this.companyId}
+        AND embedding IS NOT NULL
+        ${scopeFilter ? sql`AND scope = ${scopeFilter}` : sql``}
+      ORDER BY distance ASC
+      LIMIT ${topK}
+    `);
+    const rows = Array.isArray(result) ? (result as unknown as RawRow[]) : (result as { rows?: RawRow[] }).rows ?? [];
+    return rows.map((r) => rowToRecord(r));
   }
 }
 
