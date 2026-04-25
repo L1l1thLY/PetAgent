@@ -331,6 +331,39 @@ describe("ServicePsychologistActions.pauseIssue", () => {
     expect(issueService.comments).toEqual([]);
     expect(warnings.length).toBe(1);
   });
+
+  it("never throws when active-issue lookup itself rejects", async () => {
+    const issueService = new FakeIssueService([makeIssue()]);
+    const agentInstructions = new FakeAgentInstructions();
+    const { logger, warnings } = makeWarnLogger();
+    const explodingDb = {
+      select: () => ({
+        from: () => ({
+          where: () => ({
+            limit: async () => {
+              throw new Error("connection lost");
+            },
+            orderBy: () => ({
+              limit: async () => {
+                throw new Error("connection lost");
+              },
+            }),
+          }),
+        }),
+      }),
+    } as unknown as import("@petagent/db").Db;
+    const actions = new ServicePsychologistActions({
+      db: explodingDb,
+      issueService: issueService as unknown as never,
+      agentInstructions: agentInstructions as unknown as never,
+      logger,
+    });
+    await expect(actions.pauseIssue("agent-1")).resolves.toBeUndefined();
+    expect(issueService.updates).toEqual([]);
+    expect(issueService.comments).toEqual([]);
+    expect(warnings.length).toBe(1);
+    expect(warnings[0].msg).toBe("psychologist.pauseIssue failed");
+  });
 });
 
 describe("ServicePsychologistActions.splitIssue", () => {
