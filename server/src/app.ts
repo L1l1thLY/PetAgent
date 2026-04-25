@@ -28,6 +28,7 @@ import { sidebarPreferenceRoutes } from "./routes/sidebar-preferences.js";
 import { inboxDismissalRoutes } from "./routes/inbox-dismissals.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { emotionalIncidentsRoutes } from "./routes/emotional-incidents.js";
+import { agentNotesRoutes } from "./routes/agent-notes.js";
 import { roleTemplatesRoutes } from "./routes/role-templates.js";
 import { notificationsRoutes } from "./routes/notifications.js";
 import { InMemoryNotificationStore } from "./notifications/store.js";
@@ -209,6 +210,7 @@ export async function createApp(
       getGamma: opts.getTransparencyGamma ?? (() => "opaque"),
     }),
   );
+  api.use(agentNotesRoutes(db));
   api.use(
     roleTemplatesRoutes({
       loaderFactory: () => buildDefaultRoleTemplateLoader(),

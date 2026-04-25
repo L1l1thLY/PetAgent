@@ -138,7 +138,7 @@ export class NotesManager {
     const queryVec = await this.embedder.embed(args.query);
     const vectorLiteral = `[${queryVec.join(",")}]`;
     const scopeFilter = args.scope ?? null;
-    const result = await this.db.execute<RawRow & { distance: number }>(sql`
+    const result = await this.db.execute(sql`
       SELECT
         id, company_id AS "companyId", agent_id AS "agentId",
         scope, note_type AS "noteType", body, tags, metadata,

@@ -58,6 +58,7 @@
     "@petagent/psychologist": "workspace:*",
     "@petagent/role-template": "workspace:*",
     "@petagent/shared": "workspace:*",
+    "@petagent/skills": "workspace:*",
     "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "better-auth": "1.4.18",

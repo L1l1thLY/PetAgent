@@ -664,6 +664,9 @@ importers:
       '@petagent/shared':
         specifier: workspace:*
         version: link:../packages/shared
+      '@petagent/skills':
+        specifier: workspace:*
+        version: link:../packages/skills
       ajv:
         specifier: ^8.18.0
         version: 8.18.0
