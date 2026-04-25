@@ -5,8 +5,21 @@ import {
   timestamp,
   jsonb,
   index,
+  customType,
 } from "drizzle-orm/pg-core";
 import { companies } from "./companies.js";
+
+const vector1536 = customType<{ data: number[]; driverData: string }>({
+  dataType() {
+    return "vector(1536)";
+  },
+  toDriver(value: number[]): string {
+    return `[${value.join(",")}]`;
+  },
+  fromDriver(value: string): number[] {
+    return JSON.parse(value);
+  },
+});
 
 export const agentNotes = pgTable(
   "agent_notes",
@@ -23,6 +36,8 @@ export const agentNotes = pgTable(
     tags: text("tags").array(),
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     gitCommitSha: text("git_commit_sha"),
+    embedding: vector1536("embedding"),
+    scope: text("scope").notNull().default("project"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => ({

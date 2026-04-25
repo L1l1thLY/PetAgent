@@ -414,6 +414,13 @@
       "when": 1776610787231,
       "tag": "0058_careless_morlun",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1777106029578,
+      "tag": "0059_silent_the_initiative",
+      "breakpoints": true
     }
   ]
 }
