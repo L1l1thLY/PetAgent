@@ -14,6 +14,7 @@ import {
   companies,
   createDb,
   ensurePostgresDatabase,
+  withEmbeddedPostgresInitLock,
   heartbeatRuns,
   issueComments,
   issues,
@@ -76,8 +77,10 @@ async function startTempDatabase() {
     onLog: () => {},
     onError: () => {},
   });
-  await instance.initialise();
-  await instance.start();
+  await withEmbeddedPostgresInitLock("petagent-heartbeat-comment-wake-", async () => {
+    await instance.initialise();
+    await instance.start();
+  });
 
   const adminConnectionString = `postgres://petagent:petagent@127.0.0.1:${port}/postgres`;
   await ensurePostgresDatabase(adminConnectionString, "petagent");

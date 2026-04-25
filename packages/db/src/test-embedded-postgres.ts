@@ -1,8 +1,70 @@
 import fs from "node:fs";
+import { promises as fsp } from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { applyPendingMigrations, ensurePostgresDatabase } from "./client.js";
+
+/**
+ * Cross-process mutex for `embedded-postgres` `initialise()` + `start()`.
+ * Without this, vitest's forks pool spins up a postgres per test file in
+ * parallel and racing initdb invocations collide — error mentions a
+ * non-existent "data directory might already exist" and is a known
+ * M0 flake. The lock holds during init/start; once postgres is running
+ * the lock releases so unrelated suites proceed in parallel.
+ */
+const POSTGRES_INIT_LOCK_PATH = path.join(os.tmpdir(), "petagent-embedded-postgres-init.lock");
+const POSTGRES_INIT_LOCK_STALE_MS = 120_000;
+const POSTGRES_INIT_LOCK_POLL_MS = 100;
+const POSTGRES_INIT_LOCK_TIMEOUT_MS = 10 * 60_000;
+
+export async function withEmbeddedPostgresInitLock<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  const acquireStart = Date.now();
+  while (true) {
+    try {
+      const handle = await fsp.open(POSTGRES_INIT_LOCK_PATH, "wx");
+      try {
+        await handle.write(`pid=${process.pid} label=${label} startedAt=${new Date().toISOString()}\n`);
+      } catch {
+        // best-effort identification only
+      }
+      try {
+        return await fn();
+      } finally {
+        try {
+          await handle.close();
+        } catch {
+          // ignore
+        }
+        try {
+          await fsp.unlink(POSTGRES_INIT_LOCK_PATH);
+        } catch {
+          // already removed by another process — fine
+        }
+      }
+    } catch (err: unknown) {
+      const code = (err as NodeJS.ErrnoException | undefined)?.code;
+      if (code !== "EEXIST") throw err;
+      try {
+        const stat = await fsp.stat(POSTGRES_INIT_LOCK_PATH);
+        const age = Date.now() - stat.mtimeMs;
+        if (age > POSTGRES_INIT_LOCK_STALE_MS) {
+          await fsp.unlink(POSTGRES_INIT_LOCK_PATH).catch(() => {});
+          continue;
+        }
+      } catch {
+        // lock disappeared between EEXIST and stat — retry the open immediately
+        continue;
+      }
+      if (Date.now() - acquireStart > POSTGRES_INIT_LOCK_TIMEOUT_MS) {
+        throw new Error(
+          `embedded postgres init lock not acquirable within ${POSTGRES_INIT_LOCK_TIMEOUT_MS}ms (held by another test file?)`,
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, POSTGRES_INIT_LOCK_POLL_MS));
+    }
+  }
+}
 
 type EmbeddedPostgresInstance = {
   initialise(): Promise<void>;
@@ -80,8 +142,10 @@ async function probeEmbeddedPostgresSupport(): Promise<EmbeddedPostgresTestSuppo
   });
 
   try {
-    await instance.initialise();
-    await instance.start();
+    await withEmbeddedPostgresInitLock("probe", async () => {
+      await instance.initialise();
+      await instance.start();
+    });
     return { supported: true };
   } catch (error) {
     return {
@@ -119,8 +183,10 @@ export async function startEmbeddedPostgresTestDatabase(
   });
 
   try {
-    await instance.initialise();
-    await instance.start();
+    await withEmbeddedPostgresInitLock(tempDirPrefix, async () => {
+      await instance.initialise();
+      await instance.start();
+    });
 
     const adminConnectionString = `postgres://petagent:petagent@127.0.0.1:${port}/postgres`;
     await ensurePostgresDatabase(adminConnectionString, "petagent");

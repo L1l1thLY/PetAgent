@@ -12,6 +12,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/fix-embedded-postgres-symlinks.mjs",
     "preflight:workspace-links": "node cli/node_modules/tsx/dist/cli.mjs scripts/ensure-workspace-package-links.ts",
     "dev": "pnpm --filter @petagent/server exec tsx ../scripts/dev-runner.ts watch",
     "dev:watch": "pnpm --filter @petagent/server exec tsx ../scripts/dev-runner.ts watch",

@@ -43,6 +43,7 @@ import type { PetAgentConfig } from "../config/schema.js";
 import {
   getEmbeddedPostgresTestSupport,
   startEmbeddedPostgresTestDatabase,
+  withEmbeddedPostgresInitLock,
 } from "./helpers/embedded-postgres.js";
 
 const ORIGINAL_CWD = process.cwd();
@@ -447,7 +448,9 @@ describe("worktree helpers", () => {
           onError: () => {},
         });
 
-        await targetPg.start();
+        await withEmbeddedPostgresInitLock("petagent-worktree-target-", async () => {
+          await targetPg.start();
+        });
         try {
           const targetDb = createDb(
             `postgres://petagent:petagent@127.0.0.1:${targetConfig.database.embeddedPostgresPort}/petagent`,
