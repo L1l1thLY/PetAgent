@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@petagent/db": "workspace:*",
+    "@petagent/llm-providers": "workspace:*",
     "@petagent/safety-net": "workspace:*",
     "drizzle-orm": "^0.38.4",
     "js-yaml": "^4.1.0"

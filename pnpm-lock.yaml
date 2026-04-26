@@ -542,6 +542,9 @@ importers:
       '@petagent/hooks':
         specifier: workspace:*
         version: link:../hooks
+      '@petagent/llm-providers':
+        specifier: workspace:*
+        version: link:../llm-providers
     devDependencies:
       '@types/node':
         specifier: ^24.6.0
@@ -613,6 +616,9 @@ importers:
       '@petagent/db':
         specifier: workspace:*
         version: link:../db
+      '@petagent/llm-providers':
+        specifier: workspace:*
+        version: link:../llm-providers
       '@petagent/safety-net':
         specifier: workspace:*
         version: link:../safety-net
@@ -687,6 +693,9 @@ importers:
       '@petagent/hooks':
         specifier: workspace:*
         version: link:../packages/hooks
+      '@petagent/llm-providers':
+        specifier: workspace:*
+        version: link:../packages/llm-providers
       '@petagent/plugin-sdk':
         specifier: workspace:*
         version: link:../packages/plugins/sdk

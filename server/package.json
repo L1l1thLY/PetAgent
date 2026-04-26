@@ -54,6 +54,7 @@
     "@petagent/adapter-utils": "workspace:*",
     "@petagent/db": "workspace:*",
     "@petagent/hooks": "workspace:*",
+    "@petagent/llm-providers": "workspace:*",
     "@petagent/plugin-sdk": "workspace:*",
     "@petagent/psychologist": "workspace:*",
     "@petagent/reflector": "workspace:*",

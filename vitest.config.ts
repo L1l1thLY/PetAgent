@@ -5,6 +5,7 @@ export default defineConfig({
     projects: [
       "packages/db",
       "packages/hooks",
+      "packages/llm-providers",
       "packages/safety-net",
       "packages/skills",
       "packages/role-template",

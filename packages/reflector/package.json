@@ -21,7 +21,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@petagent/hooks": "workspace:*"
+    "@petagent/hooks": "workspace:*",
+    "@petagent/llm-providers": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",

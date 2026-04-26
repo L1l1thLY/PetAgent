@@ -22,3 +22,18 @@ export {
   resolvePreset,
   listPresetIds,
 } from "./registry.js";
+
+export {
+  AnthropicMessagesTransport,
+  extractFirstAnthropicText,
+} from "./transports.js";
+export type {
+  AnthropicMessagesTransportOptions,
+  AnthropicMessagesResponse,
+} from "./transports.js";
+
+export { OpenAIEmbeddingsTransport } from "./transports.js";
+export type {
+  OpenAIEmbeddingsTransportOptions,
+  OpenAIEmbeddingsResponse,
+} from "./transports.js";
