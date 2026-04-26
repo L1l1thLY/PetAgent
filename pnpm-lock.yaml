@@ -750,6 +750,9 @@ importers:
       hermes-paperclip-adapter:
         specifier: ^0.2.0
         version: 0.2.0
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
       jsdom:
         specifier: ^28.1.0
         version: 28.1.0(@noble/hashes@2.0.1)
@@ -787,6 +790,9 @@ importers:
       '@types/express-serve-static-core':
         specifier: ^5.0.0
         version: 5.1.1
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/jsdom':
         specifier: ^28.0.0
         version: 28.0.0

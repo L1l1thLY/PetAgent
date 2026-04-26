@@ -473,7 +473,7 @@ pnpm dev:server
 
 **如果看到 `[env-fallback]`**：说明 YAML 没被读到。检查：
 - `petagent.config.yaml` 是不是在你运行 `pnpm dev:server` 的同一个 CWD
-- 或者用 `PETAGENT_CONFIG=/abs/path/petagent.config.yaml` 强制路径
+- 或者用 `PETAGENT_LLM_CONFIG=/abs/path/petagent.config.yaml` 强制路径
 
 ### 7.5.4 触发一次真 LLM 调用
 

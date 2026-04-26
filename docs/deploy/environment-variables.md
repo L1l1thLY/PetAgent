@@ -75,5 +75,5 @@ Multi-provider router config:
 
 | Variable | Description |
 |----------|-------------|
-| `PETAGENT_CONFIG` | Override path for `petagent.config.yaml` (default: `./petagent.config.yaml` in CWD). When the file does not exist, PetAgent falls back to ENV-only mode (synthesises `anthropic` / `openai` presets from the keys above). |
+| `PETAGENT_LLM_CONFIG` | Override path for `petagent.config.yaml` (default: `./petagent.config.yaml` in CWD). When the file does not exist, PetAgent falls back to ENV-only mode (synthesises `anthropic` / `openai` presets from the keys above). Distinct from `PETAGENT_CONFIG` (legacy: points at `config.json`). |
 | `OPENAI_EMBEDDING_MODEL` | (Legacy / ENV-fallback only) Override embedding model when running in env-only mode. Ignored when `petagent.config.yaml` is present — use `model:` field in the yaml instead. |

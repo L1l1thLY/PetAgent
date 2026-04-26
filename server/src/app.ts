@@ -27,6 +27,7 @@ import { sidebarBadgeRoutes } from "./routes/sidebar-badges.js";
 import { sidebarPreferenceRoutes } from "./routes/sidebar-preferences.js";
 import { inboxDismissalRoutes } from "./routes/inbox-dismissals.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
+import { llmProvidersSettingsRoutes } from "./routes/llm-providers-settings.js";
 import { emotionalIncidentsRoutes } from "./routes/emotional-incidents.js";
 import { agentNotesRoutes } from "./routes/agent-notes.js";
 import { companyChatRoutes } from "./routes/company-chat.js";
@@ -216,6 +217,7 @@ export async function createApp(
   api.use(sidebarPreferenceRoutes(db));
   api.use(inboxDismissalRoutes(db));
   api.use(instanceSettingsRoutes(db));
+  api.use(llmProvidersSettingsRoutes());
   api.use(
     emotionalIncidentsRoutes(db, {
       getGamma: opts.getTransparencyGamma ?? (() => "opaque"),

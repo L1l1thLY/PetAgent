@@ -1,7 +1,7 @@
 # PetAgent multi-provider routing config (M2 G3).
 #
 # Copy this file to `petagent.config.yaml` in your CWD (or set
-# PETAGENT_CONFIG=/abs/path/petagent.config.yaml) before starting
+# PETAGENT_LLM_CONFIG=/abs/path/petagent.config.yaml) before starting
 # `npx petagentai run`.
 #
 # Without this file PetAgent falls back to ENV-only mode:

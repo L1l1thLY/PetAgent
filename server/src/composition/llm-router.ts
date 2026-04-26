@@ -51,7 +51,7 @@ export interface RoutingDescription {
 
 export interface CreateLLMRouterDeps {
   env: NodeJS.ProcessEnv | Record<string, string | undefined>;
-  /** Override config path. Default: $PETAGENT_CONFIG or ./petagent.config.yaml in CWD. */
+  /** Override config path. Default: $PETAGENT_LLM_CONFIG or ./petagent.config.yaml in CWD. */
   configPath?: string;
   /** Logger for warnings (e.g. resolved-key-missing-but-config-exists cases). */
   logger?: { warn(msg: string, meta?: unknown): void };
@@ -224,7 +224,7 @@ function loadConfig(
   configPathOverride?: string,
 ): LoadedConfig {
   const configPath =
-    configPathOverride ?? env.PETAGENT_CONFIG ?? path.resolve(process.cwd(), DEFAULT_CONFIG_FILENAME);
+    configPathOverride ?? env.PETAGENT_LLM_CONFIG ?? path.resolve(process.cwd(), DEFAULT_CONFIG_FILENAME);
   const fromFile = loadConfigFile(configPath);
   if (fromFile !== null) {
     return { config: fromFile, source: "config" };

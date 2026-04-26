@@ -253,7 +253,7 @@ providers:
     expect(router.describeRouting()).toEqual([]);
   });
 
-  it("PETAGENT_CONFIG env var overrides default path", () => {
+  it("PETAGENT_LLM_CONFIG env var overrides default path", () => {
     const cfgPath = writeConfig(`
 providers:
   - id: a
@@ -265,7 +265,7 @@ llm_routing:
     const router = createLLMRouter({
       env: {
         ANTHROPIC_API_KEY: "k",
-        PETAGENT_CONFIG: cfgPath,
+        PETAGENT_LLM_CONFIG: cfgPath,
       },
     });
     expect(router.getTextTransport("psychologist")).not.toBeNull();
