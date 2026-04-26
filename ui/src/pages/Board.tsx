@@ -19,6 +19,7 @@ import {
   encodeDragRoleType,
 } from "../lib/hire-form";
 import { ChatBar } from "../components/ChatBar";
+import { LlmOnboardingBanner } from "../components/LlmOnboardingBanner";
 import { EmployeeCard } from "../components/EmployeeCard";
 import { HireDialog } from "../components/HireDialog";
 import { PageSkeleton } from "../components/PageSkeleton";
@@ -99,6 +100,7 @@ export function Board() {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
+      <LlmOnboardingBanner />
       <ChatBar companyId={selectedCompanyId} />
       <EmployeeBar agentsByRole={agentsByRole} />
       <div className="flex gap-4">
