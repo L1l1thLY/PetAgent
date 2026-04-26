@@ -730,6 +730,9 @@ importers:
       '@petagent/shared':
         specifier: workspace:*
         version: link:../packages/shared
+      '@petagent/skill-miner':
+        specifier: workspace:*
+        version: link:../packages/skill-miner
       '@petagent/skills':
         specifier: workspace:*
         version: link:../packages/skills

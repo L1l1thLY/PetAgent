@@ -39,6 +39,10 @@ import { createPsychologist } from "./composition/psychologist.js";
 import { createReflector } from "./composition/reflector.js";
 import { createEmbeddingService } from "./composition/embedding.js";
 import { createLLMRouter } from "./composition/llm-router.js";
+import { buildSkillMinerRunnerDeps } from "./composition/skill-miner.js";
+import { startSkillMiningRoutine } from "./skill-miner/routine.js";
+import { DrizzleSkillRepository } from "./skill-miner/drizzle-skill-repo.js";
+import { skillCandidatesRoutes } from "./routes/skill-candidates.js";
 import { createBudgetAlertEmailNotifier } from "./composition/budget-alert-notifier.js";
 import { startBudgetCheckRoutine } from "./services/budget-check-routine.js";
 import { globalHookBus } from "@petagent/hooks";
@@ -233,6 +237,20 @@ export async function createApp(
   const embedding = createEmbeddingService({ router: llmRouter });
   api.use(agentNotesRoutes(db, embedding.service));
   api.use(companyChatRoutes({ db }));
+
+  const skillMinerRunnerDeps = buildSkillMinerRunnerDeps({
+    db,
+    router: llmRouter,
+    logger: console,
+  });
+  api.use(
+    skillCandidatesRoutes({
+      db,
+      skillRepo: new DrizzleSkillRepository(db),
+      notesGitStoreDir: opts.notesGitStoreDir ?? "",
+      runnerDeps: skillMinerRunnerDeps,
+    }),
+  );
   api.use(
     roleTemplatesRoutes({
       loaderFactory: () => buildDefaultRoleTemplateLoader(),
@@ -275,6 +293,22 @@ export async function createApp(
   }
 
   console.log(`[petagent] embedding service mode: ${embedding.kind}`);
+
+  if (process.env.PETAGENT_SKILL_MINING_ENABLED === "true") {
+    const intervalMs = Number(process.env.PETAGENT_SKILL_MINING_INTERVAL_MS);
+    startSkillMiningRoutine({
+      ...skillMinerRunnerDeps,
+      intervalMs:
+        Number.isFinite(intervalMs) && intervalMs > 0 ? intervalMs : undefined,
+    });
+    console.log(
+      `[petagent] skill-mining routine started (interval=${
+        Number.isFinite(intervalMs) && intervalMs > 0
+          ? `${intervalMs}ms`
+          : "weekly"
+      })`,
+    );
+  }
 
   const budgetEmailNotifier = createBudgetAlertEmailNotifier(process.env);
   if (process.env.PETAGENT_BUDGET_CHECK_ENABLED === "true") {
