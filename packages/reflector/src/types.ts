@@ -12,5 +12,5 @@ export interface NotesSink {
 }
 
 export interface ReflectionBuilder {
-  build(event: HookEvent): { content: string; noteType: string };
+  build(event: HookEvent): { content: string; noteType: string } | Promise<{ content: string; noteType: string }>;
 }

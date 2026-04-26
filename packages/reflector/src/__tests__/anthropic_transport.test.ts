@@ -20,12 +20,12 @@ describe("extractFirstText", () => {
 
 describe("AnthropicHttpReflectionTransport", () => {
   it("POSTs system + userMessage to /v1/messages with required headers", async () => {
-    const fetchImpl = vi.fn(async () =>
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
       fakeOk({ content: [{ type: "text", text: "reflective note" }] }),
     );
     const transport = new AnthropicHttpReflectionTransport({
       apiKey: "sk-ant-test",
-      fetchImpl: fetchImpl as unknown as typeof fetch,
+      fetchImpl,
     });
     const text = await transport.send({
       system: "sys",
@@ -34,7 +34,7 @@ describe("AnthropicHttpReflectionTransport", () => {
       model: "claude-haiku-4-5-20251001",
     });
     expect(text).toBe("reflective note");
-    const call = fetchImpl.mock.calls[0];
+    const call = fetchImpl.mock.calls[0]!;
     expect(call[0]).toBe("https://api.anthropic.com/v1/messages");
     const init = call[1] as RequestInit;
     expect(init.method).toBe("POST");

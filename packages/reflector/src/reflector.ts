@@ -56,7 +56,7 @@ export class Reflector {
     this.lastWriteAt.set(cooldownKey, Date.now());
 
     try {
-      const built = this.builder.build(event);
+      const built = await this.builder.build(event);
       await this.notesSink.create({
         agentId: event.agentId,
         companyId: event.companyId,
