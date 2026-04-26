@@ -119,6 +119,7 @@ export const queryKeys = {
     generalSettings: ["instance", "general-settings"] as const,
     schedulerHeartbeats: ["instance", "scheduler-heartbeats"] as const,
     experimentalSettings: ["instance", "experimental-settings"] as const,
+    llmProviders: ["instance", "llm-providers"] as const,
   },
   health: ["health"] as const,
   secrets: {
