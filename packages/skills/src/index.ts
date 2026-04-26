@@ -11,3 +11,11 @@ export type {
   NoteScope,
   NotesManagerDeps,
 } from "./notes_manager.js";
+export {
+  OpenAIEmbeddingTransport,
+} from "./embedding_transport.js";
+export type {
+  EmbeddingTransport,
+  OpenAIEmbeddingTransportOptions,
+  OpenAIEmbeddingResponse,
+} from "./embedding_transport.js";
