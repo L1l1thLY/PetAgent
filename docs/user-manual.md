@@ -1,0 +1,455 @@
+# PetAgent User Manual
+
+> 适用版本：v0.3.1-m2-alive 起。本手册覆盖 M0 + M1 + M2 Preview 全部已发布功能。
+
+## 目录
+
+1. [安装与启动](#1-安装与启动)
+2. [核心概念：Company / Goal / Issue / Agent](#2-核心概念companygoalissueagent)
+3. [Hire 招人](#3-hire-招人)
+4. [角色家族（Coordinator / Worker / Psychologist）](#4-角色家族)
+5. [使用 Board](#5-使用-board)
+6. [Chat Bar：与 Coordinator 对话](#6-chat-bar)
+7. [Notes 反思笔记](#7-notes-反思笔记)
+8. [Psychologist 情绪疗愈](#8-psychologist-情绪疗愈)
+9. [Budget 与告警](#9-budget-与告警)
+10. [CLI 完整命令](#10-cli-完整命令)
+11. [环境变量参考](#11-环境变量参考)
+12. [外部 Adapter（Claude Code / Codex / 等）](#12-外部-adapter)
+13. [常见问题排查](#13-常见问题排查)
+
+---
+
+## 1. 安装与启动
+
+### 第一次使用
+
+```sh
+npx petagentai onboard --yes
+```
+
+走完交互后默认 UI 在 http://localhost:3100。
+
+### 后续启动
+
+```sh
+npx petagentai run
+```
+
+### 启用全套智能能力
+
+PetAgent 的 Psychologist 和 Reflector 默认 **disabled**（保持纯 Paperclip 行为）。打开它们：
+
+```sh
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+```
+
+需要真 LLM 反思时再加 key：
+
+```sh
+ANTHROPIC_API_KEY=sk-ant-... \
+OPENAI_API_KEY=sk-... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+```
+
+启动日志会确认：
+
+```
+[petagent] psychologist started (classifier=prompted)
+[petagent] reflector started (builder=haiku)
+[petagent] embedding service mode: openai
+```
+
+`classifier=passthrough` 表示无 ANTHROPIC_API_KEY 时的行为-only fallback，仍能 fire 介入但不调 LLM。`builder=templated` 表示 Reflector 写模板反思而非 LLM 反思。`embedding service mode: stub` 表示 Notes 用 SHA-256 deterministic stub（语义检索仅作开发用）。
+
+### 验证
+
+```sh
+npx petagentai doctor      # 健康检查
+npx petagentai status      # 当前公司任务摘要
+npx petagentai open        # 浏览器打开 Board
+```
+
+---
+
+## 2. 核心概念：Company / Goal / Issue / Agent
+
+继承自 Paperclip：
+
+- **Company** — 一个独立工作空间。可以有多个公司并存，每个公司有自己的 Board / agents / 预算。
+- **Goal** — 公司级长期目标，CEO 在此分解。
+- **Issue** — 可执行单元。assigneeAgentId 指向某个 agent。状态：`backlog → todo → in_progress → in_review → done`（或 `blocked` / `cancelled`）。
+- **Agent** — AI 员工。有 role（PetAgent native）/ adapterType / 月度 budget / 历史成本。
+- **Project** — issue 容器；按项目分组。
+
+PetAgent 增补：
+
+- **Issue Document** — issue 上挂载的文档（`plan` / `notes` / 自定义 key），有 revision 历史。
+- **Note** — agent 写的反思笔记（M2）。可按语义检索。
+- **Emotional Incident** — Psychologist 检测到的行为信号 + 干预记录。
+
+---
+
+## 3. Hire 招人
+
+### CLI
+
+```sh
+# 招一个 Coordinator
+petagent hire --role coordinator --company-id <id>
+
+# 招一个 Executor 起名 Bob，月预算 $30
+petagent hire \
+  --role worker/executor \
+  --company-id <id> \
+  --name Bob \
+  --budget-usd 30
+
+# 列出所有可用 role
+petagent hire --help
+```
+
+支持的 `--role`：
+- `coordinator`
+- `worker/explorer` `worker/planner` `worker/executor` `worker/reviewer`
+- `psychologist`
+
+### UI
+
+在 `/board` 页面：
+
+- 左侧"角色面板"列出所有可用 role（按来源分组：built-in / project / user）
+- 拖一张卡到中央画布弹出 HireDialog 填表（Name / Title / Reports To / Budget / Adapter Type）
+
+`--budget-usd` 不传时默认 0（不限）。
+
+### 复用同一 role 招多个
+
+OK 的。命名约定：默认会自动给名字（first roles 用 role-default 名字，重复时进入"pronounceable pool" → 最终 Worker-N fallback）。
+
+---
+
+## 4. 角色家族
+
+PetAgent 的 6 个内置 role 定义在 `packages/my-agent-adapter/built-in-roles/*.md`：
+
+| roleType | 用途 | tools 倾向 | structured output |
+|---|---|---|---|
+| **coordinator** | 唯一一个；分解 goals → 路由 issue 给 worker；不执行 | Read / Write / TaskCreate / TaskUpdate | summary |
+| **worker/explorer** | 调研 + 探索；找上下文 | Read / Bash / Grep / WebSearch | findings |
+| **worker/planner** | 把已知信息 → 实施 plan | Read / Write | critical_files |
+| **worker/executor** | 实际写代码 / 改文件 | Read / Edit / Write / Bash | summary |
+| **worker/reviewer** | 验收 / 双重确认 | Read / Bash | verdict |
+| **psychologist** | 监听情绪信号 + 介入；不接任务 | （仅注入抚慰 prompt 到目标 agent）| - |
+
+每个 role 的 prompt + tools + skills 在对应 md 中可读可改。改动后 server FS Watcher 自动 reload，正在跑的实例不打断（下次 session 生效）。
+
+---
+
+## 5. 使用 Board
+
+`/board` 页面（前提：选了某个公司）：
+
+- **顶部 ChatBar** — 与 Coordinator 对话，回车发送（见 §6）
+- **EmployeeBar** — 当前公司全部 agent 头像，按 role 分组；Idle / Busy / Listening 三态
+- **三栏 Kanban** — Todo / In Progress / Done
+  - 每个 IssueCard 显示：assignee 头像、tool_use emoji（🔧 Read/Write/Bash · 💭 思考）、连续失败 ⚠️ 视觉
+- **左侧 RolePalette** — 拖拽招人源
+- **右上铃铛 NotificationBell** — Budget 阈值 / KPI 告警 / Psychologist 升级介入 / Skill 候选
+
+点 Issue 卡进 IssueDetail 看完整对话流（comments + tool_use + run logs）。
+
+---
+
+## 6. Chat Bar
+
+> 与 Coordinator 对话（spec §17.7）。
+
+`/board` 顶部输入框，回车发送。背后做的事：
+
+1. 找到该 company 的 Coordinator agent（`role = "coordinator"`，按创建时间最早的）
+2. 用消息内容创建一个新 issue（title 截到 120 字符，description 保留全文）
+3. assigneeAgentId = Coordinator
+4. 跳转到该 issue 详情页
+
+如果公司没招过 Coordinator，会返回 404 提示先 hire。
+
+---
+
+## 7. Notes 反思笔记
+
+### 是什么
+
+Reflector 在每个 heartbeat 结束时给 agent 写一条 markdown 反思笔记。两种模式：
+
+- **Templated**（无 ANTHROPIC_API_KEY）：固定结构，含 status / duration / issue 引用
+- **Haiku-backed**（有 ANTHROPIC_API_KEY）：1-3 句第一人称真反思，输入会含 issue title/description + 最近 5 条 agent output
+
+### 浏览（UI）
+
+`/notes` 页面：
+
+- agent 下拉选员工
+- scope 下拉 (all / user / project / local)
+- 搜索框留空 = list，输入查询 = 语义搜索（pgvector cosine）
+
+### 浏览（CLI）
+
+```sh
+petagent notes list --agent <id>                       # 最近 50 条
+petagent notes list --agent <id> --scope project       # 按 scope 过滤
+petagent notes search --agent <id> --query "vercel"    # 语义搜索
+petagent notes view --note-id <noteId>                 # 单条详情
+```
+
+### 写（不直接暴露）
+
+Notes 只由 agent runtime 写，不开 UI 创建路径。Reflector 自动写；agent 自己决定要存的笔记走 `@save-as-skill` 命令 (M2 Group 2 完整版未上线)。
+
+### 启动日志检查
+
+```
+[petagent] reflector started (builder=haiku)
+[petagent] embedding service mode: openai
+```
+
+`builder=templated` + `embedding service mode: stub` 时仍可用，但反思偏简单且语义搜索精度低。
+
+---
+
+## 8. Psychologist 情绪疗愈
+
+### 监听什么
+
+`heartbeat.ended` 和 `agent.output` 事件。每次触发时：
+
+1. **行为初筛**（无 LLM）：检查最近 5 个 heartbeat 的连续失败、output 长度均值-2σ 跌、tool 失败率
+2. **Haiku 精筛**（有 ANTHROPIC_API_KEY）：把最近 N 条 output 喂给分类器，返回 `{distress_level, signals, recommended_intervention: none/mild/moderate/severe}`
+3. 严重度分级走对应介入
+
+### 介入方式
+
+| 级别 | 行动 | 依赖 |
+|---|---|---|
+| `mild` | Instructions Bundle 注入抚慰 prompt | adapter 支持 instructions bundle |
+| `moderate` | A + Board Comment | 同上 |
+| `severe` | 暂停任务 + 开疗愈会话 | adapter 支持 issue pause |
+| degraded | 仅 Board Comment | 任意 adapter |
+
+### 透明度（spec γ）
+
+- **对用户**：所有 incident 进 `emotional_incidents` 表，UI `/interventions` 面板按时间轴展示。
+- **对被疗愈 agent**：注入 prompt 用"你自己的元认知"口吻写，不显式说"来自 Psychologist"。
+
+### 切换 γ
+
+CompanySettings → Transparency。Opaque（默认）/ Semi / Transparent 三档。Transparent 把全部 incident payload 全展给被监控 agent。
+
+### CLI 审计
+
+```sh
+petagent audit emotional-interventions --company-id <id> --since-days 7
+```
+
+---
+
+## 9. Budget 与告警
+
+### 配置
+
+在 CompanySettings UI 或 CLI 改月度预算。每个 agent 也有独立 budget（不设则跟公司）。
+
+### 阈值
+
+| % | 行动 |
+|---|---|
+| 70% | Board banner + 通知中心 |
+| 90% | 同上 + 邮件给 admin |
+| 100% | 同上 + （计划中）暂停该员工的 Issue |
+
+### 启用 budget routine + 邮件
+
+```sh
+PETAGENT_BUDGET_CHECK_ENABLED=true \
+SMTP_HOST=smtp.example.com SMTP_PORT=587 \
+SMTP_USER=alerts SMTP_PASSWORD=... \
+SMTP_FROM=alerts@petagent.local \
+SMTP_TO_ADMIN=admin@example.com \
+npx petagentai run
+```
+
+`SMTP_HOST` 缺省时只有 console + 通知中心，没有邮件。
+
+每小时跑一次。`PETAGENT_BUDGET_CHECK_INTERVAL_MS` 可调。
+
+---
+
+## 10. CLI 完整命令
+
+```sh
+petagent --help                    # 全部命令一览
+petagent run                       # 启动 server
+petagent open                      # 在浏览器打开 Board
+petagent doctor                    # 健康检查
+petagent status                    # 当前公司今日摘要
+petagent setup                     # 交互式 setup wizard
+petagent onboard                   # 首次 setup（含 docker / db init）
+petagent configure                 # 编辑配置文件
+
+# 招人
+petagent hire --role <type> --company-id <id> [--name N] [--budget-usd N]
+
+# 反思笔记
+petagent notes list --agent <id>
+petagent notes search --agent <id> --query "..."
+petagent notes view --note-id <id>
+
+# 审计
+petagent audit emotional-interventions --company-id <id>
+
+# 公司模板
+petagent import @petagent/templates/solo-pack
+petagent import @petagent/templates/small-dev-team
+petagent import @petagent/templates/hybrid-team
+petagent import ./local-template-dir
+
+# Secrets
+petagent secrets set anthropic-key --value-stdin
+petagent secrets list
+petagent secrets get anthropic-key
+petagent secrets delete anthropic-key
+petagent secrets rotate
+```
+
+---
+
+## 11. 环境变量参考
+
+### Server / 平台
+
+| 变量 | 默认 | 说明 |
+|---|---|---|
+| `PETAGENT_DATA_DIR` | `~/.petagent` | 数据根目录 |
+| `PETAGENT_PORT` | 3100 | UI / API 端口 |
+| `PETAGENT_DB_URL` | embedded | 显式 Postgres URL（覆盖嵌入式） |
+| `PETAGENT_TRANSPARENCY_GAMMA` | `opaque` | `opaque`/`semi`/`transparent` |
+
+### Psychologist
+
+| 变量 | 默认 | 说明 |
+|---|---|---|
+| `PETAGENT_PSYCHOLOGIST_ENABLED` | `false` | 设 `true` 才启动 |
+| `PETAGENT_PSYCHOLOGIST_ACTOR_AGENT_ID` | `null` | 介入 comment 的署名 agent（可选）|
+
+### Reflector
+
+| 变量 | 默认 | 说明 |
+|---|---|---|
+| `PETAGENT_REFLECTOR_ENABLED` | `false` | 设 `true` 才启动 |
+| `PETAGENT_NOTES_GIT_STORE_DIR` | `<dataDir>/notes-store` | Git 存储位置 |
+
+### 真 LLM 后端
+
+| 变量 | 影响 |
+|---|---|
+| `ANTHROPIC_API_KEY` | Psychologist Haiku 分类器 + Reflector Haiku builder 自动启用 |
+| `OPENAI_API_KEY` | EmbeddingService 自动切到 text-embedding-3-small（Notes 真实语义检索）|
+| `OPENAI_EMBEDDING_MODEL` | 覆盖 embedding 模型（默认 `text-embedding-3-small`）|
+
+### Budget + 邮件
+
+| 变量 | 默认 | 说明 |
+|---|---|---|
+| `PETAGENT_BUDGET_CHECK_ENABLED` | `false` | 启用月度 budget 检查 routine |
+| `PETAGENT_BUDGET_CHECK_INTERVAL_MS` | 3600000 (1h) | routine 周期 |
+| `SMTP_HOST` | — | 必填才发邮件 |
+| `SMTP_PORT` | 587 | |
+| `SMTP_USER` / `SMTP_PASSWORD` | — | 可选 auth |
+| `SMTP_SECURE` | `false` | TLS |
+| `SMTP_FROM` | — | 必填才发邮件 |
+| `SMTP_TO_ADMIN` | — | 逗号分隔，必填 |
+
+### 验证模式
+
+启动日志会在 createApp 末尾打印实际生效的模式。出现下列三行说明全套配置生效：
+
+```
+[petagent] psychologist started (classifier=prompted)
+[petagent] reflector started (builder=haiku)
+[petagent] embedding service mode: openai
+```
+
+---
+
+## 12. 外部 Adapter
+
+PetAgent 完整继承 Paperclip 的 8 种外部 adapter：
+
+| adapter | 命令 | 适用 |
+|---|---|---|
+| `claude_local` | Claude Code | 本机跑 Claude Code session |
+| `codex_local` | Codex CLI | OpenAI Codex |
+| `cursor` | Cursor IDE | 通过 Cursor 调度 |
+| `openclaw_gateway` | OpenClaw | 内部 gateway |
+| `opencode_local` | OpenCode | OSS 编码 agent |
+| `pi_local` | Pi (Anthropic) | 内部 |
+| `hermes_local` | Hermes Agent | Nous Research |
+| `process` | 通用进程 | 自定义 shell-out |
+| `http` | 通用 HTTP | 自定义 webhook |
+
+混编：一个 Board 可以同时有 PetAgent native（`adapterType: petagent`）+ Claude Code + Hermes 三种 agent，Coordinator 给所有人都能派活。
+
+---
+
+## 13. 常见问题排查
+
+### `petagent` 命令找不到
+
+`npm install -g petagent` 或 `npx petagentai` 替代。
+
+### Board 上 agent 不动
+
+1. `petagent doctor` 看 server 是否在跑
+2. `petagent status` 看 issue 是否真分配给了 agent（assigneeAgentId）
+3. UI Activity 页查 agent 最近 heartbeat 状态
+
+### Notes 始终为空
+
+- `PETAGENT_REFLECTOR_ENABLED=true` 是否设了？
+- 启动日志有没有 `[petagent] reflector started` 这行？
+- agent 是否真跑过 heartbeat（不是空 issue）？
+
+### Psychologist 从不介入
+
+- `PETAGENT_PSYCHOLOGIST_ENABLED=true` 设了吗
+- Behavior monitor 需要至少 5 个 heartbeat 样本（连续失败 3 次 / output 长度跌 σ-2 / tool 失败率 > 50%）才会触发；新员工没历史不会立刻被监控
+- 启动日志 `classifier=passthrough` 也可以触发，只是不用 Haiku
+- `/interventions` 面板看是否真的有 emotional_incident 记录
+
+### 真 embedding 报 401 Unauthorized
+
+`OPENAI_API_KEY` 是否过期。EmbeddingService 在 fail 时不抛错而是 log + 走 stub fallback，所以 Notes 仍能跑只是返回的向量是 SHA-256 的。
+
+### CI / 测试 vector extension 报错
+
+embedded postgres 默认不带 pgvector。`getEmbeddedPostgresTestSupport()` 会探测后 skip 相关测试。生产 Postgres 请装 pgvector：`CREATE EXTENSION vector;`。
+
+### embedded postgres 启动不了 (dyld libicudata.77.dylib)
+
+postinstall 会自动重建丢失的 dylib symlink。如果出问题手动跑：
+
+```sh
+node scripts/fix-embedded-postgres-symlinks.mjs
+```
+
+---
+
+## 反馈
+
+- Bug / 功能请求：https://github.com/petagentai/petagent/issues
+- Spec / 设计文档：[docs/specs/](./specs/)
+- 实现计划：[docs/plans/](./plans/)

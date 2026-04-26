@@ -24,38 +24,92 @@ PetAgent 在 Paperclip 基础上增加一层"自进化 AI 员工 + 心理疗愈"
 - **Routines 定时任务**：cron 式触发，支持 heartbeat 队列
 - **Plugin 热加载**：外部 adapter 无需重启即可上线
 
-PetAgent V1 新增（M1 / M2 开发中）：
+PetAgent 自有：
 
-- **PetAgent 员工家族**：Coordinator / Worker（Explorer、Planner、Executor、Reviewer）/ Psychologist，覆盖从分解目标到执行到验收的完整链路
-- **心理疗愈子系统**：持续监听 agent 情绪状态、在情绪类卡住时自动介入，避免任务停摆
-- **Skill 自进化**：agent 自主积累经验，通过 Shadow Mode + Validator + Rollback 验证后进入共享 skill 库
-- **全套招人心智 UI**：Board 员工头像栏、Issue 对话流 emoji 可视化、拖拽招人、角色面板、情绪介入透明面板、通知中心、Weekly Digest
+- **PetAgent 员工家族**：Coordinator / Worker（Explorer、Planner、Executor、Reviewer）/ Psychologist —— 覆盖从分解目标到执行到验收的完整链路；内置 6 个 role 模板可直接 hire
+- **心理疗愈子系统**：持续监听 agent 情绪状态、在情绪类卡住时自动注入抚慰 prompt 或暂停任务，避免长时停摆。透明面板可审计每次干预
+- **Notes 记忆层**：agent 每次 heartbeat 写一条反思笔记（templated 或 Haiku-backed），pgvector 余弦检索按语义召回历史经验
+- **三种身份 Agent**：PetAgent 原生 + 现成的 8 种外部 adapter，混合编队没有割裂感
+- **全套招人心智 UI**：Board 员工头像栏 · 拖拽招人 · 角色面板 · 情绪介入透明面板 · 通知中心 · 与 Coordinator 直接对话的 Chat Bar · /notes 浏览
+- **CLI 完整**：`petagent hire`、`petagent notes`、`petagent audit`、`petagent secrets`、`petagent status`、`petagent setup`、`petagent doctor`、`petagent open`
 
 ## 快速上手
 
-```bash
-brew install petagent-ai/tap/petagent    # 或用 PowerShell / 源码安装
-petagent run
+```sh
+# 一键 onboard（推荐第一次用）
+npx petagentai onboard --yes
+
+# 后续启动
+npx petagentai run
+
+# 在浏览器打开 Board
+npx petagentai open
 ```
 
-跟随交互式提示选模板（Solo Pack / Small Dev Team / Hybrid Team），连接你的 Anthropic API key，平台就会启动并在 http://localhost:3000 打开 Board。
+启动后默认 UI 在 http://localhost:3100。
 
-```bash
-petagent open     # 在浏览器打开 Board（支持 PETAGENT_UI_URL 覆盖）
-petagent doctor   # 运行诊断
-petagent --help   # 查看所有命令
+### 启用 Psychologist + Reflector + 真 LLM 后端
+
+```sh
+# 让 Psychologist 跑起来（行为-only 模式，不需要 key）
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+
+# 加 Anthropic key 升级到 Haiku 分类器 + Haiku 反思 builder
+ANTHROPIC_API_KEY=sk-ant-... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+
+# 再加 OpenAI key 切到真 embedding（Notes 语义检索从 SHA-256 stub 升级到 text-embedding-3-small）
+ANTHROPIC_API_KEY=sk-ant-... \
+OPENAI_API_KEY=sk-... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
 ```
+
+启动日志会确认实际生效模式：
+
+```
+[petagent] psychologist started (classifier=prompted)   # 或 classifier=passthrough
+[petagent] reflector started (builder=haiku)            # 或 builder=templated
+[petagent] embedding service mode: openai               # 或 stub
+```
+
+### 邮件告警 + budget 检查
+
+```sh
+PETAGENT_BUDGET_CHECK_ENABLED=true \
+SMTP_HOST=smtp.example.com \
+SMTP_PORT=587 \
+SMTP_USER=alerts \
+SMTP_PASSWORD=... \
+SMTP_FROM=alerts@petagent.local \
+SMTP_TO_ADMIN=admin@example.com,ops@example.com \
+npx petagentai run
+```
+
+70% / 90% / 100% 阈值触发 Console + 通知中心 + （可选）邮件。
 
 ## 状态
 
 | 里程碑 | 内容 | 状态 |
-|--------|------|------|
-| **M0** | Fork Paperclip + 全套 rebrand | ✅ 2026-04-19（v0.1.0-m0） |
-| **M1** | PetAgent 员工家族 + Psychologist + Plugin 架构 | 🚧 开发中 |
-| **M2** | Skill 自进化（Shadow Mode + Validator + Rollback） | ⏸ 计划中 |
-| **M3** | 代码架构自升级 | ⏸ 架构就绪后启动 |
+|---|---|---|
+| **M0** Paperclip Distro | Fork + 全套 rebrand + 分发骨架 | ✅ 2026-04-19（v0.1.0-m0） |
+| **M1** PetAgent 家族 + Psychologist + Plugin 架构 | 6 内置 role / Psychologist 子系统 / Hook Bus / Safety Net / Skills 包 / Templates 包 / 全套 UI 改造 | ✅ 2026-04-23（v0.2.0-m1） |
+| Post-M1 wiring | Psychologist concrete adapters / SkipReviewer helper / role-template watcher / NotificationStore bridge / budget-check routine / NotificationBell / SMTP / MCP+Hook runtime glue | ✅ 2026-04-26 |
+| **M2 Preview** | Notes 层 (CRUD+pgvector+CLI) / LLM Reflector + context enrichment / 真 OpenAI embedding API / Psychologist auto-start / Reflector auto-start / /notes UI / Chat Bar | ✅ 2026-04-26（v0.3.1-m2-alive） |
+| **M2** Skill 自进化 | SkillMiner 周批 / Shadow Mode / KPI + Auto-Rollback / Weekly Digest UI / 项目记忆 git sync / 自动归档 | 🚧 计划中 |
+| **M3** 代码架构自升级 | agent-writes-plugin / Shadow 协调器 / KPI 比较器 / 金丝雀 | ⏸ 架构就绪后启动 |
 
-M0 阶段平台已可运行，完整继承 Paperclip 的能力。PetAgent 的差异化功能（员工家族 / Psychologist / 自进化）在 M1 中开发。
+## 文档
+
+- 用户使用手册：[docs/user-manual.md](./docs/user-manual.md)
+- 快速上手：[docs/start/quickstart.md](./docs/start/quickstart.md)
+- 架构概览：[docs/start/architecture.md](./docs/start/architecture.md)
+- 核心概念：[docs/start/core-concepts.md](./docs/start/core-concepts.md)
 
 ## License
 
@@ -68,7 +122,7 @@ M0 阶段平台已可运行，完整继承 Paperclip 的能力。PetAgent 的差
 ## 致谢
 
 - **[Paperclip](https://github.com/paperclipai/paperclip)**（MIT, paperclipai） —— 提供底层控制平面，PetAgent 的直接 fork 基底
-- **[Hermes Agent](https://github.com/NousResearch/hermes-agent)**（MIT, Nous Research） —— M1 将 port 其 skill 系统
+- **[Hermes Agent](https://github.com/NousResearch/hermes-agent)**（MIT, Nous Research） —— Skill 系统 port 来源（spec §13.2）
 - **[Claude Code](https://claude.com/claude-code)**（Anthropic） —— 多 agent 架构灵感来源（仅架构借鉴，未 port 代码）
 
 特别鸣谢所有 Paperclip contributors —— 你们的工作让 PetAgent 成为可能。
