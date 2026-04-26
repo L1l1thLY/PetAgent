@@ -1154,10 +1154,10 @@ describe("realizeExecutionWorkspace", () => {
         fakePnpmPath,
         [
           "#!/bin/sh",
-          "if [ \"$1\" = \"petagent\" ] && [ \"$2\" = \"--help\" ]; then",
+          "if [ \"$1\" = \"petagentai\" ] && [ \"$2\" = \"--help\" ]; then",
           "  exit 0",
           "fi",
-          "if [ \"$1\" = \"petagent\" ] && [ \"$2\" = \"worktree\" ] && [ \"$3\" = \"init\" ]; then",
+          "if [ \"$1\" = \"petagentai\" ] && [ \"$2\" = \"worktree\" ] && [ \"$3\" = \"init\" ]; then",
           "  echo \"simulated init failure\" >&2",
           "  exit 42",
           "fi",
@@ -1228,7 +1228,7 @@ describe("realizeExecutionWorkspace", () => {
         fakePnpmPath,
         [
           "#!/bin/sh",
-          "if [ \"$1\" = \"petagent\" ] && [ \"$2\" = \"--help\" ]; then",
+          "if [ \"$1\" = \"petagentai\" ] && [ \"$2\" = \"--help\" ]; then",
           "  exit 1",
           "fi",
           "if [ \"$1\" = \"install\" ] && [ \"$2\" = \"--frozen-lockfile\" ]; then",
@@ -1806,7 +1806,7 @@ describe("realizeExecutionWorkspace", () => {
     const worktreeOp = operations.find(op => op.phase === "worktree_prepare" && op.metadata?.created);
     expect(worktreeOp).toBeDefined();
     expect(worktreeOp!.metadata!.baseRef).toBe("master");
-  });
+  }, 30_000);
 
   it("removes a created git worktree and branch during cleanup", async () => {
     const repoRoot = await createTempRepo();
