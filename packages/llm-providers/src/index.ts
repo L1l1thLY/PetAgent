@@ -46,3 +46,6 @@ export type {
   OpenAIChatCompletionsTransportOptions,
   OpenAIChatCompletionsResponse,
 } from "./transports.js";
+
+export { parseConfig, loadConfigFile } from "./config_schema.js";
+export type { PetAgentConfig, ProviderEntry, LLMRouting } from "./config_schema.js";
