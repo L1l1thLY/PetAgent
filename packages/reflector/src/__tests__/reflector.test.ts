@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { HookBus } from "@petagent/hooks";
 import { Reflector } from "../reflector.js";
 import type { NotesSink } from "../types.js";
@@ -87,5 +87,79 @@ describe("Reflector", () => {
     await r.start();
     await bus.publish({ type: "heartbeat.ended", companyId: "co-1", timestamp: "t" });
     expect(creates).toHaveLength(0);
+  });
+});
+
+describe("Reflector with ReflectionContextSource", () => {
+  it("calls fetchContext and passes context to builder", async () => {
+    const fetchContext = vi.fn(async () => ({
+      recentOutputs: ["output 1", "output 2"],
+      issueTitle: "Deploy to staging",
+      issueDescription: "Wire up the staging deploy script.",
+    }));
+    const builder = {
+      build: vi.fn(async () => ({ content: "ok", noteType: "heartbeat_reflection" })),
+    };
+    const r = new Reflector({
+      bus,
+      notesSink: sink,
+      builder,
+      contextSource: { fetchContext },
+    });
+    await r.start();
+    await bus.publish({
+      type: "heartbeat.ended",
+      companyId: "co-1",
+      agentId: "a-1",
+      issueId: "i-1",
+      timestamp: "t",
+    });
+    expect(fetchContext).toHaveBeenCalledWith({ agentId: "a-1", issueId: "i-1" });
+    expect(builder.build).toHaveBeenCalledTimes(1);
+    const ctxArg = (builder.build.mock.calls[0] as unknown[])[1];
+    expect(ctxArg).toEqual({
+      recentOutputs: ["output 1", "output 2"],
+      issueTitle: "Deploy to staging",
+      issueDescription: "Wire up the staging deploy script.",
+    });
+  });
+
+  it("falls back gracefully when fetchContext rejects", async () => {
+    const fetchContext = vi.fn(async () => { throw new Error("db down"); });
+    const builder = {
+      build: vi.fn(async () => ({ content: "ok", noteType: "heartbeat_reflection" })),
+    };
+    const r = new Reflector({
+      bus,
+      notesSink: sink,
+      builder,
+      contextSource: { fetchContext },
+    });
+    await r.start();
+    await expect(
+      bus.publish({
+        type: "heartbeat.ended",
+        companyId: "co-1",
+        agentId: "a-1",
+        timestamp: "t",
+      }),
+    ).resolves.toBeUndefined();
+    expect(builder.build).toHaveBeenCalledTimes(1);
+    expect((builder.build.mock.calls[0] as unknown[])[1]).toBeUndefined();
+  });
+
+  it("passes undefined context when contextSource is not configured", async () => {
+    const builder = {
+      build: vi.fn(async () => ({ content: "ok", noteType: "heartbeat_reflection" })),
+    };
+    const r = new Reflector({ bus, notesSink: sink, builder });
+    await r.start();
+    await bus.publish({
+      type: "heartbeat.ended",
+      companyId: "co-1",
+      agentId: "a-1",
+      timestamp: "t",
+    });
+    expect((builder.build.mock.calls[0] as unknown[])[1]).toBeUndefined();
   });
 });

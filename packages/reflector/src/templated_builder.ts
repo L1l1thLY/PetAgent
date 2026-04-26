@@ -1,12 +1,12 @@
 import type { HookEvent } from "@petagent/hooks";
-import type { ReflectionBuilder } from "./types.js";
+import type { ReflectionBuilder, ReflectionContext } from "./types.js";
 
 /**
  * No-LLM templated reflection — captures the bare facts of a heartbeat
  * run. M2 Group 2 will swap this for a Haiku-backed builder.
  */
 export class TemplatedReflectionBuilder implements ReflectionBuilder {
-  build(event: HookEvent): { content: string; noteType: string } {
+  build(event: HookEvent, _context?: ReflectionContext): { content: string; noteType: string } {
     const payload = (event.payload ?? {}) as Record<string, unknown>;
     const status = typeof payload.status === "string" ? payload.status : "unknown";
     const durationMs = typeof payload.durationMs === "number" ? payload.durationMs : null;

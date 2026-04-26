@@ -1,6 +1,6 @@
 export { Reflector } from "./reflector.js";
 export { TemplatedReflectionBuilder } from "./templated_builder.js";
-export type { NotesSink, ReflectionBuilder } from "./types.js";
+export type { NotesSink, ReflectionBuilder, ReflectionContext, ReflectionContextSource } from "./types.js";
 export type { ReflectorDeps } from "./reflector.js";
 export type { HookEvent } from "@petagent/hooks";
 export { HaikuReflectionBuilder } from "./haiku_builder.js";

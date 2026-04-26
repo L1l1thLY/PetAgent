@@ -9,7 +9,7 @@
  */
 
 import type { HookEvent } from "@petagent/hooks";
-import type { ReflectionBuilder } from "./types.js";
+import type { ReflectionBuilder, ReflectionContext } from "./types.js";
 import { TemplatedReflectionBuilder } from "./templated_builder.js";
 
 const SYSTEM_PROMPT = `You are an agent's reflective journal.
@@ -43,7 +43,7 @@ export class HaikuReflectionBuilder implements ReflectionBuilder {
     this.maxTokens = deps.maxTokens ?? DEFAULT_MAX_TOKENS;
   }
 
-  async build(event: HookEvent): Promise<{ content: string; noteType: string }> {
+  async build(event: HookEvent, _context?: ReflectionContext): Promise<{ content: string; noteType: string }> {
     const userMessage = renderUserMessage(event);
     let llmText = "";
     try {

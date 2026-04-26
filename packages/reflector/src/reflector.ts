@@ -1,5 +1,5 @@
 import type { HookBus, HookEvent } from "@petagent/hooks";
-import type { NotesSink, ReflectionBuilder } from "./types.js";
+import type { NotesSink, ReflectionBuilder, ReflectionContext, ReflectionContextSource } from "./types.js";
 import { TemplatedReflectionBuilder } from "./templated_builder.js";
 
 export interface ReflectorDeps {
@@ -10,6 +10,7 @@ export interface ReflectorDeps {
   scope?: "user" | "project" | "local";
   subscriberName?: string;
   logger?: { warn(msg: string, meta?: unknown): void };
+  contextSource?: ReflectionContextSource;
 }
 
 const DEFAULT_COOLDOWN_MS = 60_000;
@@ -25,6 +26,7 @@ export class Reflector {
   private readonly name: string;
   private readonly logger: { warn(msg: string, meta?: unknown): void };
   private readonly lastWriteAt = new Map<string, number>();
+  private readonly contextSource: ReflectionContextSource | undefined;
 
   constructor(deps: ReflectorDeps) {
     this.bus = deps.bus;
@@ -34,6 +36,7 @@ export class Reflector {
     this.scope = deps.scope ?? DEFAULT_SCOPE;
     this.name = deps.subscriberName ?? DEFAULT_NAME;
     this.logger = deps.logger ?? { warn: () => {} };
+    this.contextSource = deps.contextSource;
   }
 
   async start(): Promise<void> {
@@ -55,8 +58,25 @@ export class Reflector {
     if (last !== undefined && Date.now() - last < this.cooldownMs) return;
     this.lastWriteAt.set(cooldownKey, Date.now());
 
+    let context: ReflectionContext | undefined;
+    if (this.contextSource) {
+      try {
+        context = await this.contextSource.fetchContext({
+          agentId: event.agentId,
+          issueId: event.issueId,
+        });
+      } catch (err) {
+        this.logger.warn("reflector.contextSource.fetchContext failed", {
+          agentId: event.agentId,
+          issueId: event.issueId,
+          err: String(err),
+        });
+        // continue with undefined context
+      }
+    }
+
     try {
-      const built = await this.builder.build(event);
+      const built = await this.builder.build(event, context);
       await this.notesSink.create({
         agentId: event.agentId,
         companyId: event.companyId,

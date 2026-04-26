@@ -11,6 +11,19 @@ export interface NotesSink {
   }): Promise<{ id: string }>;
 }
 
+export interface ReflectionContext {
+  recentOutputs: string[];
+  issueTitle?: string;
+  issueDescription?: string;
+}
+
+export interface ReflectionContextSource {
+  fetchContext(args: { agentId: string; issueId?: string }): Promise<ReflectionContext>;
+}
+
 export interface ReflectionBuilder {
-  build(event: HookEvent): { content: string; noteType: string } | Promise<{ content: string; noteType: string }>;
+  build(
+    event: HookEvent,
+    context?: ReflectionContext,
+  ): { content: string; noteType: string } | Promise<{ content: string; noteType: string }>;
 }
