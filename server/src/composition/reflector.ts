@@ -7,7 +7,13 @@
  * construction time so subsequent NotesManager.create calls are cheap.
  */
 
-import { Reflector, type NotesSink } from "@petagent/reflector";
+import {
+  Reflector,
+  HaikuReflectionBuilder,
+  AnthropicHttpReflectionTransport,
+  type NotesSink,
+  type ReflectionBuilder,
+} from "@petagent/reflector";
 import { EmbeddingService, NotesManager } from "@petagent/skills";
 import { GitStore } from "@petagent/safety-net";
 import type { HookBus } from "@petagent/hooks";
@@ -18,12 +24,14 @@ export interface ReflectorFactoryDeps {
   db: Db;
   hookBus: HookBus;
   config: Pick<Config, "reflectorEnabled" | "notesGitStoreDir">;
+  resolveAnthropicKey?: () => string | null;
   logger?: { warn(msg: string, meta?: unknown): void };
 }
 
 export interface ReflectorInstance {
   start(): Promise<void>;
   stop(): Promise<void>;
+  builderKind: "templated" | "haiku";
 }
 
 export async function createReflector(deps: ReflectorFactoryDeps): Promise<ReflectorInstance | null> {
@@ -52,14 +60,26 @@ export async function createReflector(deps: ReflectorFactoryDeps): Promise<Refle
     },
   };
 
+  const apiKey = deps.resolveAnthropicKey?.() ?? null;
+  let builder: ReflectionBuilder | undefined;
+  let builderKind: "templated" | "haiku" = "templated";
+  if (apiKey) {
+    builder = new HaikuReflectionBuilder({
+      transport: new AnthropicHttpReflectionTransport({ apiKey }),
+    });
+    builderKind = "haiku";
+  }
+
   const reflector = new Reflector({
     bus: deps.hookBus,
     notesSink: sink,
+    builder,
     logger: deps.logger,
   });
 
   return {
     start: () => reflector.start(),
     stop: () => reflector.stop(),
+    builderKind,
   };
 }

@@ -46,3 +46,27 @@ describe("createReflector", () => {
     expect(typeof out!.stop).toBe("function");
   });
 });
+
+describe("createReflector builder selection", () => {
+  it("uses templated builder when no Anthropic key", async () => {
+    const out = await createReflector({
+      db: fakeDb,
+      hookBus: new HookBus(),
+      config: { reflectorEnabled: true, notesGitStoreDir: tmpRoot } as Config,
+      resolveAnthropicKey: () => null,
+    });
+    expect(out).not.toBeNull();
+    expect(out!.builderKind).toBe("templated");
+  });
+
+  it("uses Haiku builder when Anthropic key provided", async () => {
+    const out = await createReflector({
+      db: fakeDb,
+      hookBus: new HookBus(),
+      config: { reflectorEnabled: true, notesGitStoreDir: tmpRoot } as Config,
+      resolveAnthropicKey: () => "sk-ant-test",
+    });
+    expect(out).not.toBeNull();
+    expect(out!.builderKind).toBe("haiku");
+  });
+});
