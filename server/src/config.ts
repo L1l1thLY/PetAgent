@@ -88,6 +88,9 @@ export interface Config {
   telemetryEnabled: boolean;
   transparencyGamma: import("@petagent/shared").TransparencyGamma;
   psychologistActorAgentId: string | null;
+  psychologistEnabled: boolean;
+  reflectorEnabled: boolean;
+  notesGitStoreDir: string;
 }
 
 function detectTailnetBindHost(): string | undefined {
@@ -335,6 +338,9 @@ export function loadConfig(): Config {
     telemetryEnabled: fileConfig?.telemetry?.enabled ?? true,
     transparencyGamma: resolveTransparencyGamma(fileConfig?.transparency?.gamma),
     psychologistActorAgentId: resolvePsychologistActorAgentId(),
+    psychologistEnabled: process.env.PETAGENT_PSYCHOLOGIST_ENABLED === "true",
+    reflectorEnabled: process.env.PETAGENT_REFLECTOR_ENABLED === "true",
+    notesGitStoreDir: resolveNotesGitStoreDir(storageLocalDiskBaseDir),
   };
 }
 
@@ -351,4 +357,10 @@ function resolveTransparencyGamma(
 function resolvePsychologistActorAgentId(): string | null {
   const raw = process.env.PETAGENT_PSYCHOLOGIST_ACTOR_AGENT_ID?.trim();
   return raw && raw.length > 0 ? raw : null;
+}
+
+function resolveNotesGitStoreDir(storageBaseDir: string): string {
+  const fromEnv = process.env.PETAGENT_NOTES_GIT_STORE_DIR?.trim();
+  if (fromEnv && fromEnv.length > 0) return fromEnv;
+  return resolve(storageBaseDir, "notes-store");
 }
