@@ -671,9 +671,15 @@ importers:
       '@petagent/psychologist':
         specifier: workspace:*
         version: link:../packages/psychologist
+      '@petagent/reflector':
+        specifier: workspace:*
+        version: link:../packages/reflector
       '@petagent/role-template':
         specifier: workspace:*
         version: link:../packages/role-template
+      '@petagent/safety-net':
+        specifier: workspace:*
+        version: link:../packages/safety-net
       '@petagent/shared':
         specifier: workspace:*
         version: link:../packages/shared
