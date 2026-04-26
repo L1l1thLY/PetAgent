@@ -35,6 +35,7 @@ import { InMemoryNotificationStore } from "./notifications/store.js";
 import { bridgeHookBusToNotifications } from "./notifications/hook_bridge.js";
 import { createPsychologist } from "./composition/psychologist.js";
 import { createReflector } from "./composition/reflector.js";
+import { createEmbeddingService } from "./composition/embedding.js";
 import { globalHookBus } from "@petagent/hooks";
 import { RoleTemplateLoader } from "@petagent/role-template";
 import * as os from "node:os";
@@ -257,6 +258,9 @@ export async function createApp(
     await reflector.start();
     console.log(`[petagent] reflector started (builder=${reflector.builderKind})`);
   }
+
+  const embeddingKind = createEmbeddingService(process.env).kind;
+  console.log(`[petagent] embedding service mode: ${embeddingKind}`);
 
   api.use(
     notificationsRoutes({

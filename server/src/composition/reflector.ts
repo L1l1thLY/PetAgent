@@ -14,12 +14,13 @@ import {
   type NotesSink,
   type ReflectionBuilder,
 } from "@petagent/reflector";
-import { EmbeddingService, NotesManager } from "@petagent/skills";
+import { NotesManager } from "@petagent/skills";
 import { GitStore } from "@petagent/safety-net";
 import type { HookBus } from "@petagent/hooks";
 import type { Db } from "@petagent/db";
 import { DrizzleBehavioralRecordsStore } from "../psychologist/drizzle_behavioral_store.js";
 import { DrizzleReflectionContextSource } from "../reflector/drizzle_context_source.js";
+import { createEmbeddingService } from "./embedding.js";
 import type { Config } from "../config.js";
 
 export interface ReflectorFactoryDeps {
@@ -41,7 +42,7 @@ export async function createReflector(deps: ReflectorFactoryDeps): Promise<Refle
 
   const store = new GitStore({ rootDir: deps.config.notesGitStoreDir });
   await store.init();
-  const embedder = new EmbeddingService();
+  const embedder = createEmbeddingService(process.env).service;
 
   const sink: NotesSink = {
     async create(args) {
