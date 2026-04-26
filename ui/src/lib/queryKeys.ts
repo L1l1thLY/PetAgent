@@ -121,6 +121,10 @@ export const queryKeys = {
     experimentalSettings: ["instance", "experimental-settings"] as const,
     llmProviders: ["instance", "llm-providers"] as const,
   },
+  skillCandidates: {
+    list: (companyId: string, status?: string) =>
+      ["skill-candidates", companyId, status ?? "all"] as const,
+  },
   health: ["health"] as const,
   secrets: {
     list: (companyId: string) => ["secrets", companyId] as const,
