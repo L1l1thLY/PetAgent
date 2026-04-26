@@ -37,6 +37,7 @@ import { bridgeHookBusToNotifications } from "./notifications/hook_bridge.js";
 import { createPsychologist } from "./composition/psychologist.js";
 import { createReflector } from "./composition/reflector.js";
 import { createEmbeddingService } from "./composition/embedding.js";
+import { createLLMRouter } from "./composition/llm-router.js";
 import { createBudgetAlertEmailNotifier } from "./composition/budget-alert-notifier.js";
 import { startBudgetCheckRoutine } from "./services/budget-check-routine.js";
 import { globalHookBus } from "@petagent/hooks";
@@ -220,7 +221,15 @@ export async function createApp(
       getGamma: opts.getTransparencyGamma ?? (() => "opaque"),
     }),
   );
-  api.use(agentNotesRoutes(db));
+  const llmRouter = createLLMRouter({ env: process.env, logger: console });
+  for (const desc of llmRouter.describeRouting()) {
+    console.log(
+      `[petagent] llm-router: ${desc.subsystem} → ${desc.providerId} (${desc.wireProtocol}, ${desc.model}) [${desc.source}]`,
+    );
+  }
+
+  const embedding = createEmbeddingService({ router: llmRouter });
+  api.use(agentNotesRoutes(db, embedding.service));
   api.use(companyChatRoutes({ db }));
   api.use(
     roleTemplatesRoutes({
@@ -240,7 +249,7 @@ export async function createApp(
       psychologistEnabled: opts.psychologistEnabled ?? false,
       psychologistActorAgentId: opts.psychologistActorAgentId ?? null,
     },
-    resolveAnthropicKey: () => process.env.ANTHROPIC_API_KEY?.trim() || null,
+    router: llmRouter,
     logger: console,
   });
   if (psychologist) {
@@ -255,7 +264,7 @@ export async function createApp(
       reflectorEnabled: opts.reflectorEnabled ?? false,
       notesGitStoreDir: opts.notesGitStoreDir ?? "",
     },
-    resolveAnthropicKey: () => process.env.ANTHROPIC_API_KEY?.trim() || null,
+    router: llmRouter,
     logger: console,
   });
   if (reflector) {
@@ -263,8 +272,7 @@ export async function createApp(
     console.log(`[petagent] reflector started (builder=${reflector.builderKind})`);
   }
 
-  const embeddingKind = createEmbeddingService(process.env).kind;
-  console.log(`[petagent] embedding service mode: ${embeddingKind}`);
+  console.log(`[petagent] embedding service mode: ${embedding.kind}`);
 
   const budgetEmailNotifier = createBudgetAlertEmailNotifier(process.env);
   if (process.env.PETAGENT_BUDGET_CHECK_ENABLED === "true") {

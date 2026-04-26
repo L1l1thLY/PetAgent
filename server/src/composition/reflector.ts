@@ -1,16 +1,24 @@
 /**
- * Composition factory for the Reflector subsystem (M2 preview milestone).
+ * Composition factory for the Reflector subsystem (M2 G3 §4 — refactored).
  *
  * Returns null when `config.reflectorEnabled === false`. When enabled,
- * builds a Reflector backed by NotesManager (per-call) and an in-memory
- * EmbeddingService stub. The GitStore is initialized once at factory
- * construction time so subsequent NotesManager.create calls are cheap.
+ * builds a Reflector backed by NotesManager (per-call) and an
+ * EmbeddingService driven by the LLMRouter.
+ *
+ * Both the reflection builder LLM and the embedder come from the
+ * same LLMRouter:
+ *   - router.getTextTransport("reflector") → HaikuReflectionBuilder when
+ *     non-null, TemplatedReflectionBuilder fallback when null
+ *   - router.getEmbeddingTransport() → real EmbeddingService when
+ *     non-null, SHA-256 stub fallback when null
+ *
+ * The GitStore is initialized once at factory construction so subsequent
+ * NotesManager.create calls are cheap.
  */
 
 import {
   Reflector,
   HaikuReflectionBuilder,
-  AnthropicHttpReflectionTransport,
   type NotesSink,
   type ReflectionBuilder,
 } from "@petagent/reflector";
@@ -22,12 +30,13 @@ import { DrizzleBehavioralRecordsStore } from "../psychologist/drizzle_behaviora
 import { DrizzleReflectionContextSource } from "../reflector/drizzle_context_source.js";
 import { createEmbeddingService } from "./embedding.js";
 import type { Config } from "../config.js";
+import type { LLMRouter } from "./llm-router.js";
 
 export interface ReflectorFactoryDeps {
   db: Db;
   hookBus: HookBus;
   config: Pick<Config, "reflectorEnabled" | "notesGitStoreDir">;
-  resolveAnthropicKey?: () => string | null;
+  router: LLMRouter;
   logger?: { warn(msg: string, meta?: unknown): void };
 }
 
@@ -42,7 +51,7 @@ export async function createReflector(deps: ReflectorFactoryDeps): Promise<Refle
 
   const store = new GitStore({ rootDir: deps.config.notesGitStoreDir });
   await store.init();
-  const embedder = createEmbeddingService(process.env).service;
+  const embedder = createEmbeddingService({ router: deps.router }).service;
 
   const sink: NotesSink = {
     async create(args) {
@@ -63,12 +72,13 @@ export async function createReflector(deps: ReflectorFactoryDeps): Promise<Refle
     },
   };
 
-  const apiKey = deps.resolveAnthropicKey?.() ?? null;
+  const route = deps.router.getTextTransport("reflector");
   let builder: ReflectionBuilder | undefined;
   let builderKind: "templated" | "haiku" = "templated";
-  if (apiKey) {
+  if (route !== null) {
     builder = new HaikuReflectionBuilder({
-      transport: new AnthropicHttpReflectionTransport({ apiKey }),
+      transport: route.transport,
+      model: route.model,
     });
     builderKind = "haiku";
   }

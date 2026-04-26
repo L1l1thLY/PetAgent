@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { Db } from "@petagent/db";
 import { agentNotes } from "@petagent/db";
 import { and, desc, eq, sql } from "drizzle-orm";
-import { createEmbeddingService } from "../composition/embedding.js";
+import type { EmbeddingService } from "@petagent/skills";
 
 const listQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(200).optional(),
@@ -49,7 +49,7 @@ function rowToResponse(row: RawNoteRow) {
   };
 }
 
-export function agentNotesRoutes(db: Db): Router {
+export function agentNotesRoutes(db: Db, embedder: EmbeddingService): Router {
   const router = Router();
 
   router.get("/companies/:companyId/agents/:agentId/notes", async (req, res) => {
@@ -81,7 +81,6 @@ export function agentNotesRoutes(db: Db): Router {
     }
     const { companyId, agentId } = req.params;
     const topK = parsed.data.topK ?? 10;
-    const embedder = createEmbeddingService(process.env).service;
     const queryVec = await embedder.embed(parsed.data.q);
     const vectorLiteral = `[${queryVec.join(",")}]`;
     const scopeFilter = parsed.data.scope ?? null;

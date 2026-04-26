@@ -1,15 +1,17 @@
 /**
- * Composition factory for the Psychologist subsystem (M2 preview milestone).
+ * Composition factory for the Psychologist subsystem (M2 G3 §4 — refactored).
  *
  * Returns null when `config.psychologistEnabled === false`. When enabled
  * builds the full Psychologist instance from M1 ports + #1d concrete
- * adapters and decides at construction time whether to use the real
- * `PromptedClassifier` (Anthropic API key available) or the no-LLM
- * `BehavioralPassthroughClassifier`.
+ * adapters. The classifier flavour now comes from LLMRouter:
+ *   - router.getTextTransport("psychologist") returns null
+ *       → BehavioralPassthroughClassifier (no-LLM fallback)
+ *   - router returns {transport, model}
+ *       → PromptedClassifier wired to that transport
  *
- * The returned `start()` registers a HookBus subscriber; `stop()`
- * unregisters it. Process exit is the implicit teardown for this
- * preview — long-lived stop wiring is a follow-up.
+ * The router's source-of-truth could be petagent.config.yaml, or the
+ * BC env-fallback path (ANTHROPIC_API_KEY synthesises an "anthropic"
+ * provider). Either way, this composition no longer reads env directly.
  */
 
 import {
@@ -26,16 +28,16 @@ import { DrizzleIncidentStore } from "../psychologist/drizzle_incident_store.js"
 import { DrizzleBehavioralRecordsStore } from "../psychologist/drizzle_behavioral_store.js";
 import { DrizzleCapabilitiesProvider } from "../psychologist/drizzle_capabilities_provider.js";
 import { ServicePsychologistActions } from "../psychologist/service_psychologist_actions.js";
-import { AnthropicHttpClassifierTransport } from "../psychologist/anthropic_classifier_transport.js";
 import { issueService } from "../services/issues.js";
 import { agentInstructionsService } from "../services/agent-instructions.js";
 import type { Config } from "../config.js";
+import type { LLMRouter } from "./llm-router.js";
 
 export interface PsychologistFactoryDeps {
   db: Db;
   hookBus: HookBus;
   config: Pick<Config, "psychologistEnabled" | "psychologistActorAgentId">;
-  resolveAnthropicKey: () => string | null;
+  router: LLMRouter;
   logger?: { warn(msg: string, meta?: unknown): void };
 }
 
@@ -53,11 +55,11 @@ export function createPsychologist(deps: PsychologistFactoryDeps): PsychologistI
   const capabilities = new DrizzleCapabilitiesProvider({ db: deps.db });
   const monitor = new BehaviorMonitor(records);
 
-  const apiKey = deps.resolveAnthropicKey();
+  const route = deps.router.getTextTransport("psychologist");
   let classifier: ClassifierClient;
   let classifierKind: "prompted" | "passthrough";
-  if (apiKey) {
-    classifier = new PromptedClassifier(new AnthropicHttpClassifierTransport({ apiKey }));
+  if (route !== null) {
+    classifier = new PromptedClassifier(route.transport, { model: route.model });
     classifierKind = "prompted";
   } else {
     classifier = new BehavioralPassthroughClassifier();
