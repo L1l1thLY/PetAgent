@@ -36,6 +36,8 @@ import { bridgeHookBusToNotifications } from "./notifications/hook_bridge.js";
 import { createPsychologist } from "./composition/psychologist.js";
 import { createReflector } from "./composition/reflector.js";
 import { createEmbeddingService } from "./composition/embedding.js";
+import { createBudgetAlertEmailNotifier } from "./composition/budget-alert-notifier.js";
+import { startBudgetCheckRoutine } from "./services/budget-check-routine.js";
 import { globalHookBus } from "@petagent/hooks";
 import { RoleTemplateLoader } from "@petagent/role-template";
 import * as os from "node:os";
@@ -261,6 +263,22 @@ export async function createApp(
 
   const embeddingKind = createEmbeddingService(process.env).kind;
   console.log(`[petagent] embedding service mode: ${embeddingKind}`);
+
+  const budgetEmailNotifier = createBudgetAlertEmailNotifier(process.env);
+  if (process.env.PETAGENT_BUDGET_CHECK_ENABLED === "true") {
+    const intervalMs = Number(process.env.PETAGENT_BUDGET_CHECK_INTERVAL_MS);
+    startBudgetCheckRoutine({
+      db,
+      notificationStore,
+      emailNotifier: budgetEmailNotifier ?? undefined,
+      intervalMs: Number.isFinite(intervalMs) && intervalMs > 0 ? intervalMs : undefined,
+    });
+    console.log(
+      `[petagent] budget-check routine started (email=${budgetEmailNotifier ? "smtp" : "off"})`,
+    );
+  } else if (budgetEmailNotifier) {
+    console.log("[petagent] SMTP configured but PETAGENT_BUDGET_CHECK_ENABLED is unset; routine not started");
+  }
 
   api.use(
     notificationsRoutes({
