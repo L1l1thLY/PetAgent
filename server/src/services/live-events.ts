@@ -25,14 +25,24 @@ function toLiveEvent(input: {
   };
 }
 
-function normalizeEventType(paperclipType: LiveEventType): HookEventType | null {
+const TERMINAL_RUN_STATUSES = new Set(["succeeded", "failed", "cancelled", "timed_out"]);
+
+function normalizeEventType(
+  paperclipType: LiveEventType,
+  payload: LiveEventPayload | undefined,
+): HookEventType | null {
   switch (paperclipType) {
     case "agent.status":
       return "agent.status_change";
     case "heartbeat.run.queued":
       return "heartbeat.started";
-    case "heartbeat.run.status":
+    case "heartbeat.run.status": {
+      const status = (payload as { status?: unknown } | undefined)?.status;
+      if (typeof status === "string" && TERMINAL_RUN_STATUSES.has(status)) {
+        return "heartbeat.ended";
+      }
       return null;
+    }
     case "heartbeat.run.event":
       return "agent.output";
     case "heartbeat.run.log":
@@ -46,7 +56,7 @@ function normalizeEventType(paperclipType: LiveEventType): HookEventType | null 
 
 function forwardToHookBus(event: LiveEvent) {
   if (event.companyId === "*") return;
-  const hookType = normalizeEventType(event.type);
+  const hookType = normalizeEventType(event.type, event.payload);
   if (!hookType) return;
   const payload = event.payload ?? {};
   const agentId = typeof payload.agentId === "string" ? payload.agentId : undefined;
