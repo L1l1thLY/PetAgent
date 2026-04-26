@@ -18,3 +18,12 @@ export type {
   OpenAIEmbeddingsTransportOptions,
   OpenAIEmbeddingsResponse,
 } from "./openai_embeddings_transport.js";
+
+export {
+  OpenAIChatCompletionsTransport,
+  extractFirstChoiceContent,
+} from "./openai_chat_transport.js";
+export type {
+  OpenAIChatCompletionsTransportOptions,
+  OpenAIChatCompletionsResponse,
+} from "./openai_chat_transport.js";
