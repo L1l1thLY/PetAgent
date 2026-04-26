@@ -10,6 +10,7 @@ export default defineConfig({
       "packages/role-template",
       "packages/my-agent-adapter",
       "packages/psychologist",
+      "packages/reflector",
       "packages/secrets",
       "packages/templates",
       "packages/adapters/codex-local",

@@ -17,7 +17,7 @@ export interface HookEvent {
   companyId: string;
   agentId?: string;
   issueId?: string;
-  payload: Record<string, unknown>;
+  payload?: Record<string, unknown>;
   timestamp: string;
 }
 
