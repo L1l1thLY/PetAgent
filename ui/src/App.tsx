@@ -20,6 +20,7 @@ import { GoalDetail } from "./pages/GoalDetail";
 import { Approvals } from "./pages/Approvals";
 import { ApprovalDetail } from "./pages/ApprovalDetail";
 import { Interventions } from "./pages/Interventions";
+import { Notes } from "./pages/Notes";
 import { Roles } from "./pages/Roles";
 import { Board } from "./pages/Board";
 import { Costs } from "./pages/Costs";
@@ -113,6 +114,7 @@ function boardRoutes() {
       <Route path="approvals/:approvalId" element={<ApprovalDetail />} />
       <Route path="board" element={<Board />} />
       <Route path="interventions" element={<Interventions />} />
+      <Route path="notes" element={<Notes />} />
       <Route path="roles" element={<Roles />} />
       <Route path="costs" element={<Costs />} />
       <Route path="activity" element={<Activity />} />

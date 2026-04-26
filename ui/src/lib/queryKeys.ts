@@ -28,6 +28,12 @@ export const queryKeys = {
     detectModel: (companyId: string, adapterType: string) =>
       ["agents", companyId, "detect-model", adapterType] as const,
   },
+  agentNotes: {
+    list: (companyId: string, agentId: string, scope?: string, limit?: number) =>
+      ["agent-notes", "list", companyId, agentId, scope ?? "*", limit ?? 50] as const,
+    search: (companyId: string, agentId: string, query: string, scope?: string, topK?: number) =>
+      ["agent-notes", "search", companyId, agentId, query, scope ?? "*", topK ?? 20] as const,
+  },
   issues: {
     list: (companyId: string) => ["issues", companyId] as const,
     search: (companyId: string, q: string, projectId?: string, limit?: number) =>
