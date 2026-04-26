@@ -18,6 +18,8 @@ import { EmbeddingService, NotesManager } from "@petagent/skills";
 import { GitStore } from "@petagent/safety-net";
 import type { HookBus } from "@petagent/hooks";
 import type { Db } from "@petagent/db";
+import { DrizzleBehavioralRecordsStore } from "../psychologist/drizzle_behavioral_store.js";
+import { DrizzleReflectionContextSource } from "../reflector/drizzle_context_source.js";
 import type { Config } from "../config.js";
 
 export interface ReflectorFactoryDeps {
@@ -70,10 +72,17 @@ export async function createReflector(deps: ReflectorFactoryDeps): Promise<Refle
     builderKind = "haiku";
   }
 
+  const records = new DrizzleBehavioralRecordsStore(deps.db);
+  const contextSource = new DrizzleReflectionContextSource({
+    db: deps.db,
+    records,
+  });
+
   const reflector = new Reflector({
     bus: deps.hookBus,
     notesSink: sink,
     builder,
+    contextSource,
     logger: deps.logger,
   });
 
