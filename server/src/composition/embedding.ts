@@ -20,7 +20,7 @@ export interface CreateEmbeddingServiceResult {
 }
 
 export function createEmbeddingService(
-  env: { OPENAI_API_KEY?: string | undefined; OPENAI_EMBEDDING_MODEL?: string | undefined },
+  env: Record<string, string | undefined>,
 ): CreateEmbeddingServiceResult {
   const apiKey = env.OPENAI_API_KEY?.trim();
   if (!apiKey || apiKey.length === 0) {
