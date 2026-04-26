@@ -18,6 +18,7 @@ import {
   decodeDragRoleType,
   encodeDragRoleType,
 } from "../lib/hire-form";
+import { ChatBar } from "../components/ChatBar";
 import { EmployeeCard } from "../components/EmployeeCard";
 import { HireDialog } from "../components/HireDialog";
 import { PageSkeleton } from "../components/PageSkeleton";
@@ -98,6 +99,7 @@ export function Board() {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
+      <ChatBar companyId={selectedCompanyId} />
       <EmployeeBar agentsByRole={agentsByRole} />
       <div className="flex gap-4">
         <RolePalette roles={roles} onPickRole={setPendingHire} />
