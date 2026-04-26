@@ -116,7 +116,7 @@ export function createPsychologist(deps: PsychologistFactoryDeps): PsychologistI
   const incidents = new DrizzleIncidentStore(deps.db);
   const records = new DrizzleBehavioralRecordsStore(deps.db);
   const capabilities = new DrizzleCapabilitiesProvider({ db: deps.db });
-  const monitor = new BehaviorMonitor({ records });
+  const monitor = new BehaviorMonitor(records);
 
   const apiKey = deps.resolveAnthropicKey();
   let classifier: ClassifierClient;
@@ -164,9 +164,9 @@ export function createPsychologist(deps: PsychologistFactoryDeps): PsychologistI
 resolveAnthropicKey: () => process.env.ANTHROPIC_API_KEY?.trim() || null,
 ```
 
-## 4. `BehaviorMonitor` constructor surface
+## 4. `BehaviorMonitor` constructor (verified)
 
-The current `@petagent/psychologist` package exports `BehaviorMonitor` but its constructor signature must accept `{ records }` (one dep) for the factory above to compile. **Verify in implementation phase**; if the existing constructor differs, the spec amendment is to use whatever shape it ships with. The plan's Task 0 prep step confirms.
+`@petagent/psychologist` exports `BehaviorMonitor` with `constructor(store: BehavioralRecordsStore)` (positional, single argument). Factory above passes `records` directly.
 
 ## 5. Reflector package
 
