@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { EmbeddingService } from "../embedding.js";
+import type { EmbeddingTransport } from "../embedding_transport.js";
 
 describe("EmbeddingService (stub mode)", () => {
   it("returns a 1536-dim unit vector for any input", async () => {
@@ -35,5 +36,31 @@ describe("EmbeddingService (stub mode)", () => {
 
   it("constructor throws when useStub:false but no apiKey provided", () => {
     expect(() => new EmbeddingService({ useStub: false })).toThrow(/apiKey/);
+  });
+});
+
+describe("EmbeddingService with transport", () => {
+  it("delegates embedBatch to the transport when useStub is false", async () => {
+    const transport: EmbeddingTransport = {
+      embed: vi.fn(async (texts: string[]) =>
+        texts.map(() => new Array<number>(1536).fill(0)),
+      ),
+    };
+    const svc = new EmbeddingService({ apiKey: "sk-test", useStub: false, transport });
+    const out = await svc.embedBatch(["a", "b"]);
+    expect(out).toHaveLength(2);
+    expect(out[0]).toHaveLength(1536);
+    expect(transport.embed).toHaveBeenCalledWith(["a", "b"]);
+  });
+
+  it("uses stub when no transport and useStub is unspecified", async () => {
+    const svc = new EmbeddingService();
+    const out = await svc.embed("x");
+    expect(out).toHaveLength(1536);
+  });
+
+  it("throws when useStub:false and no transport provided", async () => {
+    const svc = new EmbeddingService({ apiKey: "sk-test", useStub: false });
+    await expect(svc.embedBatch(["x"])).rejects.toThrow(/transport/i);
   });
 });

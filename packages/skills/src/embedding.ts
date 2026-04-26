@@ -14,6 +14,7 @@
  */
 
 import { createHash } from "node:crypto";
+import type { EmbeddingTransport } from "./embedding_transport.js";
 
 const VECTOR_DIM = 1536;
 
@@ -22,12 +23,15 @@ export interface EmbeddingServiceOptions {
   model?: string;
   /** Force stub or real-API mode. When unset, uses stub iff apiKey is undefined. */
   useStub?: boolean;
+  /** Required when useStub is false. Builds the actual API call. */
+  transport?: EmbeddingTransport;
 }
 
 export class EmbeddingService {
   private readonly useStub: boolean;
   private readonly apiKey: string | undefined;
   private readonly model: string;
+  private readonly transport: EmbeddingTransport | undefined;
 
   constructor(opts: EmbeddingServiceOptions = {}) {
     const useStub = opts.useStub ?? opts.apiKey === undefined;
@@ -37,6 +41,7 @@ export class EmbeddingService {
     this.useStub = useStub;
     this.apiKey = opts.apiKey;
     this.model = opts.model ?? "text-embedding-3-small";
+    this.transport = opts.transport;
   }
 
   async embed(text: string): Promise<number[]> {
@@ -51,10 +56,16 @@ export class EmbeddingService {
     return this.callEmbedAPI(texts);
   }
 
-  private async callEmbedAPI(_texts: string[]): Promise<number[][]> {
+  private async callEmbedAPI(texts: string[]): Promise<number[][]> {
+    if (!this.transport) {
+      throw new Error(
+        "EmbeddingService: no transport configured for real API mode. " +
+          "Pass `transport` in the constructor (e.g. new OpenAIEmbeddingTransport({ apiKey })).",
+      );
+    }
     void this.apiKey;
     void this.model;
-    throw new Error("EmbeddingService: real API path not implemented yet (deferred to M2 Task 30a).");
+    return this.transport.embed(texts);
   }
 }
 
