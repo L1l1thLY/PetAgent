@@ -33,6 +33,8 @@ import { roleTemplatesRoutes } from "./routes/role-templates.js";
 import { notificationsRoutes } from "./routes/notifications.js";
 import { InMemoryNotificationStore } from "./notifications/store.js";
 import { bridgeHookBusToNotifications } from "./notifications/hook_bridge.js";
+import { createPsychologist } from "./composition/psychologist.js";
+import { createReflector } from "./composition/reflector.js";
 import { globalHookBus } from "@petagent/hooks";
 import { RoleTemplateLoader } from "@petagent/role-template";
 import * as os from "node:os";
@@ -134,6 +136,10 @@ export async function createApp(
     betterAuthHandler?: express.RequestHandler;
     resolveSession?: (req: ExpressRequest) => Promise<BetterAuthSessionResult | null>;
     getTransparencyGamma?: () => import("@petagent/shared").TransparencyGamma;
+    psychologistEnabled?: boolean;
+    psychologistActorAgentId?: string | null;
+    reflectorEnabled?: boolean;
+    notesGitStoreDir?: string;
   },
 ) {
   const app = express();
@@ -221,6 +227,36 @@ export async function createApp(
     bus: globalHookBus,
     store: notificationStore,
   });
+
+  const psychologist = createPsychologist({
+    db,
+    hookBus: globalHookBus,
+    config: {
+      psychologistEnabled: opts.psychologistEnabled ?? false,
+      psychologistActorAgentId: opts.psychologistActorAgentId ?? null,
+    },
+    resolveAnthropicKey: () => process.env.ANTHROPIC_API_KEY?.trim() || null,
+    logger: console,
+  });
+  if (psychologist) {
+    await psychologist.start();
+    console.log(`[petagent] psychologist started (classifier=${psychologist.classifierKind})`);
+  }
+
+  const reflector = await createReflector({
+    db,
+    hookBus: globalHookBus,
+    config: {
+      reflectorEnabled: opts.reflectorEnabled ?? false,
+      notesGitStoreDir: opts.notesGitStoreDir ?? "",
+    },
+    logger: console,
+  });
+  if (reflector) {
+    await reflector.start();
+    console.log("[petagent] reflector started");
+  }
+
   api.use(
     notificationsRoutes({
       store: notificationStore,

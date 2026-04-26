@@ -535,6 +535,10 @@ export async function startServer(): Promise<StartedServer> {
     betterAuthHandler,
     resolveSession,
     getTransparencyGamma: () => config.transparencyGamma,
+    psychologistEnabled: config.psychologistEnabled,
+    psychologistActorAgentId: config.psychologistActorAgentId,
+    reflectorEnabled: config.reflectorEnabled,
+    notesGitStoreDir: config.notesGitStoreDir,
   });
   const server = createServer(app as unknown as Parameters<typeof createServer>[0]);
 
