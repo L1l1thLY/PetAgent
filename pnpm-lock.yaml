@@ -611,6 +611,22 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/skill-miner:
+    dependencies:
+      '@petagent/llm-providers':
+        specifier: workspace:*
+        version: link:../llm-providers
+    devDependencies:
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.0
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@24.12.0)(jsdom@28.1.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)
+
   packages/skills:
     dependencies:
       '@petagent/db':

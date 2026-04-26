@@ -7,6 +7,7 @@ export default defineConfig({
       "packages/hooks",
       "packages/llm-providers",
       "packages/safety-net",
+      "packages/skill-miner",
       "packages/skills",
       "packages/role-template",
       "packages/my-agent-adapter",
