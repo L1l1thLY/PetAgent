@@ -10,3 +10,4 @@ export * from "./runtime/types.js";
 export * from "./runtime/managed_agents.js";
 export * from "./runtime/local_process.js";
 export * from "./runtime/worktree.js";
+export * from "./runtime/session_services_wrapper.js";
