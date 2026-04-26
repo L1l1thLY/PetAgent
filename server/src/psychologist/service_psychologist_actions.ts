@@ -59,7 +59,7 @@ interface FakeableIssueService {
       goalId?: string | null;
       status?: string;
     },
-  ): Promise<{ id: string; identifier?: string }>;
+  ): Promise<{ id: string; identifier?: string | null }>;
 }
 
 interface FakeableAgentInstructions {
