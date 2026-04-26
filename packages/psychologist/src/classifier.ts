@@ -107,3 +107,22 @@ export class PromptedClassifier implements ClassifierClient {
     return parseClassifierResponse(text);
   }
 }
+
+/**
+ * No-LLM fallback classifier (M2 preview milestone).
+ *
+ * `Psychologist.onEvent` only invokes the classifier after the behavioral
+ * monitor has already raised a non-`none` severity, so this passthrough
+ * does not relax that gate — it just decides "yes, intervene mildly"
+ * without burning a Haiku call. Useful for local development and for
+ * environments without ANTHROPIC_API_KEY.
+ */
+export class BehavioralPassthroughClassifier implements ClassifierClient {
+  async classify(_recentOutputs: string[], _ctx: { issueContext: string }): Promise<ClassifierResult> {
+    return {
+      distress_level: 0.5,
+      signals: ["behavioral_passthrough"],
+      recommended_intervention: "mild",
+    };
+  }
+}

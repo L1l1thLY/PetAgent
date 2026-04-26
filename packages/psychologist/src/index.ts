@@ -6,3 +6,4 @@ export * from "./dispatcher.js";
 export * from "./outcome_tracker.js";
 export * from "./preventive.js";
 export * from "./main.js";
+export { BehavioralPassthroughClassifier } from "./classifier.js";
