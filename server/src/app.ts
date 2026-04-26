@@ -250,11 +250,12 @@ export async function createApp(
       reflectorEnabled: opts.reflectorEnabled ?? false,
       notesGitStoreDir: opts.notesGitStoreDir ?? "",
     },
+    resolveAnthropicKey: () => process.env.ANTHROPIC_API_KEY?.trim() || null,
     logger: console,
   });
   if (reflector) {
     await reflector.start();
-    console.log("[petagent] reflector started");
+    console.log(`[petagent] reflector started (builder=${reflector.builderKind})`);
   }
 
   api.use(
