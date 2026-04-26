@@ -74,7 +74,13 @@ PETAGENT_REFLECTOR_ENABLED=true \
 npx petagentai run
 ```
 
-**方式 B：YAML 配置（推荐，支持 Kimi / Minimax / DeepSeek / GLM / Gemini）**
+**方式 B：UI 配置（最推荐，v0.5.1+）**
+
+启动后浏览器进 `http://localhost:3100`，Board 顶部会看到蓝色引导条 "Set up an LLM provider"。点 **Configure** → 弹窗里：选 preset（默认 Kimi）→ 粘贴 key → 勾选要启用的子系统 → Save。
+
+要后续修改、加多个 provider，去 **Instance Settings → LLM Providers**（侧边栏的钥匙图标）。
+
+**方式 C：YAML 手写（power user）**
 
 ```sh
 # 1. 复制模板
@@ -138,6 +144,7 @@ npx petagentai run
 | Post-M1 wiring | Psychologist concrete adapters / SkipReviewer helper / role-template watcher / NotificationStore bridge / budget-check routine / NotificationBell / SMTP / MCP+Hook runtime glue | ✅ 2026-04-26 |
 | **M2 Preview** | Notes 层 (CRUD+pgvector+CLI) / LLM Reflector + context enrichment / 真 OpenAI embedding API / Psychologist auto-start / Reflector auto-start / /notes UI / Chat Bar | ✅ 2026-04-26（v0.3.1-m2-alive） |
 | **M2 G3** 多 LLM Provider Registry | Hermes-style 三层架构（wire-protocol transport + preset registry + YAML routing config）/ 8 内置 preset (anthropic/openai/kimi/minimax/minimax-cn/deepseek/zai/gemini) / per-subsystem 路由 / ENV-only BC fallback | ✅ 2026-04-26（v0.5.0-multi-provider） |
+| **M2 G3 UI** | Settings → LLM Providers 页面（增删改 provider + 路由）/ 首页弹窗引导（首次进入 30 秒搞定）/ 后端 GET/POST `/instance/settings/llm-providers` / 自动写 yaml + .env (chmod 600) | ✅ 2026-04-26（v0.5.1-ui-config） |
 | **M2** Skill 自进化 | SkillMiner 周批 / Shadow Mode / KPI + Auto-Rollback / Weekly Digest UI / 项目记忆 git sync / 自动归档 | 🚧 计划中 |
 | **M3** 代码架构自升级 | agent-writes-plugin / Shadow 协调器 / KPI 比较器 / 金丝雀 | ⏸ 架构就绪后启动 |
 

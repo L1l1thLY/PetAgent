@@ -1,17 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import express from "express";
 import { mkdtempSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
-
-let mockedEnvPath = "";
-vi.mock("../paths.js", () => ({
-  resolvePetAgentEnvPath: () => mockedEnvPath,
-  resolvePetAgentConfigPath: () => mockedEnvPath.replace(/\.env$/, "config.json"),
-}));
-
-const { llmProvidersSettingsRoutes } = await import("../routes/llm-providers-settings.js");
+import { llmProvidersSettingsRoutes } from "../routes/llm-providers-settings.js";
 
 let tmp: string;
 let configPath: string;
@@ -90,11 +83,13 @@ beforeEach(() => {
   tmp = mkdtempSync(path.join(tmpdir(), "petagent-llm-settings-"));
   configPath = path.join(tmp, "petagent.config.yaml");
   envPath = path.join(tmp, ".env");
-  mockedEnvPath = envPath;
   originalCwd = process.cwd();
   process.chdir(tmp);
   originalConfigEnv = process.env.PETAGENT_CONFIG;
   originalLlmConfigEnv = process.env.PETAGENT_LLM_CONFIG;
+  // PETAGENT_CONFIG points at a config.json under tmp so resolvePetAgentEnvPath()
+  // returns <tmp>/.env (uses the SAME directory as the config.json path).
+  process.env.PETAGENT_CONFIG = path.join(tmp, "config.json");
   process.env.PETAGENT_LLM_CONFIG = configPath;
 });
 

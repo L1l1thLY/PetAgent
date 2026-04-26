@@ -416,9 +416,31 @@ SELECT gen_random_uuid(), '<co>', '<bob>', 'project', 'lesson',
 
 ---
 
-## 7.5. 多 LLM Provider 路由（v0.5.0+）
+## 7.5. 多 LLM Provider 路由（v0.5.0+ / UI v0.5.1+）
 
 > 验证 Hermes-style provider registry —— 用 Kimi / Minimax / 任何内置 preset 替代 Anthropic + OpenAI。
+> v0.5.1 起新增 UI 流程：首页 banner + 设置页。下面两套路径都跑一遍。
+
+### 7.5.0 UI 路径（最简，v0.5.1+）
+
+1. **干净启动**：清掉旧 `petagent.config.yaml`、`~/.petagent/<instance>/.env` 里的 KIMI_*/MINIMAX_* 环境变量
+   ```sh
+   rm -f petagent.config.yaml
+   ```
+2. `pnpm dev:server` → 浏览器进 `http://localhost:3100`
+3. **应看到**：Board 顶部蓝色 banner "Set up an LLM provider to unlock..."
+4. 点 **Configure** → 弹窗
+5. 选 preset = Kimi（默认就是）→ 粘贴 KIMI key → 三个 checkbox 默认全选 → **Save**
+6. **应看到**：绿色 "Saved" 卡片，提示 `Wrote env vars: KIMI_API_KEY` + restart 指引
+7. server 应该自动重启（tsx watch 检测到 petagent.config.yaml 写入）
+8. 重启日志检查（同 7.5.3）：`[petagent] llm-router: psychologist → my-kimi (openai_chat, ...) [config]`
+9. 刷新页面，banner 消失（hasAnyResolvedKey=true 后不再显示）
+10. 进 **Instance Settings → LLM Providers**（侧边栏钥匙图标）→ 应看到 my-kimi 一条，API key 字段显示 "set" 绿标
+
+**对不上**：
+- banner 不出现 → 检查浏览器 DevTools `/api/instance/settings/llm-providers` 响应；如果 `hasAnyResolvedKey=true` 说明已有 key 在跑，banner 会自动隐藏
+- Save 失败 → 看 Network 面板的 400 响应 body
+- server 没重启 → 不是 watch 模式，需手动 Ctrl+C 重起
 
 ### 7.5.1 准备 keys
 

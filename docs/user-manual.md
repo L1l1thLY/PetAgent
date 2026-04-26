@@ -266,18 +266,46 @@ petagent audit emotional-interventions --company-id <id> --since-days 7
 ## 多 LLM Provider 配置
 
 > M2 G3 起（v0.5.0+）。Hermes Agent 风格的 provider registry。
+> v0.5.1+ 增加 UI 配置面板和首次启动引导，YAML 不再是唯一入口。
 
-PetAgent 把 3 个 LLM-using 子系统（Psychologist 分类器 / Reflector 反思 builder / Embedding 引擎）的 provider 选择**完全配置化**：通过一个 `petagent.config.yaml` 文件，告诉 PetAgent 哪个子系统用哪个 provider、用哪个 model。
+PetAgent 把 3 个 LLM-using 子系统（Psychologist 分类器 / Reflector 反思 builder / Embedding 引擎）的 provider 选择**完全配置化**。三种配置方式：
 
-### 何时需要
+### 方式 1：UI 引导（首次启动最快）
 
-| 场景 | 用 ENV 还是 YAML |
+启动后浏览器进 `http://localhost:3100`，Board 顶部会显示蓝色 "Set up an LLM provider" 引导条。
+
+1. 点 **Configure**
+2. 选 preset（默认 Kimi）
+3. 粘贴 API key
+4. 勾选要启用的子系统（Psychologist / Reflector / Embedding）
+5. **Save** —— 自动写 `petagent.config.yaml` + `~/.petagent/<instance>/.env`（chmod 600）
+6. 重启 server（`pnpm dev:server` watch 模式自动重启；其他模式 Ctrl+C 后再起）
+
+引导条会记住"已 dismiss"状态（localStorage），所以不会一直骚扰你。
+
+### 方式 2：UI 设置页（后续调整、加多个 provider）
+
+侧边栏 **Instance Settings → LLM Providers**（钥匙图标）。
+
+页面分两块：
+- **Providers** —— 增删改每个 provider，每条卡片包括：id（slug）、preset 下拉、API key（密码框，已存的会显示绿色 "set" 标签）、可选 model、可选 base_url
+- **Routing** —— 三个下拉：Psychologist / Reflector / Embedding 各选一个 declared provider（或 "None — fallback mode"）
+
+Embedding 行只列出支持 `openai_embeddings` 的 provider —— anthropic-only 的 provider 自动过滤。
+
+页面底部 Save 后会显示绿色"Saved"卡片，列出写入的环境变量名 + 重启提示。
+
+### 方式 3：YAML 手写（power user）
+
+何时用：
+
+| 场景 | 用 ENV 还是 YAML/UI |
 |---|---|
 | 只用 Anthropic + OpenAI | ENV-only 就够 |
-| 想用 Kimi / Minimax / DeepSeek / GLM / Gemini | **必须 YAML** |
-| 想让 Psychologist 用 A、Reflector 用 B 混搭 | **必须 YAML** |
-| 想覆盖默认 model（比如用 `moonshot-v1-128k` 替换 `moonshot-v1-32k`） | **必须 YAML** |
-| 想对接自建 OpenAI-兼容网关 | **YAML + base_url 字段** |
+| 想用 Kimi / Minimax / DeepSeek / GLM / Gemini | **UI 或 YAML** |
+| 想让 Psychologist 用 A、Reflector 用 B 混搭 | **UI 或 YAML** |
+| 想覆盖默认 model（比如用 `moonshot-v1-128k` 替换 `moonshot-v1-32k`） | **UI 或 YAML** |
+| 想对接自建 OpenAI-兼容网关 | **UI（base_url 字段）或 YAML** |
 
 ### 内置 8 个 preset
 
