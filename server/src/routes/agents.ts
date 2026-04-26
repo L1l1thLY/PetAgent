@@ -1535,90 +1535,99 @@ export function agentRoutes(db: Db) {
   });
 
   router.post("/companies/:companyId/agents", validate(createAgentSchema), async (req, res) => {
-    const companyId = req.params.companyId as string;
-    assertCompanyAccess(req, companyId);
+    const started = Date.now();
+    try {
+      const companyId = req.params.companyId as string;
+      assertCompanyAccess(req, companyId);
 
-    if (req.actor.type === "agent") {
-      assertBoard(req);
-    }
+      if (req.actor.type === "agent") {
+        assertBoard(req);
+      }
 
-    const {
-      desiredSkills: requestedDesiredSkills,
-      ...createInput
-    } = req.body;
-    createInput.adapterType = assertKnownAdapterType(createInput.adapterType);
-    const requestedAdapterConfig = applyCreateDefaultsByAdapterType(
-      createInput.adapterType,
-      ((createInput.adapterConfig ?? {}) as Record<string, unknown>),
-    );
-    const desiredSkillAssignment = await resolveDesiredSkillAssignment(
-      companyId,
-      createInput.adapterType,
-      requestedAdapterConfig,
-      Array.isArray(requestedDesiredSkills) ? requestedDesiredSkills : undefined,
-    );
-    const normalizedAdapterConfig = await secretsSvc.normalizeAdapterConfigForPersistence(
-      companyId,
-      desiredSkillAssignment.adapterConfig,
-      { strictMode: strictSecretsMode },
-    );
-    await assertAdapterConfigConstraints(
-      companyId,
-      createInput.adapterType,
-      normalizedAdapterConfig,
-    );
-
-    const createdAgent = await svc.create(companyId, {
-      ...createInput,
-      adapterConfig: normalizedAdapterConfig,
-      runtimeConfig: normalizeNewAgentRuntimeConfig(createInput.runtimeConfig),
-      status: "idle",
-      spentMonthlyCents: 0,
-      lastHeartbeatAt: null,
-    });
-    const agent = await materializeDefaultInstructionsBundleForNewAgent(createdAgent);
-
-    const actor = getActorInfo(req);
-    await logActivity(db, {
-      companyId,
-      actorType: actor.actorType,
-      actorId: actor.actorId,
-      agentId: actor.agentId,
-      runId: actor.runId,
-      action: "agent.created",
-      entityType: "agent",
-      entityId: agent.id,
-      details: {
-        name: agent.name,
-        role: agent.role,
-        desiredSkills: desiredSkillAssignment.desiredSkills,
-      },
-    });
-    const telemetryClient = getTelemetryClient();
-    if (telemetryClient) {
-      trackAgentCreated(telemetryClient, { agentRole: agent.role, agentId: agent.id });
-    }
-
-    await applyDefaultAgentTaskAssignGrant(
-      companyId,
-      agent.id,
-      req.actor.type === "board" ? (req.actor.userId ?? null) : null,
-    );
-
-    if (agent.budgetMonthlyCents > 0) {
-      await budgets.upsertPolicy(
-        companyId,
-        {
-          scopeType: "agent",
-          scopeId: agent.id,
-          amount: agent.budgetMonthlyCents,
-          windowKind: "calendar_month_utc",
-        },
-        actor.actorType === "user" ? actor.actorId : null,
+      const {
+        desiredSkills: requestedDesiredSkills,
+        ...createInput
+      } = req.body;
+      createInput.adapterType = assertKnownAdapterType(createInput.adapterType);
+      const requestedAdapterConfig = applyCreateDefaultsByAdapterType(
+        createInput.adapterType,
+        ((createInput.adapterConfig ?? {}) as Record<string, unknown>),
       );
-    }
+      const desiredSkillAssignment = await resolveDesiredSkillAssignment(
+        companyId,
+        createInput.adapterType,
+        requestedAdapterConfig,
+        Array.isArray(requestedDesiredSkills) ? requestedDesiredSkills : undefined,
+      );
+      const normalizedAdapterConfig = await secretsSvc.normalizeAdapterConfigForPersistence(
+        companyId,
+        desiredSkillAssignment.adapterConfig,
+        { strictMode: strictSecretsMode },
+      );
+      await assertAdapterConfigConstraints(
+        companyId,
+        createInput.adapterType,
+        normalizedAdapterConfig,
+      );
 
-    res.status(201).json(agent);
+      const createdAgent = await svc.create(companyId, {
+        ...createInput,
+        adapterConfig: normalizedAdapterConfig,
+        runtimeConfig: normalizeNewAgentRuntimeConfig(createInput.runtimeConfig),
+        status: "idle",
+        spentMonthlyCents: 0,
+        lastHeartbeatAt: null,
+      });
+      const agent = await materializeDefaultInstructionsBundleForNewAgent(createdAgent);
+
+      const actor = getActorInfo(req);
+      await logActivity(db, {
+        companyId,
+        actorType: actor.actorType,
+        actorId: actor.actorId,
+        agentId: actor.agentId,
+        runId: actor.runId,
+        action: "agent.created",
+        entityType: "agent",
+        entityId: agent.id,
+        details: {
+          name: agent.name,
+          role: agent.role,
+          desiredSkills: desiredSkillAssignment.desiredSkills,
+        },
+      });
+      const telemetryClient = getTelemetryClient();
+      if (telemetryClient) {
+        trackAgentCreated(telemetryClient, { agentRole: agent.role, agentId: agent.id });
+      }
+
+      await applyDefaultAgentTaskAssignGrant(
+        companyId,
+        agent.id,
+        req.actor.type === "board" ? (req.actor.userId ?? null) : null,
+      );
+
+      if (agent.budgetMonthlyCents > 0) {
+        await budgets.upsertPolicy(
+          companyId,
+          {
+            scopeType: "agent",
+            scopeId: agent.id,
+            amount: agent.budgetMonthlyCents,
+            windowKind: "calendar_month_utc",
+          },
+          actor.actorType === "user" ? actor.actorId : null,
+        );
+      }
+
+      const elapsedMs = Date.now() - started;
+      console.log(`[petagent] hire latency: ${elapsedMs}ms (companyId=${companyId} role=${req.body?.role ?? "?"})`);
+      res.status(201).json(agent);
+    } catch (err) {
+      const elapsedMs = Date.now() - started;
+      console.log(`[petagent] hire latency (failed): ${elapsedMs}ms (companyId=${req.params.companyId})`);
+      throw err;
+    }
   });
 
   router.patch("/agents/:id/permissions", validate(updateAgentPermissionsSchema), async (req, res) => {
