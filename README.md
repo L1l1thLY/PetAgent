@@ -50,6 +50,10 @@ npx petagentai open
 
 ### 启用 Psychologist + Reflector + 真 LLM 后端
 
+PetAgent 支持 **多 LLM provider**（M2 G3，灵感来自 Hermes Agent）。两种配置方式：
+
+**方式 A：ENV-only（最简）** —— 适合只用 Anthropic + OpenAI 的场景
+
 ```sh
 # 让 Psychologist 跑起来（行为-only 模式，不需要 key）
 PETAGENT_PSYCHOLOGIST_ENABLED=true \
@@ -62,7 +66,7 @@ PETAGENT_PSYCHOLOGIST_ENABLED=true \
 PETAGENT_REFLECTOR_ENABLED=true \
 npx petagentai run
 
-# 再加 OpenAI key 切到真 embedding（Notes 语义检索从 SHA-256 stub 升级到 text-embedding-3-small）
+# 再加 OpenAI key 切到真 embedding
 ANTHROPIC_API_KEY=sk-ant-... \
 OPENAI_API_KEY=sk-... \
 PETAGENT_PSYCHOLOGIST_ENABLED=true \
@@ -70,13 +74,45 @@ PETAGENT_REFLECTOR_ENABLED=true \
 npx petagentai run
 ```
 
-启动日志会确认实际生效模式：
+**方式 B：YAML 配置（推荐，支持 Kimi / Minimax / DeepSeek / GLM / Gemini）**
+
+```sh
+# 1. 复制模板
+cp petagent.config.yaml.example petagent.config.yaml
+
+# 2. 编辑 providers + llm_routing；minimal Kimi-only 示例：
+cat > petagent.config.yaml <<'EOF'
+providers:
+  - id: my-kimi
+    preset: kimi
+    api_key_env: KIMI_API_KEY
+llm_routing:
+  psychologist: my-kimi
+  reflector: my-kimi
+  embedding: my-kimi
+EOF
+
+# 3. 启动（key 通过 env 注入，不要写到 yaml 里）
+KIMI_API_KEY=sk-moonshot-... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+```
+
+支持 8 个内置 preset：`anthropic`, `openai`, `kimi`, `minimax`, `minimax-cn`, `deepseek`, `zai` (GLM), `gemini`。详见 [petagent.config.yaml.example](./petagent.config.yaml.example) 和 [docs/user-manual.md](./docs/user-manual.md#多-llm-provider-配置)。
+
+启动日志确认实际生效模式：
 
 ```
-[petagent] psychologist started (classifier=prompted)   # 或 classifier=passthrough
-[petagent] reflector started (builder=haiku)            # 或 builder=templated
-[petagent] embedding service mode: openai               # 或 stub
+[petagent] llm-router: psychologist → my-kimi (openai_chat, moonshot-v1-32k) [config]
+[petagent] llm-router: reflector → my-kimi (openai_chat, moonshot-v1-32k) [config]
+[petagent] llm-router: embedding → my-kimi (openai_embeddings, moonshot-v1-embedding) [config]
+[petagent] psychologist started (classifier=prompted)
+[petagent] reflector started (builder=haiku)
+[petagent] embedding service mode: kimi
 ```
+
+ENV-only 模式日志中 `[config]` 替换为 `[env-fallback]`。
 
 ### 邮件告警 + budget 检查
 
@@ -101,6 +137,7 @@ npx petagentai run
 | **M1** PetAgent 家族 + Psychologist + Plugin 架构 | 6 内置 role / Psychologist 子系统 / Hook Bus / Safety Net / Skills 包 / Templates 包 / 全套 UI 改造 | ✅ 2026-04-23（v0.2.0-m1） |
 | Post-M1 wiring | Psychologist concrete adapters / SkipReviewer helper / role-template watcher / NotificationStore bridge / budget-check routine / NotificationBell / SMTP / MCP+Hook runtime glue | ✅ 2026-04-26 |
 | **M2 Preview** | Notes 层 (CRUD+pgvector+CLI) / LLM Reflector + context enrichment / 真 OpenAI embedding API / Psychologist auto-start / Reflector auto-start / /notes UI / Chat Bar | ✅ 2026-04-26（v0.3.1-m2-alive） |
+| **M2 G3** 多 LLM Provider Registry | Hermes-style 三层架构（wire-protocol transport + preset registry + YAML routing config）/ 8 内置 preset (anthropic/openai/kimi/minimax/minimax-cn/deepseek/zai/gemini) / per-subsystem 路由 / ENV-only BC fallback | ✅ 2026-04-26（v0.5.0-multi-provider） |
 | **M2** Skill 自进化 | SkillMiner 周批 / Shadow Mode / KPI + Auto-Rollback / Weekly Digest UI / 项目记忆 git sync / 自动归档 | 🚧 计划中 |
 | **M3** 代码架构自升级 | agent-writes-plugin / Shadow 协调器 / KPI 比较器 / 金丝雀 | ⏸ 架构就绪后启动 |
 

@@ -48,7 +48,32 @@ These are set automatically by the server when invoking agents:
 
 ## LLM Provider Keys (for adapters)
 
+These keys are read by the bundled local adapters (Claude Local, Codex Local, etc.):
+
 | Variable | Description |
 |----------|-------------|
 | `ANTHROPIC_API_KEY` | Anthropic API key (for Claude Local adapter) |
 | `OPENAI_API_KEY` | OpenAI API key (for Codex Local adapter) |
+
+## LLM Provider Keys (for PetAgent's own subsystems — Psychologist / Reflector / Embedding)
+
+PetAgent's M2 G3 multi-provider router (see `petagent.config.yaml.example` and
+`docs/user-manual.md#多-llm-provider-配置`) reads these per-preset env vars:
+
+| Preset | API Key Env (any of) |
+|--------|----------------------|
+| `anthropic` | `ANTHROPIC_API_KEY` |
+| `openai` | `OPENAI_API_KEY` |
+| `kimi` | `KIMI_API_KEY`, `MOONSHOT_API_KEY` |
+| `minimax` | `MINIMAX_API_KEY` |
+| `minimax-cn` | `MINIMAX_CN_API_KEY`, `MINIMAX_API_KEY` |
+| `deepseek` | `DEEPSEEK_API_KEY` |
+| `zai` (GLM) | `GLM_API_KEY`, `ZHIPU_API_KEY` |
+| `gemini` | `GOOGLE_API_KEY`, `GEMINI_API_KEY` |
+
+Multi-provider router config:
+
+| Variable | Description |
+|----------|-------------|
+| `PETAGENT_CONFIG` | Override path for `petagent.config.yaml` (default: `./petagent.config.yaml` in CWD). When the file does not exist, PetAgent falls back to ENV-only mode (synthesises `anthropic` / `openai` presets from the keys above). |
+| `OPENAI_EMBEDDING_MODEL` | (Legacy / ENV-fallback only) Override embedding model when running in env-only mode. Ignored when `petagent.config.yaml` is present — use `model:` field in the yaml instead. |

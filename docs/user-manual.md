@@ -1,6 +1,6 @@
 # PetAgent User Manual
 
-> 适用版本：v0.3.1-m2-alive 起。本手册覆盖 M0 + M1 + M2 Preview 全部已发布功能。
+> 适用版本：v0.5.0-multi-provider 起（含 v0.3.1-m2-alive / v0.4.0-pre-m2 全部能力）。本手册覆盖 M0 + M1 + M2 Preview + M2 G3 全部已发布功能。
 
 ## 目录
 
@@ -12,6 +12,7 @@
 6. [Chat Bar：与 Coordinator 对话](#6-chat-bar)
 7. [Notes 反思笔记](#7-notes-反思笔记)
 8. [Psychologist 情绪疗愈](#8-psychologist-情绪疗愈)
+- [多 LLM Provider 配置](#多-llm-provider-配置) ← Kimi / Minimax / DeepSeek / GLM / Gemini
 9. [Budget 与告警](#9-budget-与告警)
 10. [CLI 完整命令](#10-cli-完整命令)
 11. [环境变量参考](#11-环境变量参考)
@@ -56,15 +57,20 @@ PETAGENT_REFLECTOR_ENABLED=true \
 npx petagentai run
 ```
 
+要用 Kimi / Minimax / DeepSeek / GLM / Gemini 等其它 provider，看本手册 [§9 多 LLM Provider 配置](#9-多-llm-provider-配置)。
+
 启动日志会确认：
 
 ```
+[petagent] llm-router: psychologist → _bc_anthropic (anthropic_messages, claude-haiku-4-5-20251001) [env-fallback]
+[petagent] llm-router: reflector → _bc_anthropic (anthropic_messages, claude-haiku-4-5-20251001) [env-fallback]
+[petagent] llm-router: embedding → _bc_openai (openai_embeddings, text-embedding-3-small) [env-fallback]
 [petagent] psychologist started (classifier=prompted)
 [petagent] reflector started (builder=haiku)
 [petagent] embedding service mode: openai
 ```
 
-`classifier=passthrough` 表示无 ANTHROPIC_API_KEY 时的行为-only fallback，仍能 fire 介入但不调 LLM。`builder=templated` 表示 Reflector 写模板反思而非 LLM 反思。`embedding service mode: stub` 表示 Notes 用 SHA-256 deterministic stub（语义检索仅作开发用）。
+`classifier=passthrough` 表示无 ANTHROPIC_API_KEY 时的行为-only fallback，仍能 fire 介入但不调 LLM。`builder=templated` 表示 Reflector 写模板反思而非 LLM 反思。`embedding service mode: stub` 表示 Notes 用 SHA-256 deterministic stub（语义检索仅作开发用）。`[env-fallback]` 表示是 ENV-only 模式；写 YAML 配置后会变成 `[config]`。
 
 ### 验证
 
@@ -254,6 +260,154 @@ CompanySettings → Transparency。Opaque（默认）/ Semi / Transparent 三档
 ```sh
 petagent audit emotional-interventions --company-id <id> --since-days 7
 ```
+
+---
+
+## 多 LLM Provider 配置
+
+> M2 G3 起（v0.5.0+）。Hermes Agent 风格的 provider registry。
+
+PetAgent 把 3 个 LLM-using 子系统（Psychologist 分类器 / Reflector 反思 builder / Embedding 引擎）的 provider 选择**完全配置化**：通过一个 `petagent.config.yaml` 文件，告诉 PetAgent 哪个子系统用哪个 provider、用哪个 model。
+
+### 何时需要
+
+| 场景 | 用 ENV 还是 YAML |
+|---|---|
+| 只用 Anthropic + OpenAI | ENV-only 就够 |
+| 想用 Kimi / Minimax / DeepSeek / GLM / Gemini | **必须 YAML** |
+| 想让 Psychologist 用 A、Reflector 用 B 混搭 | **必须 YAML** |
+| 想覆盖默认 model（比如用 `moonshot-v1-128k` 替换 `moonshot-v1-32k`） | **必须 YAML** |
+| 想对接自建 OpenAI-兼容网关 | **YAML + base_url 字段** |
+
+### 内置 8 个 preset
+
+| Preset | Wire 协议 | Chat 默认 model | Embedding 默认 model | API key env (任一) |
+|---|---|---|---|---|
+| `anthropic` | anthropic_messages | claude-haiku-4-5-20251001 | — | ANTHROPIC_API_KEY |
+| `openai` | openai_chat + openai_embeddings | gpt-4o-mini | text-embedding-3-small | OPENAI_API_KEY |
+| `kimi` | openai_chat + openai_embeddings | moonshot-v1-32k | moonshot-v1-embedding | KIMI_API_KEY / MOONSHOT_API_KEY |
+| `minimax` | openai_chat + openai_embeddings | abab6.5s-chat | embo-01 | MINIMAX_API_KEY |
+| `minimax-cn` | openai_chat + openai_embeddings | abab6.5s-chat | embo-01 | MINIMAX_CN_API_KEY / MINIMAX_API_KEY |
+| `deepseek` | openai_chat | deepseek-chat | — | DEEPSEEK_API_KEY |
+| `zai` | openai_chat + openai_embeddings | glm-4-flash | embedding-3 | GLM_API_KEY / ZHIPU_API_KEY |
+| `gemini` | openai_chat + openai_embeddings | gemini-2.0-flash | text-embedding-004 | GOOGLE_API_KEY / GEMINI_API_KEY |
+
+**Preset 别名**：`claude` → `anthropic`，`moonshot` / `kimi-coding` → `kimi`，`glm` / `zhipu` → `zai`，`google` → `gemini`。
+
+### 配置文件位置
+
+按优先级查找：
+
+1. `$PETAGENT_CONFIG`（环境变量）
+2. `./petagent.config.yaml`（CWD）
+3. **不存在** → 退到 ENV-only fallback
+
+只读一次，**修改后必须重启**。
+
+### 最小示例：全 Kimi
+
+```yaml
+# petagent.config.yaml
+providers:
+  - id: my-kimi
+    preset: kimi
+    api_key_env: KIMI_API_KEY
+
+llm_routing:
+  psychologist: my-kimi
+  reflector: my-kimi
+  embedding: my-kimi
+```
+
+启动：
+
+```sh
+KIMI_API_KEY=sk-moonshot-... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+```
+
+### 混搭：Kimi 跑 Psychologist，Minimax 跑 Reflector
+
+```yaml
+providers:
+  - id: my-kimi
+    preset: kimi
+    api_key_env: KIMI_API_KEY
+  - id: my-minimax
+    preset: minimax
+    api_key_env: MINIMAX_API_KEY
+    model: abab6.5s-chat
+
+llm_routing:
+  psychologist: my-kimi      # 情绪分类用 Kimi
+  reflector: my-minimax      # 反思 builder 用 Minimax
+  embedding: my-kimi         # Notes 检索用 Kimi
+```
+
+启动：
+
+```sh
+KIMI_API_KEY=sk-moonshot-... \
+MINIMAX_API_KEY=eyJh... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+```
+
+### Provider 字段参考
+
+```yaml
+providers:
+  - id: <你给这个 provider 起的别名>     # 在 llm_routing 里被引用
+    preset: <preset id 或别名>          # MUST 是上表里的 8 个之一
+    api_key_env: <环境变量名>            # 推荐：从 env 读 key
+    api_key: <字面 key>                 # 可选：写死在 yaml（不推荐，泄漏风险）
+    base_url: <自定义 URL>               # 可选：覆盖 preset 默认（自建网关用）
+    model: <自定义 model>                # 可选：覆盖 preset 默认 model
+```
+
+`api_key_env` 和 `api_key` 至少要有一个。两个都给的话 env 优先。
+
+### Routing 字段
+
+```yaml
+llm_routing:
+  psychologist: <provider id>   # 可选；省略则 fallback 到 BehavioralPassthrough
+  reflector: <provider id>      # 可选；省略则 fallback 到 TemplatedReflectionBuilder
+  embedding: <provider id>      # 可选；省略则 fallback 到 SHA-256 stub（关键字检索）
+```
+
+**约束（启动时校验，违反则报错退出）**：
+
+1. `embedding` 的 provider preset 必须包含 `openai_embeddings`（anthropic-only 不能 embed）
+2. `psychologist` / `reflector` 必须包含某种 chat 协议
+3. routing 引用的 provider id 必须在 `providers:` 里声明过
+4. provider id 不能重复
+
+### 验证启动
+
+启动日志会逐行报告每个子系统的路由决策：
+
+```
+[petagent] llm-router: psychologist → my-kimi (openai_chat, moonshot-v1-32k) [config]
+[petagent] llm-router: reflector → my-minimax (openai_chat, abab6.5s-chat) [config]
+[petagent] llm-router: embedding → my-kimi (openai_embeddings, moonshot-v1-embedding) [config]
+[petagent] psychologist started (classifier=prompted)
+[petagent] reflector started (builder=haiku)
+[petagent] embedding service mode: kimi
+```
+
+`[config]` 表示来自 YAML；`[env-fallback]` 表示退到了 ENV-only。
+
+如果某个子系统没出现在 `llm-router` 行里，说明：
+- `llm_routing` 没配它 → 走 fallback
+- 或配了但 api_key 没找到 → 看上面有 `[llm-router] xxx: api key not found` 警告
+
+### 完整模板
+
+参考 [`petagent.config.yaml.example`](../petagent.config.yaml.example)（仓库根目录），里面 8 个 preset 各有一段示例。
 
 ---
 

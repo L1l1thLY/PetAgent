@@ -416,6 +416,141 @@ SELECT gen_random_uuid(), '<co>', '<bob>', 'project', 'lesson',
 
 ---
 
+## 7.5. 多 LLM Provider 路由（v0.5.0+）
+
+> 验证 Hermes-style provider registry —— 用 Kimi / Minimax / 任何内置 preset 替代 Anthropic + OpenAI。
+
+### 7.5.1 准备 keys
+
+至少需要两个之一才能验证（Anthropic 一直都有，所以 BC 路径默认就在跑）：
+
+- `KIMI_API_KEY` —— Moonshot 控制台 (kimi.cn) 申请
+- `MINIMAX_API_KEY` —— Minimax 控制台 (minimaxi.com) 申请
+
+### 7.5.2 写最小 YAML 配置
+
+在 PetAgent 仓库根目录（或者 CWD）：
+
+```sh
+cat > petagent.config.yaml <<'EOF'
+providers:
+  - id: my-kimi
+    preset: kimi
+    api_key_env: KIMI_API_KEY
+
+llm_routing:
+  psychologist: my-kimi
+  reflector: my-kimi
+  embedding: my-kimi
+EOF
+```
+
+### 7.5.3 重启验证
+
+杀掉旧 server，重启：
+
+```sh
+KIMI_API_KEY=sk-moonshot-... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+pnpm dev:server
+```
+
+**应看到**（关键确认 3 行）：
+
+```
+[petagent] llm-router: psychologist → my-kimi (openai_chat, moonshot-v1-32k) [config]
+[petagent] llm-router: reflector → my-kimi (openai_chat, moonshot-v1-32k) [config]
+[petagent] llm-router: embedding → my-kimi (openai_embeddings, moonshot-v1-embedding) [config]
+[petagent] psychologist started (classifier=prompted)
+[petagent] reflector started (builder=haiku)
+[petagent] embedding service mode: kimi
+```
+
+**关键点**：
+- 行尾必须是 `[config]` 不是 `[env-fallback]` —— 说明 YAML 被读到了
+- `embedding service mode: kimi` —— **不是 `openai`**，说明 router 把 embedding 也指给了 Kimi
+
+**如果看到 `[env-fallback]`**：说明 YAML 没被读到。检查：
+- `petagent.config.yaml` 是不是在你运行 `pnpm dev:server` 的同一个 CWD
+- 或者用 `PETAGENT_CONFIG=/abs/path/petagent.config.yaml` 强制路径
+
+### 7.5.4 触发一次真 LLM 调用
+
+通过 Chat Bar 派活给 Coordinator（参考 §3 步骤），等 Reflector 写出第一条 Note。
+
+打开 `/notes` 页面，新 Note 的 body：
+- ❌ 不应该是 templated 模式那种 `Auto-templated reflection.`
+- ✅ 应该是 Kimi 实际生成的中文/英文反思（一段自然语言文字）
+
+如果 body 长得像模板：
+- 看 server 日志找 `[llm-router] reflector: api key not found` —— key 没传进去
+- 或者找 `OpenAIChatCompletionsTransport: HTTP 401` —— key 错了
+
+### 7.5.5 混搭场景：Psychologist 用 Kimi、Reflector 用 Minimax
+
+```sh
+cat > petagent.config.yaml <<'EOF'
+providers:
+  - id: my-kimi
+    preset: kimi
+    api_key_env: KIMI_API_KEY
+  - id: my-minimax
+    preset: minimax
+    api_key_env: MINIMAX_API_KEY
+
+llm_routing:
+  psychologist: my-kimi
+  reflector: my-minimax
+  embedding: my-kimi
+EOF
+
+KIMI_API_KEY=sk-moonshot-... \
+MINIMAX_API_KEY=eyJh... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+pnpm dev:server
+```
+
+启动日志：
+
+```
+[petagent] llm-router: psychologist → my-kimi (openai_chat, moonshot-v1-32k) [config]
+[petagent] llm-router: reflector → my-minimax (openai_chat, abab6.5s-chat) [config]
+[petagent] llm-router: embedding → my-kimi (openai_embeddings, moonshot-v1-embedding) [config]
+```
+
+混搭跑通后再触发一次 Reflector 写 Note —— 这次的 Note 是 Minimax 生成的，能跟之前 Kimi 生成的对比下风格差异（Minimax 中文略学究、Kimi 偏简洁）。
+
+### 7.5.6 BC 验证：删 yaml 后回到 ENV-only 模式
+
+```sh
+mv petagent.config.yaml petagent.config.yaml.bak
+ANTHROPIC_API_KEY=sk-ant-... \
+OPENAI_API_KEY=sk-openai-... \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+pnpm dev:server
+```
+
+应看到日志变回老样子：
+
+```
+[petagent] llm-router: psychologist → _bc_anthropic (anthropic_messages, claude-haiku-4-5-20251001) [env-fallback]
+[petagent] llm-router: reflector → _bc_anthropic (anthropic_messages, claude-haiku-4-5-20251001) [env-fallback]
+[petagent] llm-router: embedding → _bc_openai (openai_embeddings, text-embedding-3-small) [env-fallback]
+```
+
+`[env-fallback]` + `_bc_*` 前缀 —— 说明 YAML 不存在时退回 ENV-only。
+
+恢复 yaml：
+
+```sh
+mv petagent.config.yaml.bak petagent.config.yaml
+```
+
+---
+
 ## 8. workspace-runtime 真跑
 
 > 这块不是核心 V1 路径，spec §3.7 isolation。可选烟测。

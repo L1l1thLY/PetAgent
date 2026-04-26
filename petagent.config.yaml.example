@@ -1,0 +1,76 @@
+# PetAgent multi-provider routing config (M2 G3).
+#
+# Copy this file to `petagent.config.yaml` in your CWD (or set
+# PETAGENT_CONFIG=/abs/path/petagent.config.yaml) before starting
+# `npx petagentai run`.
+#
+# Without this file PetAgent falls back to ENV-only mode:
+#   ANTHROPIC_API_KEY → anthropic preset (psychologist + reflector)
+#   OPENAI_API_KEY    → openai preset (embedding)
+#
+# Both modes coexist — the file always wins when it's present.
+#
+# v1 ships 8 built-in presets:
+#   anthropic, openai, kimi, minimax, minimax-cn, deepseek, zai, gemini
+# Aliases: claude → anthropic, moonshot/kimi-coding → kimi,
+#          glm/zhipu → zai, google → gemini.
+
+# =============================================================================
+# Providers — declare every API account you want PetAgent to know about
+# =============================================================================
+providers:
+  # Example 1: Kimi (Moonshot) using KIMI_API_KEY from env
+  - id: my-kimi
+    preset: kimi
+    api_key_env: KIMI_API_KEY
+    # Optional overrides:
+    # base_url: https://api.moonshot.cn       # default for kimi
+    # model: moonshot-v1-128k                  # default: moonshot-v1-32k
+
+  # Example 2: MiniMax (global) — different model than the preset default
+  - id: my-minimax
+    preset: minimax
+    api_key_env: MINIMAX_API_KEY
+    model: abab6.5s-chat
+
+  # Example 3: Anthropic (Claude) — alias "claude" also works as preset
+  # - id: my-claude
+  #   preset: anthropic
+  #   api_key_env: ANTHROPIC_API_KEY
+
+  # Example 4: OpenAI
+  # - id: my-openai
+  #   preset: openai
+  #   api_key_env: OPENAI_API_KEY
+
+  # Example 5: DeepSeek
+  # - id: my-deepseek
+  #   preset: deepseek
+  #   api_key_env: DEEPSEEK_API_KEY
+
+  # Example 6: Zhipu / GLM (alias zai or glm both work)
+  # - id: my-glm
+  #   preset: zai
+  #   api_key_env: GLM_API_KEY
+
+  # Example 7: Google Gemini (OpenAI-compat mode)
+  # - id: my-gemini
+  #   preset: gemini
+  #   api_key_env: GOOGLE_API_KEY
+
+# =============================================================================
+# Routing — assign one provider per subsystem
+# =============================================================================
+# - psychologist  classifier (Haiku-tier chat) — anthropic_messages OR openai_chat
+# - reflector     reflection builder (Haiku-tier chat) — same protocols
+# - embedding     Notes semantic search — must speak openai_embeddings
+#                 (anthropic preset CANNOT embed; v1 hard-validates this)
+#
+# Any subsystem you omit falls back to its no-LLM mode:
+#   psychologist → BehavioralPassthroughClassifier
+#   reflector    → TemplatedReflectionBuilder
+#   embedding    → SHA-256 stub (search degrades to keyword match)
+llm_routing:
+  psychologist: my-kimi
+  reflector: my-minimax
+  embedding: my-kimi
