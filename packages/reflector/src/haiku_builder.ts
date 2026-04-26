@@ -43,8 +43,8 @@ export class HaikuReflectionBuilder implements ReflectionBuilder {
     this.maxTokens = deps.maxTokens ?? DEFAULT_MAX_TOKENS;
   }
 
-  async build(event: HookEvent, _context?: ReflectionContext): Promise<{ content: string; noteType: string }> {
-    const userMessage = renderUserMessage(event);
+  async build(event: HookEvent, context?: ReflectionContext): Promise<{ content: string; noteType: string }> {
+    const userMessage = renderUserMessage(event, context);
     let llmText = "";
     try {
       llmText = (await this.transport.send({
@@ -77,17 +77,37 @@ export class HaikuReflectionBuilder implements ReflectionBuilder {
   }
 }
 
-function renderUserMessage(event: HookEvent): string {
+function renderUserMessage(event: HookEvent, context?: ReflectionContext): string {
   const payload = (event.payload ?? {}) as Record<string, unknown>;
   const status = typeof payload.status === "string" ? payload.status : "unknown";
   const durationMs = typeof payload.durationMs === "number" ? payload.durationMs : null;
-  const lines = [
+  const summaryLines = [
     `status: ${status}`,
     durationMs !== null ? `duration: ${durationMs}ms` : null,
     event.issueId ? `issue: ${event.issueId}` : null,
     event.agentId ? `agent: ${event.agentId}` : null,
   ].filter(Boolean) as string[];
-  return `Heartbeat run summary:\n${lines.map((l) => `- ${l}`).join("\n")}`;
+
+  const parts: string[] = [];
+  parts.push(`Heartbeat run summary:\n${summaryLines.map((l) => `- ${l}`).join("\n")}`);
+
+  if (context?.issueTitle || context?.issueDescription) {
+    const issueLines = [
+      context.issueTitle ? `title: ${context.issueTitle}` : null,
+      context.issueDescription ? `description: ${truncate(context.issueDescription, 600)}` : null,
+    ].filter(Boolean) as string[];
+    parts.push(`Issue context:\n${issueLines.map((l) => `- ${l}`).join("\n")}`);
+  }
+
+  if (context?.recentOutputs && context.recentOutputs.length > 0) {
+    const outputs = context.recentOutputs
+      .slice(-5)
+      .map((o, i) => `(${i + 1}) ${truncate(o, 400)}`)
+      .join("\n");
+    parts.push(`Recent outputs from this run:\n${outputs}`);
+  }
+
+  return parts.join("\n\n");
 }
 
 function truncate(s: string, n: number): string {

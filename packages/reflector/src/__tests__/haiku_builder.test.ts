@@ -69,3 +69,31 @@ describe("HaikuReflectionBuilder", () => {
     expect(out.content).toContain("Auto-templated reflection (LLM returned empty)");
   });
 });
+
+describe("HaikuReflectionBuilder with context", () => {
+  it("includes recent outputs and issue context in the user prompt when provided", async () => {
+    const send = vi.fn(async () => "Reflection.");
+    const builder = new HaikuReflectionBuilder({ transport: { send } as never });
+    await builder.build(baseEvent, {
+      recentOutputs: ["Tried fix A", "Switched to fix B"],
+      issueTitle: "Deploy script flaky",
+      issueDescription: "Vercel build randomly fails on master.",
+    });
+    const userMessage = (send.mock.calls[0] as unknown[])[0] as { userMessage: string };
+    expect(userMessage.userMessage).toContain("status: succeeded");
+    expect(userMessage.userMessage).toContain("Tried fix A");
+    expect(userMessage.userMessage).toContain("Switched to fix B");
+    expect(userMessage.userMessage).toContain("Deploy script flaky");
+    expect(userMessage.userMessage).toContain("Vercel build randomly fails");
+  });
+
+  it("works without context (falls back to bare summary)", async () => {
+    const send = vi.fn(async () => "Bare reflection.");
+    const builder = new HaikuReflectionBuilder({ transport: { send } as never });
+    await builder.build(baseEvent);
+    const userMessage = (send.mock.calls[0] as unknown[])[0] as { userMessage: string };
+    expect(userMessage.userMessage).toContain("status: succeeded");
+    expect(userMessage.userMessage).not.toContain("Recent outputs");
+    expect(userMessage.userMessage).not.toContain("Issue context");
+  });
+});
