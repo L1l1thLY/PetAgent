@@ -43,6 +43,7 @@ import { buildSkillMinerRunnerDeps } from "./composition/skill-miner.js";
 import { startSkillMiningRoutine } from "./skill-miner/routine.js";
 import { startSkillArchiveRoutine } from "./skill-miner/archive-routine.js";
 import { startSkillRollbackRoutine } from "./skill-miner/auto-rollback-routine.js";
+import { startGitSyncRoutine } from "./skill-miner/git-sync-routine.js";
 import { DrizzleSkillRepository } from "./skill-miner/drizzle-skill-repo.js";
 import { skillCandidatesRoutes } from "./routes/skill-candidates.js";
 import { createBudgetAlertEmailNotifier } from "./composition/budget-alert-notifier.js";
@@ -330,6 +331,26 @@ export async function createApp(
         Number.isFinite(archiveDays) && archiveDays > 0 ? archiveDays : 30
       }d)`,
     );
+  }
+
+  const gitSyncUrl = process.env.PETAGENT_NOTES_GIT_REMOTE_URL?.trim();
+  if (gitSyncUrl && opts.notesGitStoreDir) {
+    const syncIntervalMs = Number(process.env.PETAGENT_NOTES_GIT_SYNC_INTERVAL_MS);
+    startGitSyncRoutine({
+      storeDir: opts.notesGitStoreDir,
+      remoteUrl: gitSyncUrl,
+      remoteName: process.env.PETAGENT_NOTES_GIT_REMOTE_NAME?.trim() || undefined,
+      ref: process.env.PETAGENT_NOTES_GIT_REF?.trim() || undefined,
+      intervalMs:
+        Number.isFinite(syncIntervalMs) && syncIntervalMs > 0
+          ? syncIntervalMs
+          : undefined,
+      auth: process.env.PETAGENT_NOTES_GIT_TOKEN
+        ? { token: process.env.PETAGENT_NOTES_GIT_TOKEN }
+        : undefined,
+      logger: console,
+    });
+    console.log(`[petagent] git-sync routine started (remote=${gitSyncUrl})`);
   }
 
   if (process.env.PETAGENT_SKILL_ROLLBACK_ENABLED === "true") {

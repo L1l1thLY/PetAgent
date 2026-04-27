@@ -146,7 +146,7 @@ npx petagentai run
 | **M2 G3** 多 LLM Provider Registry | Hermes-style 三层架构（wire-protocol transport + preset registry + YAML routing config）/ 8 内置 preset (anthropic/openai/kimi/minimax/minimax-cn/deepseek/zai/gemini) / per-subsystem 路由 / ENV-only BC fallback | ✅ 2026-04-26（v0.5.0-multi-provider） |
 | **M2 G3 UI** | Settings → LLM Providers 页面（增删改 provider + 路由）/ 首页弹窗引导（首次进入 30 秒搞定）/ 后端 GET/POST `/instance/settings/llm-providers` / 自动写 yaml + .env (chmod 600) | ✅ 2026-04-26（v0.5.1-ui-config） |
 | **M2 G4 MVP** Skill 自进化（核心闭环） | `@petagent/skill-miner` 包 / `skill_candidates` 表 / 周批 routine + Run-Now 按钮 / Approve→trial Skill 提升 / Sidebar "Skill Candidates" 页面 | ✅ 2026-04-27（v0.6.0-skill-miner-mvp） |
-| **M2 G4 Full** Skill 自进化（剩余） | Shadow Mode / KPI + Auto-Rollback / Weekly Digest UI / 项目记忆 git sync / 自动归档 | 🚧 计划中 |
+| **M2 G4 Full** Skill 自进化（完整） | Weekly Digest UI + `mining_runs` 表（Phase F）/ 自动归档 routine（Phase G）/ Shadow Mode `skill_invocations` 表 + repo（Phase H）/ KPI 比较器 + Auto-Rollback routine（Phase I）/ 项目记忆 git sync（Phase J） | ✅ 2026-04-27（v0.7.0-skill-evolution-full） |
 | **M3** 代码架构自升级 | agent-writes-plugin / Shadow 协调器 / KPI 比较器 / 金丝雀 | ⏸ 架构就绪后启动 |
 
 ## 文档
