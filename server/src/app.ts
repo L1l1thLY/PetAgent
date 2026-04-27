@@ -41,6 +41,7 @@ import { createEmbeddingService } from "./composition/embedding.js";
 import { createLLMRouter } from "./composition/llm-router.js";
 import { buildSkillMinerRunnerDeps } from "./composition/skill-miner.js";
 import { startSkillMiningRoutine } from "./skill-miner/routine.js";
+import { startSkillArchiveRoutine } from "./skill-miner/archive-routine.js";
 import { DrizzleSkillRepository } from "./skill-miner/drizzle-skill-repo.js";
 import { skillCandidatesRoutes } from "./routes/skill-candidates.js";
 import { createBudgetAlertEmailNotifier } from "./composition/budget-alert-notifier.js";
@@ -307,6 +308,26 @@ export async function createApp(
           ? `${intervalMs}ms`
           : "weekly"
       })`,
+    );
+  }
+
+  if (process.env.PETAGENT_SKILL_ARCHIVE_ENABLED === "true") {
+    const archiveIntervalMs = Number(process.env.PETAGENT_SKILL_ARCHIVE_INTERVAL_MS);
+    const archiveDays = Number(process.env.PETAGENT_SKILL_ARCHIVE_DAYS);
+    startSkillArchiveRoutine({
+      db,
+      intervalMs:
+        Number.isFinite(archiveIntervalMs) && archiveIntervalMs > 0
+          ? archiveIntervalMs
+          : undefined,
+      archiveDays:
+        Number.isFinite(archiveDays) && archiveDays > 0 ? archiveDays : undefined,
+      logger: console,
+    });
+    console.log(
+      `[petagent] skill-archive routine started (idle≥${
+        Number.isFinite(archiveDays) && archiveDays > 0 ? archiveDays : 30
+      }d)`,
     );
   }
 
