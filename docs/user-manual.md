@@ -13,6 +13,7 @@
 7. [Notes 反思笔记](#7-notes-反思笔记)
 8. [Psychologist 情绪疗愈](#8-psychologist-情绪疗愈)
 - [多 LLM Provider 配置](#多-llm-provider-配置) ← Kimi / Minimax / DeepSeek / GLM / Gemini
+- [Skill 自进化（M2 G4 MVP）](#skill-自进化m2-g4-mvp) ← v0.6.0+
 9. [Budget 与告警](#9-budget-与告警)
 10. [CLI 完整命令](#10-cli-完整命令)
 11. [环境变量参考](#11-环境变量参考)
@@ -436,6 +437,88 @@ llm_routing:
 ### 完整模板
 
 参考 [`petagent.config.yaml.example`](../petagent.config.yaml.example)（仓库根目录），里面 8 个 preset 各有一段示例。
+
+---
+
+## Skill 自进化（M2 G4 MVP）
+
+> v0.6.0+ 起。从 agent 写的 Notes 里挖掘可复用 patterns，提升为 Skills。
+
+### 流程
+
+```
+agent 写 Notes（Reflector，每次 heartbeat）
+        ↓
+SkillMiner 周批（Mon 02:00）/ 你点 Run-Now
+        ↓
+LLM 分析 N 条 Notes，找出 ≥3 次重复的 patterns
+        ↓
+每个 pattern 生成 Skill Candidate（pending 状态）
+        ↓
+你在 /skills/candidates 看 → Approve 或 Reject
+        ↓
+Approved 候选自动 promote 为 trial Skill
+```
+
+### 启用周批 routine
+
+```sh
+PETAGENT_SKILL_MINING_ENABLED=true \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+npx petagentai run
+```
+
+启动日志：
+
+```
+[petagent] skill-mining routine started (interval=weekly)
+```
+
+测试模式（更短间隔，比如 5 分钟）：
+
+```sh
+PETAGENT_SKILL_MINING_ENABLED=true \
+PETAGENT_SKILL_MINING_INTERVAL_MS=300000 \
+npx petagentai run
+```
+
+### UI（侧边栏 → Skill Candidates）
+
+页面分两块：
+
+1. **Run mining now 按钮**（顶部）—— 立即对当前 company 跑一次挖掘，无视 cron 间隔。返回 last-run 摘要：扫了多少 notes / 出了多少 candidates / 有没有被跳过。
+2. **Candidates 列表** —— 每条 card：标题 + 状态 badge + LLM 写的 rationale + 频次 + agent + 模型 + 时间窗 + 可展开 body。Pending 状态下右上角有 Approve / Reject。
+
+Approve 后：
+- 内部调 `SkillManager.save()` → 写 GitStore + DB（`agent_skills` 表）→ skill 状态为 `trial`
+- candidate 状态变 `promoted`，`promotedSkillName` 字段填入对应 skill 名
+
+### 不需要任何 key 也能用？
+
+不行 —— SkillMiner 复用 Reflector 的 LLM provider（同一个 chat transport）。Reflector 处于 `templated` fallback 模式时（无 LLM key），Run-Now 会返回：
+
+```json
+{ "skippedReason": "no LLM transport configured for skill mining (reflector routing missing)" }
+```
+
+UI 会以橙色 alert 显示这条消息。配好 Kimi/Anthropic 任一 provider 即可。
+
+### Notes 多少算够？
+
+至少 3 条命中同一 pattern 才会生成候选（默认 `frequencyThreshold=3`）。低于这个就：
+- 不挖
+- Run-Now 显示 `notesScanned: X, candidatesCreated: 0`
+
+实际经验：worker 跑 50+ 任务后，挖出 1-3 个高质量 candidate 的概率较高。新公司刚启动头几天 candidates 少甚至为 0 是正常的。
+
+### 不在 MVP 里的（M2 G4 Full 才有）
+
+- Shadow Mode（新 skill 跟旧 skill 并行跑做 A/B）
+- KPI 比较器 + Auto-Rollback
+- Weekly Digest UI（一周回顾）
+- 项目记忆 git sync
+- 自动归档（30 天没用的 trial skill 转 retired）
 
 ---
 

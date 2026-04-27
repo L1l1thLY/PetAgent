@@ -573,6 +573,85 @@ mv petagent.config.yaml.bak petagent.config.yaml
 
 ---
 
+## 7.7. Skill 自进化 MVP（v0.6.0+）
+
+> 验证 SkillMiner 周批 → 候选 → approve → trial Skill 整条链路。
+
+### 7.7.1 准备：让 worker 写够 notes
+
+先得有 ≥3 条相关 notes 才能挖出 pattern。最快方式：
+
+1. Reflector 必须开启（`PETAGENT_REFLECTOR_ENABLED=true` + LLM provider 配置好，参考 §7.5）
+2. 招个 Worker，给它 5-10 个相似的小任务（比如 "fix typo in X" / "fix typo in Y" / ... / "fix typo in Z"）
+3. 等每个任务的 heartbeat 跑完 → 检查 `/notes` 页面有对应 notes
+
+如果你的 PetAgent 已经跑了几天有真实 notes 了，跳到 7.7.2。
+
+### 7.7.2 启用 mining routine（可选，建议测试时跑短间隔）
+
+```sh
+# 5 分钟一次，方便看效果
+PETAGENT_SKILL_MINING_ENABLED=true \
+PETAGENT_SKILL_MINING_INTERVAL_MS=300000 \
+PETAGENT_PSYCHOLOGIST_ENABLED=true \
+PETAGENT_REFLECTOR_ENABLED=true \
+KIMI_API_KEY=sk-... \
+pnpm dev:server
+```
+
+**应看到日志**：
+```
+[petagent] skill-mining routine started (interval=300000ms)
+```
+
+不开也行，直接用 UI 的 Run-Now 按钮即可（下一节）。
+
+### 7.7.3 UI 路径：Run-Now 看候选
+
+1. 浏览器进 `http://localhost:3100`
+2. 侧栏 **Skill Candidates**（灯泡图标，在 Skills 下方）
+3. 顶部点 **Run mining now**
+4. **应看到**：
+   - 蓝色 "Last run" 卡片：`Notes scanned: N` + `Candidates created: M`
+   - 如果 M = 0 + 没 skip 原因 → notes 不够多 / pattern 不重复 / 阈值没到（默认 ≥3）
+   - 如果出现橙色 "Skipped: no LLM transport configured for skill mining" → reflector 路由没配好，回 §7.5 配 Kimi/Anthropic
+5. 列表里出现 candidate cards，每条：
+   - 标题 + slug + amber "Pending" badge
+   - LLM rationale（斜体灰）
+   - 频次 + agent + 模型 + 时间窗
+   - "Show body" 展开看完整 markdown
+
+### 7.7.4 Approve → trial Skill
+
+1. 选一条 candidate，点 **Approve**
+2. **应看到**：
+   - 状态 badge 变 green "Promoted"
+   - 卡片底部 `Promoted to skill: <slug>` 链接
+3. 切到 **Skills** 页面（侧栏 → Skills）
+4. **应看到**：刚 approve 的 skill 出现在列表里，状态 `trial`
+
+### 7.7.5 Reject
+
+1. 选另一条 pending candidate，点 **Reject**
+2. **应看到**：badge 变成灰色 "Rejected"，按钮消失
+3. Filter 切到 "Rejected" → 它在那里
+
+### 7.7.6 数据库验证（可选）
+
+```sh
+psql $DATABASE_URL -c "SELECT id, status, name, pattern_frequency, promoted_skill_name FROM skill_candidates ORDER BY created_at DESC LIMIT 10;"
+```
+
+**应看到**：你 approve 的行 status='promoted' + promoted_skill_name 不为空；reject 的行 status='rejected'；其它 status='pending'。
+
+### 7.7.7 没数据 / 调试
+
+- **Run-Now 总返回 candidatesCreated=0**：先去 `/notes` 看你公司有几条 notes 在过去 7 天内。少于 3 条就不会挖出东西。降低阈值需要改代码（spec 默认 3，MVP 没暴露 UI 调）。
+- **Notes 够但还是 0**：很可能 LLM 没找到重复 pattern。试试给 worker 跑一批高度相似的任务（比如 "format date as YYYY-MM-DD" 在 5 个不同 issue 里）再 Run-Now。
+- **Approve 报 500**：检查 `notesGitStoreDir` 有没有正确配置 + 可写。
+
+---
+
 ## 8. workspace-runtime 真跑
 
 > 这块不是核心 V1 路径，spec §3.7 isolation。可选烟测。
