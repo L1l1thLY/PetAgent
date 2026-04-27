@@ -23,6 +23,11 @@ import { GitStore } from "@petagent/safety-net";
 import { SkillManager, type SkillRepository } from "@petagent/skills";
 import { SkillCandidatesRepo } from "../skill-miner/repo.js";
 import { mineForCompany, type SkillMinerRunnerDeps } from "../skill-miner/runner.js";
+import {
+  buildWeeklyDigest,
+  isoWeekToRange,
+  rangeToIsoWeek,
+} from "../skill-miner/digest.js";
 import { assertBoardOrgAccess, getActorInfo } from "./authz.js";
 import { forbidden, notFound } from "../errors.js";
 import { validate } from "../middleware/validate.js";
@@ -143,12 +148,35 @@ export function skillCandidatesRoutes(deps: SkillCandidatesRoutesDeps): Router {
       assertCanReview(req);
       const overrides: SkillMinerRunnerDeps = {
         ...deps.runnerDeps,
+        triggeredBy: "manual",
         ...(req.body.windowDays !== undefined ? { windowDays: req.body.windowDays } : {}),
       };
       const result = await mineForCompany(overrides, String(req.params.companyId));
       res.json(result);
     },
   );
+
+  router.get("/companies/:companyId/skill-mining/digest", async (req, res) => {
+    assertBoardOrgAccess(req);
+    const week = typeof req.query.week === "string" ? req.query.week : rangeToIsoWeek(new Date());
+    let weekStart: Date;
+    let weekEnd: Date;
+    try {
+      ({ weekStart, weekEnd } = isoWeekToRange(week));
+    } catch (err) {
+      res
+        .status(400)
+        .json({ error: err instanceof Error ? err.message : "Invalid week" });
+      return;
+    }
+    const digest = await buildWeeklyDigest(
+      deps.db,
+      String(req.params.companyId),
+      weekStart,
+      weekEnd,
+    );
+    res.json({ ...digest, week });
+  });
 
   return router;
 }

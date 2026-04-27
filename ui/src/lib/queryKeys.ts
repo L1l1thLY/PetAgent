@@ -124,6 +124,8 @@ export const queryKeys = {
   skillCandidates: {
     list: (companyId: string, status?: string) =>
       ["skill-candidates", companyId, status ?? "all"] as const,
+    digest: (companyId: string, week: string) =>
+      ["skill-mining-digest", companyId, week] as const,
   },
   health: ["health"] as const,
   secrets: {

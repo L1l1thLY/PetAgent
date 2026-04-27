@@ -10,10 +10,9 @@
  * "Run mining now" button (POST /skill-mining/run-now).
  */
 
-import { randomUUID } from "node:crypto";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import type { Db } from "@petagent/db";
-import { agentNotes } from "@petagent/db";
+import { agentNotes, miningRuns } from "@petagent/db";
 import { mineSkills, type NoteSummary } from "@petagent/skill-miner";
 import type { LLMTextTransport } from "@petagent/llm-providers";
 import { SkillCandidatesRepo } from "./repo.js";
@@ -26,6 +25,8 @@ export interface SkillMinerRunnerDeps {
   windowDays?: number;
   /** Soft cap on notes per cycle so we don't blow context. Default 200. */
   maxNotes?: number;
+  /** Records this in mining_runs.triggered_by. Default "routine". */
+  triggeredBy?: string;
   logger?: { info?(msg: string): void; warn?(msg: string, meta?: unknown): void };
 }
 
@@ -52,7 +53,22 @@ export async function mineForCompany(
   const maxNotes = deps.maxNotes ?? DEFAULT_MAX_NOTES;
   const windowEnd = new Date();
   const windowStart = new Date(windowEnd.getTime() - windowDays * 24 * 60 * 60 * 1000);
-  const miningRunId = randomUUID();
+
+  // Pre-insert the mining_runs row with placeholder counts so the
+  // miningRunId is real before we hand it to skill_candidates rows.
+  const [runRow] = await deps.db
+    .insert(miningRuns)
+    .values({
+      companyId,
+      windowStart,
+      windowEnd,
+      notesScanned: 0,
+      candidatesCreated: 0,
+      fellBackToEmpty: false,
+      triggeredBy: deps.triggeredBy ?? "routine",
+    })
+    .returning({ id: miningRuns.id });
+  const miningRunId = runRow.id;
 
   const notesRows = await deps.db
     .select({
@@ -85,6 +101,11 @@ export async function mineForCompany(
 
   const transport = deps.transportFactory();
   if (transport === null) {
+    const skipReason = "no LLM transport configured for skill mining (reflector routing missing)";
+    await deps.db
+      .update(miningRuns)
+      .set({ notesScanned: notes.length, skippedReason: skipReason })
+      .where(eq(miningRuns.id, miningRunId));
     return {
       miningRunId,
       companyId,
@@ -93,7 +114,7 @@ export async function mineForCompany(
       fellBackToEmpty: false,
       windowStart,
       windowEnd,
-      skippedReason: "no LLM transport configured for skill mining (reflector routing missing)",
+      skippedReason: skipReason,
     };
   }
 
@@ -109,6 +130,16 @@ export async function mineForCompany(
   });
 
   if (result.candidates.length === 0) {
+    await deps.db
+      .update(miningRuns)
+      .set({
+        notesScanned: notes.length,
+        candidatesCreated: 0,
+        fellBackToEmpty: result.fellBackToEmpty,
+        llmModel: transport.model,
+        llmProviderId: transport.providerId,
+      })
+      .where(eq(miningRuns.id, miningRunId));
     return {
       miningRunId,
       companyId,
@@ -138,6 +169,17 @@ export async function mineForCompany(
       windowEnd,
     })),
   );
+
+  await deps.db
+    .update(miningRuns)
+    .set({
+      notesScanned: notes.length,
+      candidatesCreated: result.candidates.length,
+      fellBackToEmpty: result.fellBackToEmpty,
+      llmModel: transport.model,
+      llmProviderId: transport.providerId,
+    })
+    .where(eq(miningRuns.id, miningRunId));
 
   return {
     miningRunId,

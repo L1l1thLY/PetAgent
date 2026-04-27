@@ -63,4 +63,52 @@ export const skillCandidatesApi = {
       `/companies/${companyId}/skill-mining/run-now`,
       opts,
     ),
+  digest: (companyId: string, week?: string) => {
+    const qs = week ? `?week=${encodeURIComponent(week)}` : "";
+    return api.get<WeeklyDigest>(
+      `/companies/${companyId}/skill-mining/digest${qs}`,
+    );
+  },
 };
+
+export interface DigestRunSummary {
+  miningRunId: string;
+  firedAt: string;
+  windowStart: string;
+  windowEnd: string;
+  notesScanned: number;
+  candidatesCreated: number;
+  fellBackToEmpty: boolean;
+  skippedReason: string | null;
+  triggeredBy: string;
+  llmModel: string | null;
+  pending: number;
+  approved: number;
+  rejected: number;
+  promoted: number;
+}
+
+export interface DigestPromotedSkill {
+  candidateId: string;
+  name: string;
+  title: string;
+  promotedSkillName: string | null;
+  promotedAt: string | null;
+}
+
+export interface WeeklyDigest {
+  week: string;
+  weekStart: string;
+  weekEnd: string;
+  totals: {
+    runs: number;
+    notesScanned: number;
+    candidatesCreated: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+    promoted: number;
+  };
+  runs: DigestRunSummary[];
+  topPromoted: DigestPromotedSkill[];
+}

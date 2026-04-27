@@ -9,6 +9,7 @@ import {
   SquarePen,
   Network,
   Boxes,
+  CalendarDays,
   Lightbulb,
   Repeat,
   Settings,
@@ -104,7 +105,8 @@ export function Sidebar() {
         <SidebarSection label="Company">
           <SidebarNavItem to="/org" label="Org" icon={Network} />
           <SidebarNavItem to="/skills" label="Skills" icon={Boxes} end />
-          <SidebarNavItem to="/skills/candidates" label="Skill Candidates" icon={Lightbulb} />
+          <SidebarNavItem to="/skills/candidates" label="Skill Candidates" icon={Lightbulb} end />
+          <SidebarNavItem to="/skills/digest" label="Weekly Digest" icon={CalendarDays} />
           <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />
           <SidebarNavItem to="/activity" label="Activity" icon={History} />
           <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />

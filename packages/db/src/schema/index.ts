@@ -70,6 +70,11 @@ export {
   type SkillCandidateRow,
   type SkillCandidateInsert,
 } from "./skill_candidates.js";
+export {
+  miningRuns,
+  type MiningRunRow,
+  type MiningRunInsert,
+} from "./mining_runs.js";
 export { emotionalIncidents } from "./emotional_incidents.js";
 export {
   petagentPlugins,
