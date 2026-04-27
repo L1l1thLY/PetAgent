@@ -75,6 +75,11 @@ export {
   type MiningRunRow,
   type MiningRunInsert,
 } from "./mining_runs.js";
+export {
+  skillInvocations,
+  type SkillInvocationRow,
+  type SkillInvocationInsert,
+} from "./skill_invocations.js";
 export { emotionalIncidents } from "./emotional_incidents.js";
 export {
   petagentPlugins,

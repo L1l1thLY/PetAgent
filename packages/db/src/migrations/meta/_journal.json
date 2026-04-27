@@ -435,6 +435,13 @@
       "when": 1777252456320,
       "tag": "0061_big_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1777253112021,
+      "tag": "0062_dark_manta",
+      "breakpoints": true
     }
   ]
 }
