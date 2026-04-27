@@ -42,6 +42,7 @@ import { createLLMRouter } from "./composition/llm-router.js";
 import { buildSkillMinerRunnerDeps } from "./composition/skill-miner.js";
 import { startSkillMiningRoutine } from "./skill-miner/routine.js";
 import { startSkillArchiveRoutine } from "./skill-miner/archive-routine.js";
+import { startSkillRollbackRoutine } from "./skill-miner/auto-rollback-routine.js";
 import { DrizzleSkillRepository } from "./skill-miner/drizzle-skill-repo.js";
 import { skillCandidatesRoutes } from "./routes/skill-candidates.js";
 import { createBudgetAlertEmailNotifier } from "./composition/budget-alert-notifier.js";
@@ -329,6 +330,31 @@ export async function createApp(
         Number.isFinite(archiveDays) && archiveDays > 0 ? archiveDays : 30
       }d)`,
     );
+  }
+
+  if (process.env.PETAGENT_SKILL_ROLLBACK_ENABLED === "true") {
+    const rollbackIntervalMs = Number(process.env.PETAGENT_SKILL_ROLLBACK_INTERVAL_MS);
+    const minSamples = Number(process.env.PETAGENT_SKILL_ROLLBACK_MIN_SAMPLES);
+    const minSuccessRate = Number(process.env.PETAGENT_SKILL_ROLLBACK_MIN_SUCCESS_RATE);
+    startSkillRollbackRoutine({
+      db,
+      intervalMs:
+        Number.isFinite(rollbackIntervalMs) && rollbackIntervalMs > 0
+          ? rollbackIntervalMs
+          : undefined,
+      config: {
+        minSamples:
+          Number.isFinite(minSamples) && minSamples > 0 ? minSamples : 10,
+        minSuccessRate:
+          Number.isFinite(minSuccessRate) &&
+          minSuccessRate > 0 &&
+          minSuccessRate <= 1
+            ? minSuccessRate
+            : 0.5,
+      },
+      logger: console,
+    });
+    console.log(`[petagent] skill-rollback routine started (hourly)`);
   }
 
   const budgetEmailNotifier = createBudgetAlertEmailNotifier(process.env);
