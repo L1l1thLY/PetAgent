@@ -1,4 +1,4 @@
-# PetAgent
+# AgentCompany：PetAgent
 
 > 一个人，一家 AI 公司 —— 有温度地经营，让员工持续进化。
 
