@@ -12,7 +12,8 @@
     "./session-hooks": "./src/session_hooks.ts",
     "./runtime/managed-agents": "./src/runtime/managed_agents.ts",
     "./runtime/local-process": "./src/runtime/local_process.ts",
-    "./runtime/worktree": "./src/runtime/worktree.ts"
+    "./runtime/worktree": "./src/runtime/worktree.ts",
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public",

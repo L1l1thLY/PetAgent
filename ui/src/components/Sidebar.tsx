@@ -13,6 +13,10 @@ import {
   Lightbulb,
   Repeat,
   Settings,
+  Columns3,
+  UserSquare2,
+  NotebookText,
+  HeartPulse,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarSection } from "./SidebarSection";
@@ -75,6 +79,7 @@ export function Sidebar() {
             <span className="truncate">New Issue</span>
           </button>
           <SidebarNavItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} liveCount={liveRunCount} />
+          <SidebarNavItem to="/board" label="Board" icon={Columns3} />
           <SidebarNavItem
             to="/inbox"
             label="Inbox"
@@ -104,9 +109,12 @@ export function Sidebar() {
 
         <SidebarSection label="Company">
           <SidebarNavItem to="/org" label="Org" icon={Network} />
+          <SidebarNavItem to="/roles" label="Roles" icon={UserSquare2} />
           <SidebarNavItem to="/skills" label="Skills" icon={Boxes} end />
           <SidebarNavItem to="/skills/candidates" label="Skill Candidates" icon={Lightbulb} end />
           <SidebarNavItem to="/skills/digest" label="Weekly Digest" icon={CalendarDays} />
+          <SidebarNavItem to="/notes" label="Notes" icon={NotebookText} />
+          <SidebarNavItem to="/interventions" label="Interventions" icon={HeartPulse} />
           <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />
           <SidebarNavItem to="/activity" label="Activity" icon={History} />
           <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />
