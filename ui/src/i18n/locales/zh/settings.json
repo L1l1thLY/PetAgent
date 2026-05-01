@@ -1,0 +1,73 @@
+{
+  "breadcrumb": {
+    "instanceSettings": "实例设置",
+    "general": "通用"
+  },
+  "header": {
+    "title": "通用",
+    "subtitle": "配置影响运维可见日志展示方式的实例级默认项。"
+  },
+  "loadingState": "正在加载通用设置…",
+  "loadFailed": "加载通用设置失败。",
+  "updateFailed": "更新通用设置失败。",
+  "signOutFailed": "退出登录失败。",
+  "deployment": {
+    "heading": "部署与认证",
+    "localTrusted": "本地受信任模式针对本地运维者优化。浏览器请求以本地 Board 上下文运行,无需登录。",
+    "authenticatedPublic": "认证公开模式要求登录才能访问 Board,适用于公网 URL。",
+    "authenticatedPrivate": "认证私网模式要求登录,适用于 LAN、VPN 或其他私网部署。",
+    "authReadiness": "认证就绪",
+    "bootstrapStatus": "引导状态",
+    "bootstrapInvite": "引导邀请",
+    "ready": "就绪",
+    "notReady": "未就绪",
+    "setupRequired": "需要配置",
+    "active": "已启用",
+    "none": "无"
+  },
+  "censor": {
+    "heading": "在日志中隐去用户名",
+    "description": "在 home 目录路径和类似的运维可见日志输出中隐去用户名段。脱离路径的孤立用户名提及尚未在实时转录视图中被屏蔽。默认关闭。",
+    "ariaLabel": "切换日志用户名屏蔽"
+  },
+  "shortcuts": {
+    "heading": "键盘快捷键",
+    "description": "启用应用快捷键,包括 Inbox 导航,以及创建 Issue、切换面板等全局快捷键。默认关闭。",
+    "ariaLabel": "切换键盘快捷键"
+  },
+  "language": {
+    "heading": "语言",
+    "description": "选择 PetAgent 界面显示语言。切换立即生效。",
+    "english": "English",
+    "chinese": "中文"
+  },
+  "backup": {
+    "heading": "备份保留",
+    "description": "配置自动数据库备份各档保留时长。每日备份完整保留,随后每周抽稀一份、每月抽稀一份。备份采用 gzip 压缩。",
+    "daily": "每日",
+    "weekly": "每周",
+    "monthly": "每月",
+    "days": "{{count}} 天",
+    "week_one": "{{count}} 周",
+    "week_other": "{{count}} 周",
+    "month_one": "{{count}} 个月",
+    "month_other": "{{count}} 个月"
+  },
+  "feedback": {
+    "heading": "AI 反馈共享",
+    "description": "控制点赞/点踩是否能把对应的 AI 输出回传给 PetAgent Labs。投票本身始终保存在本地。",
+    "termsLink": "阅读服务条款",
+    "promptHint": "尚未保存默认值。下次点赞或点踩时会询问一次,之后保存为默认。",
+    "alwaysAllow": "始终允许",
+    "alwaysAllowDescription": "自动共享被投票的 AI 输出。",
+    "dontAllow": "不允许",
+    "dontAllowDescription": "被投票的 AI 输出仅保留在本地。",
+    "footnote": "若需在本地开发重测首用提示,把本实例 {{row}} JSON 行里的 {{key}} 键删掉、或重置为 {{prompt}}。未设置和 {{prompt}} 都表示尚未选择默认。"
+  },
+  "signOut": {
+    "heading": "退出登录",
+    "description": "退出这个 PetAgent 实例。你将被重定向到登录页。",
+    "button": "退出登录",
+    "buttonPending": "正在退出…"
+  }
+}

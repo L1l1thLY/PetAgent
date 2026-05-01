@@ -1,0 +1,27 @@
+{
+  "breadcrumb": "Board",
+  "selectCompany": "从切换器中选择一家公司以查看其 Board。",
+  "employeeBar": {
+    "noEmployees": "还没有员工 —— 从右侧 Role 面板拖一个过来招聘。",
+    "section": "员工",
+    "rolePalette": "Role 面板"
+  },
+  "kanban": {
+    "todo": "待处理",
+    "inProgress": "进行中",
+    "done": "已完成"
+  },
+  "issueCard": {
+    "noAssignee": "未分配",
+    "consecutiveFailuresFlag": "检测到连续失败"
+  },
+  "hireDialog": {
+    "title": "招聘一个新的 {{role}}",
+    "submit": "招聘",
+    "cancel": "取消",
+    "nameLabel": "名称",
+    "namePlaceholder": "留空自动生成",
+    "reportsToLabel": "汇报对象",
+    "reportsToNone": "(无主管)"
+  }
+}

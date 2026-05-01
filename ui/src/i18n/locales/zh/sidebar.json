@@ -1,0 +1,54 @@
+{
+  "openAccountMenu": "打开账号菜单",
+  "boardFallbackName": "Board",
+  "signedIn": "已登录",
+  "localWorkspaceBoard": "本地工作区 Board",
+  "accountBadge": "账号",
+  "localBadge": "本地",
+  "version": "PetAgent v{{version}}",
+  "editProfile": {
+    "label": "编辑个人资料",
+    "description": "更新你的显示名和头像。"
+  },
+  "instanceSettings": {
+    "label": "实例设置",
+    "description": "跳回你上次打开的设置页面。"
+  },
+  "documentation": {
+    "label": "文档",
+    "description": "在新标签页打开 PetAgent 文档。"
+  },
+  "themeToggle": {
+    "switchToLight": "切换到浅色模式",
+    "switchToDark": "切换到深色模式",
+    "description": "切换应用外观。"
+  },
+  "languageToggle": {
+    "label": "English / 中文",
+    "description": "在中文和英文之间切换。"
+  },
+  "signOut": {
+    "label": "退出登录",
+    "labelPending": "正在退出…",
+    "description": "结束这个浏览器会话。"
+  },
+  "nav": {
+    "inbox": "收件箱",
+    "board": "Board",
+    "issues": "Issue",
+    "dashboard": "仪表盘",
+    "agents": "Agent",
+    "projects": "项目",
+    "approvals": "审批",
+    "costs": "成本",
+    "history": "历史",
+    "schedules": "调度",
+    "skills": "Skill",
+    "ideas": "灵感",
+    "automations": "自动化",
+    "roles": "Role",
+    "interventions": "情绪介入",
+    "notes": "Notes",
+    "newIssue": "新建 Issue"
+  }
+}

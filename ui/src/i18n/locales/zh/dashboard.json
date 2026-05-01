@@ -1,0 +1,36 @@
+{
+  "breadcrumb": "仪表盘",
+  "welcome": "欢迎使用 PetAgent。先创建你的第一家公司和 Agent 即可开始。",
+  "getStarted": "立即开始",
+  "selectCompany": "创建或选择一家公司以查看仪表盘。",
+  "noAgents": "你还没有 Agent。",
+  "createOneHere": "在这里创建一个",
+  "openBudgets": "打开预算",
+  "metrics": {
+    "agentsEnabled": "已启用 Agent",
+    "agentsBreakdown": "{{running}} 运行中,{{paused}} 已暂停,{{error}} 错误",
+    "tasksInProgress": "进行中任务",
+    "tasksBreakdown": "{{open}} 待处理,{{blocked}} 阻塞",
+    "monthSpend": "本月花销",
+    "monthBudgetUsed": "已用 {{percent}}%(总预算 {{budget}})",
+    "unlimitedBudget": "无限制预算",
+    "pendingApprovals": "待审批",
+    "budgetOverridesAwaiting": "{{count}} 项预算覆盖待 Board 审批",
+    "awaitingBoardReview": "等待 Board 审批"
+  },
+  "charts": {
+    "runActivity": "运行活动",
+    "issuesByPriority": "按优先级分组的 Issue",
+    "issuesByStatus": "按状态分组的 Issue",
+    "successRate": "成功率",
+    "last14Days": "最近 14 天"
+  },
+  "recentActivity": "最近活动",
+  "recentTasks": "最近任务",
+  "noTasksYet": "暂无任务。",
+  "budgetIncident": {
+    "title_one": "{{count}} 项活跃预算告警",
+    "title_other": "{{count}} 项活跃预算告警",
+    "summary": "{{pausedAgents}} 个 Agent 暂停 · {{pausedProjects}} 个项目暂停 · {{pendingApprovals}} 项预算审批待处理"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "breadcrumb": "Dashboard",
+  "welcome": "Welcome to PetAgent. Set up your first company and agent to get started.",
+  "getStarted": "Get Started",
+  "selectCompany": "Create or select a company to view the dashboard.",
+  "noAgents": "You have no agents.",
+  "createOneHere": "Create one here",
+  "openBudgets": "Open budgets",
+  "metrics": {
+    "agentsEnabled": "Agents Enabled",
+    "agentsBreakdown": "{{running}} running, {{paused}} paused, {{error}} errors",
+    "tasksInProgress": "Tasks In Progress",
+    "tasksBreakdown": "{{open}} open, {{blocked}} blocked",
+    "monthSpend": "Month Spend",
+    "monthBudgetUsed": "{{percent}}% of {{budget}} budget",
+    "unlimitedBudget": "Unlimited budget",
+    "pendingApprovals": "Pending Approvals",
+    "budgetOverridesAwaiting": "{{count}} budget overrides awaiting board review",
+    "awaitingBoardReview": "Awaiting board review"
+  },
+  "charts": {
+    "runActivity": "Run Activity",
+    "issuesByPriority": "Issues by Priority",
+    "issuesByStatus": "Issues by Status",
+    "successRate": "Success Rate",
+    "last14Days": "Last 14 days"
+  },
+  "recentActivity": "Recent Activity",
+  "recentTasks": "Recent Tasks",
+  "noTasksYet": "No tasks yet.",
+  "budgetIncident": {
+    "title_one": "{{count}} active budget incident",
+    "title_other": "{{count}} active budget incidents",
+    "summary": "{{pausedAgents}} agents paused · {{pausedProjects}} projects paused · {{pendingApprovals}} pending budget approvals"
+  }
+}

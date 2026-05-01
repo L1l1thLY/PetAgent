@@ -1,0 +1,54 @@
+{
+  "openAccountMenu": "Open account menu",
+  "boardFallbackName": "Board",
+  "signedIn": "Signed in",
+  "localWorkspaceBoard": "Local workspace board",
+  "accountBadge": "Account",
+  "localBadge": "Local",
+  "version": "PetAgent v{{version}}",
+  "editProfile": {
+    "label": "Edit profile",
+    "description": "Update your display name and avatar."
+  },
+  "instanceSettings": {
+    "label": "Instance settings",
+    "description": "Jump back to the last settings page you opened."
+  },
+  "documentation": {
+    "label": "Documentation",
+    "description": "Open PetAgent docs in a new tab."
+  },
+  "themeToggle": {
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
+    "description": "Toggle the app appearance."
+  },
+  "languageToggle": {
+    "label": "中文 / English",
+    "description": "Switch between English and Chinese."
+  },
+  "signOut": {
+    "label": "Sign out",
+    "labelPending": "Signing out...",
+    "description": "End this browser session."
+  },
+  "nav": {
+    "inbox": "Inbox",
+    "board": "Board",
+    "issues": "Issues",
+    "dashboard": "Dashboard",
+    "agents": "Agents",
+    "projects": "Projects",
+    "approvals": "Approvals",
+    "costs": "Costs",
+    "history": "History",
+    "schedules": "Schedules",
+    "skills": "Skills",
+    "ideas": "Ideas",
+    "automations": "Automations",
+    "roles": "Roles",
+    "interventions": "Interventions",
+    "notes": "Notes",
+    "newIssue": "New Issue"
+  }
+}

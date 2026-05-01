@@ -1,0 +1,27 @@
+{
+  "breadcrumb": "Board",
+  "selectCompany": "Select a company from the switcher to see its board.",
+  "employeeBar": {
+    "noEmployees": "No employees yet — drag a role from the palette to hire.",
+    "section": "Employees",
+    "rolePalette": "Role palette"
+  },
+  "kanban": {
+    "todo": "To do",
+    "inProgress": "In progress",
+    "done": "Done"
+  },
+  "issueCard": {
+    "noAssignee": "Unassigned",
+    "consecutiveFailuresFlag": "Consecutive failures detected"
+  },
+  "hireDialog": {
+    "title": "Hire a new {{role}}",
+    "submit": "Hire",
+    "cancel": "Cancel",
+    "nameLabel": "Name",
+    "namePlaceholder": "Leave blank to auto-generate",
+    "reportsToLabel": "Reports to",
+    "reportsToNone": "(no manager)"
+  }
+}
