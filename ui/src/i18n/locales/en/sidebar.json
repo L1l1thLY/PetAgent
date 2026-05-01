@@ -49,6 +49,15 @@
     "roles": "Roles",
     "interventions": "Interventions",
     "notes": "Notes",
-    "newIssue": "New Issue"
+    "newIssue": "New Issue",
+    "work": "Work",
+    "routines": "Routines",
+    "goals": "Goals",
+    "company": "Company",
+    "org": "Org",
+    "skillCandidates": "Skill Candidates",
+    "weeklyDigest": "Weekly Digest",
+    "activity": "Activity",
+    "settings": "Settings"
   }
 }

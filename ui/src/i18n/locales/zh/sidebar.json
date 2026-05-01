@@ -49,6 +49,15 @@
     "roles": "Role",
     "interventions": "情绪介入",
     "notes": "Notes",
-    "newIssue": "新建 Issue"
+    "newIssue": "新建 Issue",
+    "work": "工作",
+    "routines": "日常任务",
+    "goals": "目标",
+    "company": "公司",
+    "org": "组织架构",
+    "skillCandidates": "Skill 候选",
+    "weeklyDigest": "每周摘要",
+    "activity": "动态",
+    "settings": "设置"
   }
 }

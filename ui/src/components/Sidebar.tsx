@@ -18,6 +18,7 @@ import {
   NotebookText,
   HeartPulse,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarNavItem } from "./SidebarNavItem";
@@ -33,6 +34,7 @@ import { PluginSlotOutlet } from "@/plugins/slots";
 import { SidebarCompanyMenu } from "./SidebarCompanyMenu";
 
 export function Sidebar() {
+  const { t } = useTranslation("sidebar");
   const { openNewIssue } = useDialog();
   const { selectedCompanyId, selectedCompany } = useCompany();
   const inboxBadge = useInboxBadge(selectedCompanyId);
@@ -76,13 +78,13 @@ export function Sidebar() {
             className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground hover:glass-subtle hover:text-foreground transition-colors"
           >
             <SquarePen className="h-4 w-4 shrink-0" />
-            <span className="truncate">New Issue</span>
+            <span className="truncate">{t("nav.newIssue")}</span>
           </button>
-          <SidebarNavItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} liveCount={liveRunCount} />
-          <SidebarNavItem to="/board" label="Board" icon={Columns3} />
+          <SidebarNavItem to="/dashboard" label={t("nav.dashboard")} icon={LayoutDashboard} liveCount={liveRunCount} />
+          <SidebarNavItem to="/board" label={t("nav.board")} icon={Columns3} />
           <SidebarNavItem
             to="/inbox"
-            label="Inbox"
+            label={t("nav.inbox")}
             icon={Inbox}
             badge={inboxBadge.inbox}
             badgeTone={inboxBadge.failedRuns > 0 ? "danger" : "default"}
@@ -97,27 +99,27 @@ export function Sidebar() {
           />
         </div>
 
-        <SidebarSection label="Work">
-          <SidebarNavItem to="/issues" label="Issues" icon={CircleDot} />
-          <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />
-          <SidebarNavItem to="/goals" label="Goals" icon={Target} />
+        <SidebarSection label={t("nav.work")}>
+          <SidebarNavItem to="/issues" label={t("nav.issues")} icon={CircleDot} />
+          <SidebarNavItem to="/routines" label={t("nav.routines")} icon={Repeat} />
+          <SidebarNavItem to="/goals" label={t("nav.goals")} icon={Target} />
         </SidebarSection>
 
         <SidebarProjects />
 
         <SidebarAgents />
 
-        <SidebarSection label="Company">
-          <SidebarNavItem to="/org" label="Org" icon={Network} />
-          <SidebarNavItem to="/roles" label="Roles" icon={UserSquare2} />
-          <SidebarNavItem to="/skills" label="Skills" icon={Boxes} end />
-          <SidebarNavItem to="/skills/candidates" label="Skill Candidates" icon={Lightbulb} end />
-          <SidebarNavItem to="/skills/digest" label="Weekly Digest" icon={CalendarDays} />
-          <SidebarNavItem to="/notes" label="Notes" icon={NotebookText} />
-          <SidebarNavItem to="/interventions" label="Interventions" icon={HeartPulse} />
-          <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />
-          <SidebarNavItem to="/activity" label="Activity" icon={History} />
-          <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />
+        <SidebarSection label={t("nav.company")}>
+          <SidebarNavItem to="/org" label={t("nav.org")} icon={Network} />
+          <SidebarNavItem to="/roles" label={t("nav.roles")} icon={UserSquare2} />
+          <SidebarNavItem to="/skills" label={t("nav.skills")} icon={Boxes} end />
+          <SidebarNavItem to="/skills/candidates" label={t("nav.skillCandidates")} icon={Lightbulb} end />
+          <SidebarNavItem to="/skills/digest" label={t("nav.weeklyDigest")} icon={CalendarDays} />
+          <SidebarNavItem to="/notes" label={t("nav.notes")} icon={NotebookText} />
+          <SidebarNavItem to="/interventions" label={t("nav.interventions")} icon={HeartPulse} />
+          <SidebarNavItem to="/costs" label={t("nav.costs")} icon={DollarSign} />
+          <SidebarNavItem to="/activity" label={t("nav.activity")} icon={History} />
+          <SidebarNavItem to="/company/settings" label={t("nav.settings")} icon={Settings} />
         </SidebarSection>
 
         <PluginSlotOutlet
