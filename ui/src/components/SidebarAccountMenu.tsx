@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "../lib/utils";
 
 const PROFILE_SETTINGS_PATH = "/instance/settings/profile";
-const DOCS_URL = "https://docs.petagent.ing/";
+const DOCS_URL = "https://github.com/L1l1thLY/AgentCompany";
 
 interface SidebarAccountMenuProps {
   deploymentMode?: DeploymentMode;

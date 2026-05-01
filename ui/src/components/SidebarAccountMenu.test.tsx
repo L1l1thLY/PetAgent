@@ -110,6 +110,9 @@ describe("SidebarAccountMenu", () => {
     expect(document.body.textContent).toContain("PetAgent v1.2.3");
     expect(document.body.textContent).toContain("jane@example.com");
 
+    const docsLink = document.body.querySelector('a[href="https://github.com/L1l1thLY/AgentCompany"]');
+    expect(docsLink).not.toBeNull();
+
     await act(async () => {
       root.unmount();
     });
