@@ -79,6 +79,14 @@ PetAgent 的所有重要变更都记录在这里。
 
 ## [Unreleased]
 
+### Added
+- Bilingual UI (English / 简体中文) with browser-language detection and an in-app toggle (sidebar account menu + Instance General Settings → Language). Phase 1 covers Sidebar, Dashboard, Instance General Settings, and Board; remaining pages migrate in Phase 2.
+- Language preference persisted to `localStorage` under the key `petagent.language`.
+
+### Changed
+- The default UI theme is now light. Existing users with `petagent.theme=dark` in localStorage are unaffected; only first-time visitors and users who clear localStorage see the new default.
+- Sidebar account menu Documentation link now points to the AgentCompany GitHub repo (https://github.com/L1l1thLY/AgentCompany) instead of the placeholder docs.petagent.ing URL.
+
 ## [0.1.0-m0] - 2026-04-19
 
 ### 里程碑 0：Fork 与重命名
