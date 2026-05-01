@@ -17,12 +17,12 @@ interface ThemeContextValue {
 }
 
 const THEME_STORAGE_KEY = "petagent.theme";
-const DARK_THEME_COLOR = "#18181b";
-const LIGHT_THEME_COLOR = "#ffffff";
+const DARK_THEME_COLOR = "#0c0e16";
+const LIGHT_THEME_COLOR = "#f4f1ec";
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function resolveThemeFromDocument(): Theme {
-  if (typeof document === "undefined") return "dark";
+  if (typeof document === "undefined") return "light";
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
@@ -81,3 +81,6 @@ export function useTheme() {
   }
   return context;
 }
+
+// Exported for unit tests; do not use in app code.
+export const resolveThemeFromDocumentForTest = resolveThemeFromDocument;
