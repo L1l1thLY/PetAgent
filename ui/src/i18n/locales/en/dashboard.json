@@ -1,9 +1,9 @@
 {
   "breadcrumb": "Dashboard",
-  "welcome": "Welcome to PetAgent. Set up your first company and agent to get started.",
+  "welcome": "Welcome to PetAgent. Set up your first company and Agent to get started.",
   "getStarted": "Get Started",
   "selectCompany": "Create or select a company to view the dashboard.",
-  "noAgents": "You have no agents.",
+  "noAgents": "You have no Agents.",
   "createOneHere": "Create one here",
   "openBudgets": "Open budgets",
   "metrics": {
