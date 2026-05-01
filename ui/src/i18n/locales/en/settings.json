@@ -62,7 +62,7 @@
     "alwaysAllowDescription": "Share voted AI outputs automatically.",
     "dontAllow": "Don't allow",
     "dontAllowDescription": "Keep voted AI outputs local only.",
-    "footnote": "To retest the first-use prompt in local dev, remove the {{key}} key from the {{row}} JSON row for this instance, or set it back to {{prompt}}. Unset and {{prompt}} both mean no default has been chosen yet."
+    "footnote": "To retest the first-use prompt in local dev, remove the <key/> key from the <row/> JSON row for this instance, or set it back to <prompt/>. Unset and <prompt/> both mean no default has been chosen yet."
   },
   "signOut": {
     "heading": "Sign out",

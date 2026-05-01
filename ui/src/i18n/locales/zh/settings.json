@@ -62,7 +62,7 @@
     "alwaysAllowDescription": "自动共享被投票的 AI 输出。",
     "dontAllow": "不允许",
     "dontAllowDescription": "被投票的 AI 输出仅保留在本地。",
-    "footnote": "若需在本地开发重测首用提示，把本实例 {{row}} JSON 行里的 {{key}} 键删掉、或重置为 {{prompt}}。未设置和 {{prompt}} 都表示尚未选择默认。"
+    "footnote": "若需在本地开发重测首用提示，把本实例 <row/> JSON 行里的 <key/> 键删掉、或重置为 <prompt/>。未设置和 <prompt/> 都表示尚未选择默认。"
   },
   "signOut": {
     "heading": "退出登录",

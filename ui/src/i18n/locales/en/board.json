@@ -9,9 +9,21 @@
   },
   "kanban": {
     "queued": "Queued",
-    "todo": "To do",
     "inProgress": "In progress",
     "done": "Done"
+  },
+  "agentStatus": {
+    "idle": "idle",
+    "active": "active",
+    "running": "running",
+    "paused": "paused",
+    "error": "error",
+    "pendingApproval": "pending approval",
+    "terminated": "terminated",
+    "unknown": "unknown"
+  },
+  "employeeCard": {
+    "unknownRole": "unknown"
   },
   "issueCard": {
     "noAssignee": "Unassigned",

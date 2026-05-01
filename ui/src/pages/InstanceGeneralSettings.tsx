@@ -8,7 +8,7 @@ import {
   DEFAULT_BACKUP_RETENTION,
 } from "@petagent/shared";
 import { LogOut, SlidersHorizontal } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { authApi } from "@/api/auth";
 import { healthApi } from "@/api/health";
 import { instanceSettingsApi } from "@/api/instanceSettings";
@@ -364,11 +364,14 @@ export function InstanceGeneralSettings() {
             })}
           </div>
           <p className="text-xs text-muted-foreground">
-            {t("feedback.footnote", {
-              key: "feedbackDataSharingPreference",
-              row: "instance_settings.general",
-              prompt: '"prompt"',
-            })}
+            <Trans
+              i18nKey="settings:feedback.footnote"
+              components={{
+                key: <code>feedbackDataSharingPreference</code>,
+                row: <code>instance_settings.general</code>,
+                prompt: <code>"prompt"</code>,
+              }}
+            />
           </p>
         </div>
       </section>

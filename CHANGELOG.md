@@ -4,6 +4,16 @@ PetAgent 的所有重要变更都记录在这里。
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)。
 
+## [Unreleased]
+
+### Added
+- Bilingual UI (English / 简体中文) with browser-language detection and an in-app toggle (sidebar account menu + Instance General Settings → Language). Phase 1 covers Sidebar, Dashboard, Instance General Settings, and Board; remaining pages migrate in Phase 2.
+- Language preference persisted to `localStorage` under the key `petagent.language`.
+
+### Changed
+- The default UI theme is now light. Existing users with `petagent.theme=dark` in localStorage are unaffected; only first-time visitors and users who clear localStorage see the new default.
+- Sidebar account menu Documentation link now points to the AgentCompany GitHub repo (https://github.com/L1l1thLY/AgentCompany) instead of the placeholder docs.petagent.ing URL.
+
 ## [0.2.0-m1] - 2026-04-23
 
 里程碑 1（M1）"Agent 家族 + Psychologist + Plugin 架构 + V1 UI 改造" 完成。全部 68 个 task ship；累计新增 ~518 个单测全绿；工作区 1922/2039 pass（4 个失败均为 M0 固有 embedded-postgres 并发初始化竞态 + worktree 5s 文件系统超时，与 M1 改动无关）。
@@ -76,16 +86,6 @@ PetAgent 的所有重要变更都记录在这里。
 - `BudgetAlertNotifier` 的 nodemailer-backed SMTP 实现 + `budget-check` 定时 routine + 100% 阈值 auto-pause 所有 issue（Group 12 Task 68 仅 ship evaluator + 端口）。
 - `role-template` watcher 文件更新后 UI 实时刷新（Task 58 server-side watcher ok；UI /roles 页当前靠 query staleTime）。
 - `NotificationBell` 组件实际嵌入 AppShell header（当前只建好组件未挂载）。
-
-## [Unreleased]
-
-### Added
-- Bilingual UI (English / 简体中文) with browser-language detection and an in-app toggle (sidebar account menu + Instance General Settings → Language). Phase 1 covers Sidebar, Dashboard, Instance General Settings, and Board; remaining pages migrate in Phase 2.
-- Language preference persisted to `localStorage` under the key `petagent.language`.
-
-### Changed
-- The default UI theme is now light. Existing users with `petagent.theme=dark` in localStorage are unaffected; only first-time visitors and users who clear localStorage see the new default.
-- Sidebar account menu Documentation link now points to the AgentCompany GitHub repo (https://github.com/L1l1thLY/AgentCompany) instead of the placeholder docs.petagent.ing URL.
 
 ## [0.1.0-m0] - 2026-04-19
 

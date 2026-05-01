@@ -59,12 +59,5 @@ void i18n.use(initReactI18next).init({
   },
 });
 
-// Persist whichever language ends up active so reload preserves choice.
-try {
-  safeStorage()?.setItem(LANGUAGE_STORAGE_KEY, initialLanguage);
-} catch {
-  /* ignore */
-}
-
 export { i18n };
 export default i18n;

@@ -9,9 +9,21 @@
   },
   "kanban": {
     "queued": "排队中",
-    "todo": "待处理",
     "inProgress": "进行中",
     "done": "已完成"
+  },
+  "agentStatus": {
+    "idle": "空闲",
+    "active": "活跃",
+    "running": "运行中",
+    "paused": "已暂停",
+    "error": "错误",
+    "pendingApproval": "待审批",
+    "terminated": "已终止",
+    "unknown": "未知"
+  },
+  "employeeCard": {
+    "unknownRole": "未知"
   },
   "issueCard": {
     "noAssignee": "未分配",
