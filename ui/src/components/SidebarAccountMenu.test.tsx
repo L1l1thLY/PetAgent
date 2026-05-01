@@ -5,6 +5,8 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SidebarAccountMenu } from "./SidebarAccountMenu";
+import { LanguageProvider } from "../context/LanguageContext";
+import "../i18n";
 
 const mockAuthApi = vi.hoisted(() => ({
   getSession: vi.fn(),
@@ -83,11 +85,13 @@ describe("SidebarAccountMenu", () => {
     await act(async () => {
       root.render(
         <QueryClientProvider client={queryClient}>
-          <SidebarAccountMenu
-            deploymentMode="authenticated"
-            instanceSettingsTarget="/instance/settings/general"
-            version="1.2.3"
-          />
+          <LanguageProvider>
+            <SidebarAccountMenu
+              deploymentMode="authenticated"
+              instanceSettingsTarget="/instance/settings/general"
+              version="1.2.3"
+            />
+          </LanguageProvider>
         </QueryClientProvider>,
       );
     });
@@ -109,6 +113,7 @@ describe("SidebarAccountMenu", () => {
     expect(document.body.textContent).toContain("Documentation");
     expect(document.body.textContent).toContain("PetAgent v1.2.3");
     expect(document.body.textContent).toContain("jane@example.com");
+    expect(document.body.textContent).toContain("中文 / English");
 
     const docsLink = document.body.querySelector('a[href="https://github.com/L1l1thLY/AgentCompany"]');
     expect(docsLink).not.toBeNull();

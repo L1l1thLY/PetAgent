@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
+  Languages,
   LogOut,
   type LucideIcon,
   Moon,
@@ -9,6 +10,8 @@ import {
   Sun,
   UserRoundPen,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "../context/LanguageContext";
 import type { DeploymentMode } from "@petagent/shared";
 import { Link } from "@/lib/router";
 import { authApi } from "@/api/auth";
@@ -93,6 +96,8 @@ export function SidebarAccountMenu({
   const queryClient = useQueryClient();
   const { isMobile, setSidebarOpen } = useSidebar();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation("sidebar");
+  const { toggleLanguage } = useLanguage();
   const { data: session } = useQuery({
     queryKey: queryKeys.auth.session,
     queryFn: () => authApi.getSession(),
@@ -107,10 +112,11 @@ export function SidebarAccountMenu({
     },
   });
 
-  const displayName = session?.user.name?.trim() || "Board";
+  const displayName = session?.user.name?.trim() || t("boardFallbackName");
   const secondaryLabel =
-    session?.user.email?.trim() || (deploymentMode === "authenticated" ? "Signed in" : "Local workspace board");
-  const accountBadge = deploymentMode === "authenticated" ? "Account" : "Local";
+    session?.user.email?.trim() ||
+    (deploymentMode === "authenticated" ? t("signedIn") : t("localWorkspaceBoard"));
+  const accountBadge = deploymentMode === "authenticated" ? t("accountBadge") : t("localBadge");
   const initials = deriveInitials(displayName);
 
   function closeNavigationChrome() {
@@ -125,7 +131,7 @@ export function SidebarAccountMenu({
           <button
             type="button"
             className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] font-medium text-foreground/80 transition-colors hover:bg-accent/50 hover:text-foreground"
-            aria-label="Open account menu"
+            aria-label={t("openAccountMenu")}
           >
             <Avatar size="sm">
               {session?.user.image ? <AvatarImage src={session.user.image} alt={displayName} /> : null}
@@ -158,40 +164,53 @@ export function SidebarAccountMenu({
                 </div>
                 <p className="truncate text-sm text-muted-foreground">{secondaryLabel}</p>
                 {version ? (
-                  <p className="mt-1 text-xs text-muted-foreground">PetAgent v{version}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("version", { version })}</p>
                 ) : null}
               </div>
             </div>
 
             <div className="mt-4 space-y-1">
               <MenuAction
-                label="Edit profile"
-                description="Update your display name and avatar."
+                label={t("editProfile.label")}
+                description={t("editProfile.description")}
                 icon={UserRoundPen}
                 href={PROFILE_SETTINGS_PATH}
                 onClick={closeNavigationChrome}
               />
               <MenuAction
-                label="Instance settings"
-                description="Jump back to the last settings page you opened."
+                label={t("instanceSettings.label")}
+                description={t("instanceSettings.description")}
                 icon={Settings}
                 href={instanceSettingsTarget}
                 onClick={closeNavigationChrome}
               />
               <MenuAction
-                label="Documentation"
-                description="Open PetAgent docs in a new tab."
+                label={t("documentation.label")}
+                description={t("documentation.description")}
                 icon={BookOpen}
                 href={DOCS_URL}
                 external
                 onClick={() => setOpen(false)}
               />
               <MenuAction
-                label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                description="Toggle the app appearance."
+                label={
+                  theme === "dark"
+                    ? t("themeToggle.switchToLight")
+                    : t("themeToggle.switchToDark")
+                }
+                description={t("themeToggle.description")}
                 icon={theme === "dark" ? Sun : Moon}
                 onClick={() => {
                   toggleTheme();
+                  setOpen(false);
+                }}
+              />
+              <MenuAction
+                label={t("languageToggle.label")}
+                description={t("languageToggle.description")}
+                icon={Languages}
+                onClick={() => {
+                  toggleLanguage();
                   setOpen(false);
                 }}
               />
@@ -210,10 +229,10 @@ export function SidebarAccountMenu({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-medium text-foreground">
-                      {signOutMutation.isPending ? "Signing out..." : "Sign out"}
+                      {signOutMutation.isPending ? t("signOut.labelPending") : t("signOut.label")}
                     </span>
                     <span className="block text-xs text-muted-foreground">
-                      End this browser session.
+                      {t("signOut.description")}
                     </span>
                   </span>
                 </button>
