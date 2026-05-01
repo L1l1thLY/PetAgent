@@ -2,26 +2,36 @@
   "breadcrumb": "Board",
   "selectCompany": "Select a company from the switcher to see its board.",
   "employeeBar": {
-    "noEmployees": "No employees yet — drag a role from the palette to hire.",
+    "noEmployees": "No agents yet — drag a role card from the palette to hire the first member.",
     "section": "Employees",
-    "rolePalette": "Role palette"
+    "rolePalette": "Role palette",
+    "rolePaletteHint": "Drag onto the board to hire, or click to open the HireDialog."
   },
   "kanban": {
+    "queued": "Queued",
     "todo": "To do",
     "inProgress": "In progress",
     "done": "Done"
   },
   "issueCard": {
     "noAssignee": "Unassigned",
-    "consecutiveFailuresFlag": "Consecutive failures detected"
+    "consecutiveFailuresFlag": "⚠️ {{count}} failures in a row"
   },
   "hireDialog": {
-    "title": "Hire a new {{role}}",
+    "title": "Hire {{role}}",
     "submit": "Hire",
+    "submitting": "Hiring…",
     "cancel": "Cancel",
     "nameLabel": "Name",
-    "namePlaceholder": "Leave blank to auto-generate",
-    "reportsToLabel": "Reports to",
+    "namePlaceholder": "e.g. Corvus",
+    "titleLabel": "Title (optional)",
+    "adapterTypeLabel": "Adapter type",
+    "roleTypeLabel": "Role type",
+    "modelLabel": "Model (optional)",
+    "budgetLabel": "Budget (USD/mo)",
+    "skillsLabel": "Skills (comma-separated)",
+    "skillsPlaceholder": "minimal-diff, verify-before-commit",
+    "reportsToLabel": "Reports to (optional UUID)",
     "reportsToNone": "(no manager)"
   }
 }

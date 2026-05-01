@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import type { DragEvent } from "react";
 import type { Agent, Issue } from "@petagent/shared";
@@ -28,14 +29,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 
 export function Board() {
+  const { t } = useTranslation("board");
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const [pendingHire, setPendingHire] = useState<RoleTemplateDescriptor | null>(null);
   const [isDraggingOver, setDraggingOver] = useState(false);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Board" }]);
-  }, [setBreadcrumbs]);
+    setBreadcrumbs([{ label: t("breadcrumb") }]);
+  }, [setBreadcrumbs, t]);
 
   const agentsQuery = useQuery({
     queryKey: queryKeys.agents.list(selectedCompanyId ?? "__none__"),
@@ -66,7 +68,7 @@ export function Board() {
     return (
       <EmptyState
         icon={Users}
-        message="Select a company from the switcher to see its board."
+        message={t("selectCompany")}
       />
     );
   }
@@ -106,9 +108,9 @@ export function Board() {
       <div className="flex gap-4">
         <RolePalette roles={roles} onPickRole={setPendingHire} />
         <div className="grid flex-1 grid-cols-1 gap-3 md:grid-cols-3">
-          <KanbanColumn title="Queued" issues={buckets.queued} agents={agents} />
-          <KanbanColumn title="In progress" issues={buckets.inProgress} agents={agents} />
-          <KanbanColumn title="Done" issues={buckets.done} agents={agents} />
+          <KanbanColumn title={t("kanban.queued")} issues={buckets.queued} agents={agents} />
+          <KanbanColumn title={t("kanban.inProgress")} issues={buckets.inProgress} agents={agents} />
+          <KanbanColumn title={t("kanban.done")} issues={buckets.done} agents={agents} />
         </div>
       </div>
       {pendingHire && (
@@ -154,12 +156,12 @@ function EmployeeBar({
 }: {
   agentsByRole: Array<{ roleType: string; agents: Agent[] }>;
 }) {
+  const { t } = useTranslation("board");
   if (agentsByRole.length === 0) {
     return (
       <Card>
         <CardContent className="p-3 text-sm text-muted-foreground">
-          No agents yet — drag a role card from the palette to hire the first
-          member.
+          {t("employeeBar.noEmployees")}
         </CardContent>
       </Card>
     );
@@ -192,16 +194,17 @@ function RolePalette({
   onPickRole,
 }: {
   roles: ReadonlyArray<RoleTemplateDescriptor>;
-  onPickRole: (t: RoleTemplateDescriptor) => void;
+  onPickRole: (role: RoleTemplateDescriptor) => void;
 }) {
+  const { t } = useTranslation("board");
   return (
     <Card className="min-w-[12rem] max-w-[14rem] self-start">
       <CardHeader>
-        <CardTitle className="text-sm">Role palette</CardTitle>
+        <CardTitle className="text-sm">{t("employeeBar.rolePalette")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <p className="text-[10px] text-muted-foreground">
-          Drag onto the board to hire, or click to open the HireDialog.
+          {t("employeeBar.rolePaletteHint")}
         </p>
         {roles.map((role) => (
           <button
@@ -265,6 +268,7 @@ function IssueCard({
   issue: Issue;
   agents: ReadonlyArray<Agent>;
 }) {
+  const { t } = useTranslation("board");
   const assignee = issue.assigneeAgentId
     ? agents.find((a) => a.id === issue.assigneeAgentId)
     : null;
@@ -293,7 +297,7 @@ function IssueCard({
       <div className="font-medium">{issue.title}</div>
       {failures.shouldFlag && (
         <p className="text-[10px] font-medium text-yellow-900 dark:text-yellow-200">
-          {failures.label}
+          {t("issueCard.consecutiveFailuresFlag", { count: failures.consecutiveFailures })}
         </p>
       )}
     </div>
