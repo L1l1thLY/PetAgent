@@ -13,7 +13,7 @@ export function InstanceSidebar() {
   });
 
   return (
-    <aside className="w-60 h-full min-h-0 border-r border-border bg-background flex flex-col">
+    <aside className="glass w-60 h-full min-h-0 rounded-none border-y-0 border-l-0 border-r border-r-[var(--glass-border)] shadow-none flex flex-col">
       <div className="flex items-center gap-2 px-3 h-12 shrink-0">
         <Settings className="h-4 w-4 text-muted-foreground shrink-0 ml-1" />
         <span className="flex-1 text-sm font-bold text-foreground truncate">
@@ -32,7 +32,7 @@ export function InstanceSidebar() {
           <SidebarNavItem to="/instance/settings/plugins" label="Plugins" icon={Puzzle} />
           <SidebarNavItem to="/instance/settings/adapters" label="Adapters" icon={Cpu} />
           {(plugins ?? []).length > 0 ? (
-            <div className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-border/70 pl-3">
+            <div className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-[var(--glass-border)] pl-3">
               {(plugins ?? []).map((plugin) => (
                 <NavLink
                   key={plugin.id}

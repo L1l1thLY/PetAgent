@@ -25,7 +25,28 @@ npx petagentai run
 
 ## Local Development
 
-For contributors working on PetAgent itself. Prerequisites: Node.js 20+ and pnpm 9+.
+For contributors working on PetAgent itself.
+
+**Prerequisites:**
+- Node.js 20+ and pnpm 9+
+- **PostgreSQL + pgvector**. The bundled `embedded-postgres` binary does NOT include pgvector, and migration `0058` requires it. You must install Postgres + pgvector and point PetAgent at it via `DATABASE_URL`:
+
+  ```sh
+  # macOS
+  brew install postgresql@17 pgvector
+  brew services start postgresql@17
+  createdb petagent
+  psql petagent -c "CREATE EXTENSION vector"
+  export DATABASE_URL=postgresql://$(whoami)@localhost:5432/petagent
+  ```
+
+  ```sh
+  # Linux (Debian/Ubuntu)
+  sudo apt install postgresql postgresql-17-pgvector  # adjust version
+  sudo -u postgres createdb petagent
+  sudo -u postgres psql petagent -c "CREATE EXTENSION vector"
+  export DATABASE_URL=postgresql://postgres@localhost:5432/petagent
+  ```
 
 Clone the repository, then:
 
@@ -35,8 +56,6 @@ pnpm dev
 ```
 
 This starts the API server and UI at [http://localhost:3100](http://localhost:3100).
-
-No external database required — PetAgent uses an embedded PostgreSQL instance by default.
 
 When working from the cloned repo, you can also use:
 

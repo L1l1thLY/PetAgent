@@ -95,7 +95,7 @@ export function Board() {
 
   return (
     <div
-      className={`flex flex-col gap-4 ${isDraggingOver ? "outline outline-2 outline-sky-400/60" : ""}`}
+      className={`flex flex-col gap-4 rounded-2xl transition-shadow duration-200 ${isDraggingOver ? "ring-2 ring-[color-mix(in_oklab,var(--primary)_55%,transparent)] ring-offset-4 ring-offset-transparent" : ""}`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -216,7 +216,7 @@ function RolePalette({
               e.dataTransfer.effectAllowed = "copy";
             }}
             onClick={() => onPickRole(role)}
-            className="w-full cursor-grab rounded border border-border bg-background p-2 text-left text-xs hover:bg-muted active:cursor-grabbing"
+            className="glass-subtle hover:glass w-full cursor-grab rounded-lg p-2.5 text-left text-xs transition-all duration-200 active:cursor-grabbing active:scale-[0.98]"
           >
             <div className="flex items-center gap-1">
               <span aria-hidden>{roleEmoji(role.roleType)}</span>
@@ -242,10 +242,10 @@ function KanbanColumn({
   agents: ReadonlyArray<Agent>;
 }) {
   return (
-    <div className="space-y-2 rounded-md border border-border bg-card p-2">
-      <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-semibold">{title}</span>
-        <span className="text-xs text-muted-foreground">{issues.length}</span>
+    <div className="glass space-y-2 rounded-xl p-2.5">
+      <div className="flex items-center justify-between px-1.5 pt-0.5">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>
+        <span className="text-xs font-medium text-muted-foreground tabular-nums">{issues.length}</span>
       </div>
       {issues.length === 0 ? (
         <p className="px-1 py-6 text-center text-xs text-muted-foreground">
@@ -275,7 +275,7 @@ function IssueCard({
   );
   return (
     <div
-      className={`space-y-1 rounded border bg-background p-2 text-xs ${failures.shouldFlag ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950" : "border-border"}`}
+      className={`glass-subtle hover:glass space-y-1 rounded-lg p-2.5 text-xs transition-all duration-200 ${failures.shouldFlag ? "border-yellow-500/60 bg-yellow-100/40 dark:border-yellow-400/40 dark:bg-yellow-500/10" : ""}`}
     >
       <div className="flex items-center gap-2">
         <span className="font-mono text-[10px] text-muted-foreground">

@@ -42,7 +42,6 @@ import {
 import { DEFAULT_CURSOR_LOCAL_MODEL } from "@petagent/adapter-cursor-local";
 import { DEFAULT_GEMINI_LOCAL_MODEL } from "@petagent/adapter-gemini-local";
 import { resolveRouteOnboardingOptions } from "../lib/onboarding-route";
-import { AsciiArtAnimation } from "./AsciiArtAnimation";
 import {
   Building2,
   Bot,
@@ -614,128 +613,148 @@ export function OnboardingWizard() {
       }}
     >
       <DialogPortal>
-        {/* Plain div instead of DialogOverlay — Radix's overlay wraps in
-            RemoveScroll which blocks wheel events on our custom (non-DialogContent)
-            scroll container. A plain div preserves the background without scroll-locking. */}
-        <div className="fixed inset-0 z-50 bg-background" />
+        {/*
+          Wizard backdrop — fully opaque stage so underlying page content (NoCompaniesStartPage,
+          Layout, etc) is hidden. Repaints the aurora mesh directly on this layer so the
+          glass aesthetic is preserved without leaking page content through.
+        */}
+        <div
+          className="fixed inset-0 z-50 bg-background"
+          style={{
+            backgroundImage: `
+              radial-gradient(ellipse 78% 62% at 12% 6%, var(--mesh-color-1), transparent 58%),
+              radial-gradient(ellipse 70% 70% at 88% 38%, var(--mesh-color-2), transparent 56%),
+              radial-gradient(ellipse 92% 60% at 50% 108%, var(--mesh-color-3), transparent 65%)
+            `,
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "100% 100%",
+          }}
+        />
         <div className="fixed inset-0 z-50 flex" onKeyDown={handleKeyDown}>
-          {/* Close button */}
+          {/* Close button — glass pill in top-right, restrained and elegant */}
           <button
             onClick={handleClose}
-            className="absolute top-4 left-4 z-10 rounded-sm p-1.5 text-muted-foreground/60 hover:text-foreground transition-colors"
+            className="glass-subtle hover:glass absolute top-6 right-6 z-10 rounded-full p-2 text-muted-foreground hover:text-foreground transition-all duration-200"
+            aria-label="Close onboarding"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </button>
 
-          {/* Left half — form */}
-          <div
-            className={cn(
-              "w-full flex flex-col overflow-y-auto transition-[width] duration-500 ease-in-out",
-              step === 1 ? "md:w-1/2" : "md:w-full"
-            )}
-          >
-            <div className="w-full max-w-md mx-auto my-auto px-8 py-12 shrink-0">
-              {/* Progress tabs */}
-              <div className="flex items-center gap-0 mb-8 border-b border-border">
-                {(
-                  [
-                    { step: 1 as Step, label: "Company", icon: Building2 },
-                    { step: 2 as Step, label: "Agent", icon: Bot },
-                    { step: 3 as Step, label: "Task", icon: ListTodo },
-                    { step: 4 as Step, label: "Launch", icon: Rocket }
-                  ] as const
-                ).map(({ step: s, label, icon: Icon }) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setStep(s)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 -mb-px transition-colors cursor-pointer",
-                      s === step
-                        ? "border-foreground text-foreground"
-                        : "border-transparent text-muted-foreground hover:text-foreground/70 hover:border-border"
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {label}
-                  </button>
-                ))}
+          {/* Form column — full width (ASCII side-panel removed) */}
+          <div className="w-full flex flex-col overflow-y-auto">
+            <div className="w-full max-w-xl mx-auto my-auto px-10 md:px-14 py-14 shrink-0">
+              {/* Step counter + progress hairline — minimal Apple-style indicator */}
+              <div className="mb-12 flex flex-col gap-3">
+                <div className="flex items-baseline justify-between">
+                  <span className="font-display text-sm tracking-[0.3em] uppercase text-muted-foreground/80">
+                    Step <span className="text-foreground tabular-nums">{step.toString().padStart(2, "0")}</span> <span className="opacity-50">/ 04</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {([
+                      { step: 1 as Step, label: "Company", icon: Building2 },
+                      { step: 2 as Step, label: "Agent", icon: Bot },
+                      { step: 3 as Step, label: "Task", icon: ListTodo },
+                      { step: 4 as Step, label: "Launch", icon: Rocket },
+                    ] as const).map(({ step: s, label, icon: Icon }) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setStep(s)}
+                        className={cn(
+                          "flex items-center gap-1 rounded-full transition-all duration-300 cursor-pointer",
+                          s === step
+                            ? "glass-subtle px-2.5 py-1 text-xs text-foreground"
+                            : s < step
+                              ? "px-1.5 py-1 text-xs text-foreground/60 hover:text-foreground"
+                              : "px-1.5 py-1 text-xs text-muted-foreground/50 hover:text-muted-foreground"
+                        )}
+                        title={label}
+                      >
+                        <Icon className="h-3 w-3" />
+                        {s === step && <span>{label}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="relative h-px w-full overflow-hidden rounded-full bg-[var(--glass-border)]">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/70 via-primary to-primary/70 transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    style={{ width: `${(step / 4) * 100}%` }}
+                  />
+                </div>
               </div>
 
               {/* Step content */}
               {step === 1 && (
-                <div className="space-y-5">
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className="bg-muted/50 p-2">
-                      <Building2 className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Name your company</h3>
-                      <p className="text-xs text-muted-foreground">
-                        This is the organization your agents will work for.
-                      </p>
-                    </div>
+                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  <div className="space-y-3">
+                    <h1 className="aurora-text text-5xl md:text-6xl leading-[1.05]">
+                      What are you building?
+                    </h1>
+                    <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+                      Give your company a name. This is the organization your agents will work for.
+                    </p>
                   </div>
-                  <div className="mt-3 group">
-                    <label
-                      className={cn(
-                        "text-xs mb-1 block transition-colors",
-                        companyName.trim()
-                          ? "text-foreground"
-                          : "text-muted-foreground group-focus-within:text-foreground"
-                      )}
-                    >
-                      Company name
-                    </label>
-                    <input
-                      className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
-                      placeholder="Acme Corp"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
-                  <div className="group">
-                    <label
-                      className={cn(
-                        "text-xs mb-1 block transition-colors",
-                        companyGoal.trim()
-                          ? "text-foreground"
-                          : "text-muted-foreground group-focus-within:text-foreground"
-                      )}
-                    >
-                      Mission / goal (optional)
-                    </label>
-                    <textarea
-                      className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 resize-none min-h-[60px]"
-                      placeholder="What is this company trying to achieve?"
-                      value={companyGoal}
-                      onChange={(e) => setCompanyGoal(e.target.value)}
-                    />
+                  <div className="space-y-7">
+                    <div className="group">
+                      <label
+                        className={cn(
+                          "block text-[11px] uppercase tracking-[0.2em] mb-2 transition-colors",
+                          companyName.trim()
+                            ? "text-foreground/70"
+                            : "text-muted-foreground/60 group-focus-within:text-primary"
+                        )}
+                      >
+                        Company name
+                      </label>
+                      <input
+                        className="w-full bg-transparent border-0 border-b border-[var(--glass-border)] px-0 py-2.5 text-2xl font-display tracking-tight outline-none transition-all placeholder:text-muted-foreground/40 focus:border-b-primary focus:border-b-2 focus:-mb-px"
+                        placeholder="Acme Corp"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="group">
+                      <label
+                        className={cn(
+                          "block text-[11px] uppercase tracking-[0.2em] mb-2 transition-colors",
+                          companyGoal.trim()
+                            ? "text-foreground/70"
+                            : "text-muted-foreground/60 group-focus-within:text-primary"
+                        )}
+                      >
+                        Mission <span className="opacity-50 normal-case tracking-normal">— optional</span>
+                      </label>
+                      <textarea
+                        className="w-full bg-transparent border-0 border-b border-[var(--glass-border)] px-0 py-2.5 text-base outline-none transition-all placeholder:text-muted-foreground/40 focus:border-b-primary focus:border-b-2 focus:-mb-px resize-none min-h-[72px] leading-relaxed"
+                        placeholder="What is this company trying to achieve?"
+                        value={companyGoal}
+                        onChange={(e) => setCompanyGoal(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
               {step === 2 && (
-                <div className="space-y-5">
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className="bg-muted/50 p-2">
-                      <Bot className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Create your first agent</h3>
-                      <p className="text-xs text-muted-foreground">
-                        Choose how this agent will run tasks.
-                      </p>
-                    </div>
+                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  <div className="space-y-3">
+                    <h1 className="aurora-text text-5xl md:text-6xl leading-[1.05]">
+                      Hire your first agent.
+                    </h1>
+                    <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+                      Give it a name and pick the runtime that brings it to life.
+                    </p>
                   </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
+                  <div className="group">
+                    <label className="block text-[11px] uppercase tracking-[0.2em] mb-2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
                       Agent name
                     </label>
                     <input
-                      className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
+                      className="w-full bg-transparent border-0 border-b border-[var(--glass-border)] px-0 py-2.5 text-2xl font-display tracking-tight outline-none transition-all placeholder:text-muted-foreground/40 focus:border-b-primary focus:border-b-2 focus:-mb-px"
                       placeholder="CEO"
                       value={agentName}
                       onChange={(e) => setAgentName(e.target.value)}
@@ -745,18 +764,18 @@ export function OnboardingWizard() {
 
                   {/* Adapter type radio cards */}
                   <div>
-                    <label className="text-xs text-muted-foreground mb-2 block">
-                      Adapter type
+                    <label className="block text-[11px] uppercase tracking-[0.2em] mb-3 text-muted-foreground/60">
+                      Runtime adapter
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {recommendedAdapters.map((opt) => (
                         <button
                           key={opt.type}
                           className={cn(
-                            "flex flex-col items-center gap-1.5 rounded-md border p-3 text-xs transition-colors relative",
+                            "relative flex flex-col items-start gap-2 rounded-2xl p-4 text-left transition-all duration-200",
                             adapterType === opt.type
-                              ? "border-foreground bg-accent"
-                              : "border-border hover:bg-accent/50"
+                              ? "glass-strong ring-2 ring-primary/60 -translate-y-0.5"
+                              : "glass-subtle hover:glass hover:-translate-y-0.5"
                           )}
                           onClick={() => {
                             const nextType = opt.type;
@@ -770,13 +789,13 @@ export function OnboardingWizard() {
                           }}
                         >
                           {opt.recommended && (
-                            <span className="absolute -top-1.5 right-1.5 bg-green-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none">
+                            <span className="absolute -top-2 right-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white shadow-[0_4px_12px_color-mix(in_oklab,oklch(0.65_0.18_150)_30%,transparent)]">
                               Recommended
                             </span>
                           )}
-                          <opt.icon className="h-4 w-4" />
-                          <span className="font-medium">{opt.label}</span>
-                          <span className="text-muted-foreground text-[10px]">
+                          <opt.icon className="h-5 w-5 text-primary/80" />
+                          <span className="font-display text-lg leading-none text-foreground">{opt.label}</span>
+                          <span className="text-xs text-muted-foreground leading-snug">
                             {opt.description}
                           </span>
                         </button>
@@ -784,7 +803,7 @@ export function OnboardingWizard() {
                     </div>
 
                     <button
-                      className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      className="flex items-center gap-1.5 mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
                       onClick={() => setShowMoreAdapters((v) => !v)}
                     >
                       <ChevronDown
@@ -793,22 +812,22 @@ export function OnboardingWizard() {
                           showMoreAdapters ? "rotate-0" : "-rotate-90"
                         )}
                       />
-                      More Agent Adapter Types
+                      More adapter types
                     </button>
 
                     {showMoreAdapters && (
-                      <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="grid grid-cols-2 gap-3 mt-3 animate-in fade-in slide-in-from-top-1 duration-300">
                         {moreAdapters.map((opt) => (
                            <button
                              key={opt.type}
                              disabled={!!opt.comingSoon}
                              className={cn(
-                               "flex flex-col items-center gap-1.5 rounded-md border p-3 text-xs transition-colors relative",
+                               "relative flex flex-col items-start gap-2 rounded-2xl p-4 text-left transition-all duration-200",
                                opt.comingSoon
-                                 ? "border-border opacity-40 cursor-not-allowed"
+                                 ? "glass-subtle opacity-40 cursor-not-allowed"
                                  : adapterType === opt.type
-                                 ? "border-foreground bg-accent"
-                                 : "border-border hover:bg-accent/50"
+                                 ? "glass-strong ring-2 ring-primary/60 -translate-y-0.5"
+                                 : "glass-subtle hover:glass hover:-translate-y-0.5"
                              )}
                              onClick={() => {
                                if (opt.comingSoon) return;
@@ -831,9 +850,9 @@ export function OnboardingWizard() {
                               setModel("");
                             }}
                           >
-                            <opt.icon className="h-4 w-4" />
-                            <span className="font-medium">{opt.label}</span>
-                            <span className="text-muted-foreground text-[10px]">
+                            <opt.icon className="h-5 w-5 text-primary/80" />
+                            <span className="font-display text-lg leading-none text-foreground">{opt.label}</span>
+                            <span className="text-xs text-muted-foreground leading-snug">
                               {opt.comingSoon
                                 ? opt.disabledLabel ?? "Coming soon"
                                 : opt.description}
@@ -1089,106 +1108,94 @@ export function OnboardingWizard() {
               )}
 
               {step === 3 && (
-                <div className="space-y-5">
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className="bg-muted/50 p-2">
-                      <ListTodo className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Give it something to do</h3>
-                      <p className="text-xs text-muted-foreground">
-                        Give your agent a small task to start with — a bug fix,
-                        a research question, writing a script.
-                      </p>
-                    </div>
+                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  <div className="space-y-3">
+                    <h1 className="aurora-text text-5xl md:text-6xl leading-[1.05]">
+                      Give it something to do.
+                    </h1>
+                    <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+                      A small starter task — a bug fix, a research question, a script to write. Anything to break the ice.
+                    </p>
                   </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      Task title
-                    </label>
-                    <input
-                      className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
-                      placeholder="e.g. Research competitor pricing"
-                      value={taskTitle}
-                      onChange={(e) => setTaskTitle(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      Description (optional)
-                    </label>
-                    <textarea
-                      ref={textareaRef}
-                      className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 resize-none min-h-[120px] max-h-[300px] overflow-y-auto"
-                      placeholder="Add more detail about what the agent should do..."
-                      value={taskDescription}
-                      onChange={(e) => setTaskDescription(e.target.value)}
-                    />
+                  <div className="space-y-7">
+                    <div className="group">
+                      <label className="block text-[11px] uppercase tracking-[0.2em] mb-2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                        Task title
+                      </label>
+                      <input
+                        className="w-full bg-transparent border-0 border-b border-[var(--glass-border)] px-0 py-2.5 text-2xl font-display tracking-tight outline-none transition-all placeholder:text-muted-foreground/40 focus:border-b-primary focus:border-b-2 focus:-mb-px"
+                        placeholder="e.g. Research competitor pricing"
+                        value={taskTitle}
+                        onChange={(e) => setTaskTitle(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="group">
+                      <label className="block text-[11px] uppercase tracking-[0.2em] mb-2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                        Description <span className="opacity-50 normal-case tracking-normal">— optional</span>
+                      </label>
+                      <textarea
+                        ref={textareaRef}
+                        className="glass-subtle w-full rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-primary/50 resize-none min-h-[140px] max-h-[300px] overflow-y-auto leading-relaxed"
+                        placeholder="Add more detail about what the agent should do..."
+                        value={taskDescription}
+                        onChange={(e) => setTaskDescription(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
               {step === 4 && (
-                <div className="space-y-5">
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className="bg-muted/50 p-2">
-                      <Rocket className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Ready to launch</h3>
-                      <p className="text-xs text-muted-foreground">
-                        Everything is set up. Launching now will create the
-                        starter task, wake the agent, and open the issue.
-                      </p>
-                    </div>
+                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  <div className="space-y-3">
+                    <h1 className="aurora-text text-5xl md:text-6xl leading-[1.05]">
+                      Ready to launch.
+                    </h1>
+                    <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+                      We'll create the company, hire the agent, and open the issue.
+                    </p>
                   </div>
-                  <div className="border border-border divide-y divide-border">
-                    <div className="flex items-center gap-3 px-3 py-2.5">
-                      <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {companyName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Company</p>
+                  <div className="space-y-3">
+                    {[
+                      { icon: Building2, value: companyName, label: "Company" },
+                      { icon: Bot, value: agentName, label: getUIAdapter(adapterType).label },
+                      { icon: ListTodo, value: taskTitle, label: "Starter task" },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="glass flex items-center gap-4 rounded-2xl px-5 py-4 animate-in fade-in slide-in-from-left-2"
+                        style={{ animationDelay: `${idx * 80}ms`, animationFillMode: "both" }}
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--primary)_15%,transparent)] text-primary">
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-display text-lg leading-tight text-foreground truncate">
+                            {item.value}
+                          </p>
+                          <p className="text-xs text-muted-foreground tracking-wide uppercase mt-0.5">
+                            {item.label}
+                          </p>
+                        </div>
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500 shadow-[inset_0_0_0_1px_color-mix(in_oklab,oklch(0.7_0.18_150)_30%,transparent)]">
+                          <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                        </div>
                       </div>
-                      <Check className="h-4 w-4 text-green-500 shrink-0" />
-                    </div>
-                    <div className="flex items-center gap-3 px-3 py-2.5">
-                      <Bot className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {agentName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {getUIAdapter(adapterType).label}
-                        </p>
-                      </div>
-                      <Check className="h-4 w-4 text-green-500 shrink-0" />
-                    </div>
-                    <div className="flex items-center gap-3 px-3 py-2.5">
-                      <ListTodo className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {taskTitle}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Task</p>
-                      </div>
-                      <Check className="h-4 w-4 text-green-500 shrink-0" />
-                    </div>
+                    ))}
                   </div>
                 </div>
               )}
 
               {/* Error */}
               {error && (
-                <div className="mt-3">
-                  <p className="text-xs text-destructive">{error}</p>
+                <div className="mt-6 glass-subtle rounded-xl border-destructive/40 bg-destructive/10 px-4 py-3 animate-in fade-in slide-in-from-top-1 duration-300">
+                  <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}
 
               {/* Footer navigation */}
-              <div className="flex items-center justify-between mt-8">
+              <div className="flex items-center justify-between mt-12 pt-2">
                 <div>
                   {step > 1 && step > (onboardingOptions.initialStep ?? 1) && (
                     <Button
@@ -1196,8 +1203,9 @@ export function OnboardingWizard() {
                       size="sm"
                       onClick={() => setStep((step - 1) as Step)}
                       disabled={loading}
+                      className="text-muted-foreground"
                     >
-                      <ArrowLeft className="h-3.5 w-3.5 mr-1" />
+                      <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
                       Back
                     </Button>
                   )}
@@ -1205,56 +1213,64 @@ export function OnboardingWizard() {
                 <div className="flex items-center gap-2">
                   {step === 1 && (
                     <Button
-                      size="sm"
+                      size="lg"
                       disabled={!companyName.trim() || loading}
                       onClick={handleStep1Next}
+                      className="rounded-full px-7 text-sm font-medium"
                     >
+                      {loading ? "Creating…" : "Continue"}
                       {loading ? (
-                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
                       ) : (
-                        <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                        <ArrowRight className="h-4 w-4 ml-2" />
                       )}
-                      {loading ? "Creating..." : "Next"}
                     </Button>
                   )}
                   {step === 2 && (
                     <Button
-                      size="sm"
+                      size="lg"
                       disabled={
                         !agentName.trim() || loading || adapterEnvLoading
                       }
                       onClick={handleStep2Next}
+                      className="rounded-full px-7 text-sm font-medium"
                     >
+                      {loading ? "Creating…" : "Continue"}
                       {loading ? (
-                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
                       ) : (
-                        <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                        <ArrowRight className="h-4 w-4 ml-2" />
                       )}
-                      {loading ? "Creating..." : "Next"}
                     </Button>
                   )}
                   {step === 3 && (
                     <Button
-                      size="sm"
+                      size="lg"
                       disabled={!taskTitle.trim() || loading}
                       onClick={handleStep3Next}
+                      className="rounded-full px-7 text-sm font-medium"
                     >
+                      {loading ? "Creating…" : "Continue"}
                       {loading ? (
-                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
                       ) : (
-                        <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                        <ArrowRight className="h-4 w-4 ml-2" />
                       )}
-                      {loading ? "Creating..." : "Next"}
                     </Button>
                   )}
                   {step === 4 && (
-                    <Button size="sm" disabled={loading} onClick={handleLaunch}>
+                    <Button
+                      size="lg"
+                      disabled={loading}
+                      onClick={handleLaunch}
+                      className="rounded-full px-8 text-sm font-medium shadow-[inset_0_1px_0_color-mix(in_oklab,white_36%,transparent),0_8px_28px_color-mix(in_oklab,var(--primary)_42%,transparent)]"
+                    >
+                      {loading ? "Launching…" : "Launch"}
                       {loading ? (
-                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                        <Loader2 className="h-4 w-4 ml-2 animate-spin" />
                       ) : (
-                        <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                        <Rocket className="h-4 w-4 ml-2" />
                       )}
-                      {loading ? "Creating..." : "Create & Open Issue"}
                     </Button>
                   )}
                 </div>
@@ -1262,15 +1278,6 @@ export function OnboardingWizard() {
             </div>
           </div>
 
-          {/* Right half — ASCII art (hidden on mobile) */}
-          <div
-            className={cn(
-              "hidden md:block overflow-hidden bg-[#1d1d1d] transition-[width,opacity] duration-500 ease-in-out",
-              step === 1 ? "w-1/2 opacity-100" : "w-0 opacity-0"
-            )}
-          >
-            <AsciiArtAnimation />
-          </div>
         </div>
       </DialogPortal>
     </Dialog>

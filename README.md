@@ -53,6 +53,24 @@ Sources:
 
 ## 快速上手
 
+### 前置依赖
+
+- **Node.js ≥ 20** + **pnpm ≥ 9**
+- **PostgreSQL + pgvector**（必须，M1+ 用 pgvector 做 Notes 语义检索）。embedded-postgres 自带的 binary **不含 pgvector**，所以从 v0.2.0 起必须接外部 postgres：
+  ```sh
+  # macOS
+  brew install postgresql@17 pgvector
+  brew services start postgresql@17
+  createdb petagent
+  psql petagent -c "CREATE EXTENSION vector"
+
+  # 启动 PetAgent 时把 DATABASE_URL 指过去
+  export DATABASE_URL=postgresql://$(whoami)@localhost:5432/petagent
+  ```
+  Linux/Windows 见 [docs/start/quickstart.md](./docs/start/quickstart.md)。
+
+### 启动
+
 ```sh
 # 一键 onboard（推荐第一次用）
 npx petagentai onboard --yes

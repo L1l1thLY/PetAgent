@@ -48,7 +48,7 @@ export function BreadcrumbBar() {
 
   if (isMobile && mobileToolbar) {
     return (
-      <div className="border-b border-border px-2 h-12 shrink-0 flex items-center">
+      <div className="glass-subtle border-x-0 border-t-0 border-b-[var(--glass-border)] px-2 h-12 shrink-0 flex items-center backdrop-blur-md">
         {mobileToolbar}
       </div>
     );
@@ -56,7 +56,7 @@ export function BreadcrumbBar() {
 
   if (breadcrumbs.length === 0) {
     return (
-      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center justify-end gap-1">
+      <div className="glass-subtle border-x-0 border-t-0 border-b-[var(--glass-border)] px-4 md:px-6 h-12 shrink-0 flex items-center justify-end gap-1 backdrop-blur-md">
         {globalToolbarSlots}
         <NotificationBell />
       </div>
@@ -78,10 +78,10 @@ export function BreadcrumbBar() {
   // Single breadcrumb = page title (uppercase)
   if (breadcrumbs.length === 1) {
     return (
-      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center">
+      <div className="glass-subtle border-x-0 border-t-0 border-b-[var(--glass-border)] px-4 md:px-6 h-12 shrink-0 flex items-center backdrop-blur-md">
         {menuButton}
         <div className="min-w-0 overflow-hidden flex-1">
-          <h1 className="text-sm font-semibold uppercase tracking-wider truncate">
+          <h1 className="text-sm font-semibold uppercase tracking-[0.18em] truncate text-foreground/85">
             {breadcrumbs[0].label}
           </h1>
         </div>
@@ -93,7 +93,7 @@ export function BreadcrumbBar() {
 
   // Multiple breadcrumbs = breadcrumb trail
   return (
-    <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center">
+    <div className="glass-subtle border-x-0 border-t-0 border-b-[var(--glass-border)] px-4 md:px-6 h-12 shrink-0 flex items-center backdrop-blur-md">
       {menuButton}
       <div className="min-w-0 overflow-hidden flex-1">
         <Breadcrumb className="min-w-0 overflow-hidden">

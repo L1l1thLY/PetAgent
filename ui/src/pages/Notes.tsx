@@ -101,9 +101,9 @@ export function Notes() {
       <Card>
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Notebook className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Notes</CardTitle>
+            <div className="flex items-center gap-3">
+              <Notebook className="h-6 w-6 text-primary/80" />
+              <CardTitle className="aurora-text text-3xl font-normal leading-none">Notes</CardTitle>
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -114,7 +114,7 @@ export function Notes() {
               aria-label="Agent"
               value={agentId}
               onChange={(e) => setAgentId(e.target.value)}
-              className="h-9 rounded-md border bg-background px-2 text-sm"
+              className="glass-subtle h-9 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
             >
               {agents.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -126,7 +126,7 @@ export function Notes() {
               aria-label="Scope"
               value={scope}
               onChange={(e) => setScope(e.target.value as NoteScope | "")}
-              className="h-9 rounded-md border bg-background px-2 text-sm"
+              className="glass-subtle h-9 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
             >
               {SCOPES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -141,7 +141,7 @@ export function Notes() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") submit();
               }}
-              className="h-9 min-w-[200px] flex-1 rounded-md border bg-background px-2 text-sm"
+              className="glass-subtle h-9 min-w-[200px] flex-1 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
             />
             <Button variant="outline" size="sm" onClick={submit}>
               Search
@@ -162,15 +162,18 @@ export function Notes() {
           ) : (
             <ul className="space-y-3">
               {rows.map((n) => (
-                <li key={n.id} className="rounded-md border p-3">
-                  <div className="mb-1 text-xs text-muted-foreground">
+                <li
+                  key={n.id}
+                  className="glass-subtle hover:glass rounded-xl p-4 transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  <div className="mb-1.5 text-xs text-muted-foreground">
                     <span className="font-mono">{n.id}</span>
                     {" · "}
                     <span>[{n.scope}]</span>
                     {n.noteType ? ` · ${n.noteType}` : ""}
                     {n.createdAt ? ` · ${new Date(n.createdAt).toLocaleString()}` : ""}
                   </div>
-                  <pre className="whitespace-pre-wrap text-sm">{n.content}</pre>
+                  <pre className="whitespace-pre-wrap text-sm leading-relaxed">{n.content}</pre>
                 </li>
               ))}
             </ul>

@@ -51,7 +51,7 @@ export function EmployeeCard({ agent, onClick }: EmployeeCardProps) {
     <button
       type="button"
       onClick={() => onClick?.(agent.id)}
-      className={`flex min-w-[9rem] items-center gap-2 rounded-md border border-border bg-background px-2 py-1.5 text-left ring-2 ring-inset ${TONE_RING[statusDisplay.tone]} hover:bg-muted`}
+      className={`glass-subtle hover:glass flex min-w-[9rem] items-center gap-2 rounded-2xl px-2.5 py-2 text-left ring-2 ring-inset ${TONE_RING[statusDisplay.tone]} transition-all duration-200 hover:-translate-y-0.5`}
       title={`${agent.name} — ${statusDisplay.label}`}
     >
       <span className="text-xl" aria-hidden>

@@ -36,82 +36,111 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.375rem;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 :root {
   color-scheme: light;
-  --radius: 0;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 1rem;
+  /* Aurora light palette — dawn sky, cream, blush lavender */
+  --background: oklch(0.975 0.012 250);
+  --foreground: oklch(0.185 0.018 265);
+  --card: oklch(0.99 0.006 245);
+  --card-foreground: oklch(0.185 0.018 265);
+  --popover: oklch(0.99 0.006 245);
+  --popover-foreground: oklch(0.185 0.018 265);
+  --primary: oklch(0.55 0.18 252);
+  --primary-foreground: oklch(0.99 0.005 240);
+  --secondary: oklch(0.94 0.014 250);
+  --secondary-foreground: oklch(0.20 0.020 265);
+  --muted: oklch(0.93 0.014 250);
+  --muted-foreground: oklch(0.46 0.022 260);
+  --accent: oklch(0.92 0.030 260);
+  --accent-foreground: oklch(0.20 0.020 265);
+  --destructive: oklch(0.58 0.21 25);
+  --destructive-foreground: oklch(0.99 0.005 240);
+  --border: oklch(0.88 0.014 250);
+  --input: oklch(0.91 0.014 250);
+  --ring: oklch(0.55 0.18 252);
+  --chart-1: oklch(0.60 0.20 252);
+  --chart-2: oklch(0.65 0.16 200);
+  --chart-3: oklch(0.62 0.18 320);
+  --chart-4: oklch(0.78 0.16 80);
+  --chart-5: oklch(0.68 0.20 30);
+  --sidebar: oklch(0.96 0.014 248);
+  --sidebar-foreground: oklch(0.20 0.020 265);
+  --sidebar-primary: oklch(0.55 0.18 252);
+  --sidebar-primary-foreground: oklch(0.99 0.005 240);
+  --sidebar-accent: oklch(0.92 0.030 260);
+  --sidebar-accent-foreground: oklch(0.20 0.020 265);
+  --sidebar-border: oklch(0.88 0.014 250);
+  --sidebar-ring: oklch(0.55 0.18 252);
+  /* Liquid Glass tokens */
+  --glass-tint: color-mix(in oklab, white 58%, transparent);
+  --glass-tint-strong: color-mix(in oklab, white 76%, transparent);
+  --glass-tint-subtle: color-mix(in oklab, white 38%, transparent);
+  --glass-border: color-mix(in oklab, white 60%, color-mix(in oklab, oklch(0.20 0.020 265) 14%, transparent));
+  --glass-specular: color-mix(in oklab, white 70%, transparent);
+  --glass-shadow: color-mix(in oklab, oklch(0.40 0.06 260) 18%, transparent);
+  --glass-shadow-soft: color-mix(in oklab, oklch(0.35 0.05 260) 10%, transparent);
+  /* Aurora mesh background colors */
+  --mesh-color-1: color-mix(in oklab, oklch(0.86 0.090 240) 78%, transparent);
+  --mesh-color-2: color-mix(in oklab, oklch(0.94 0.040 80) 72%, transparent);
+  --mesh-color-3: color-mix(in oklab, oklch(0.88 0.070 320) 70%, transparent);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.637 0.237 25.331);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.145 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Night-glass dark palette — deep indigo, midnight, violet glow */
+  --background: oklch(0.10 0.020 265);
+  --foreground: oklch(0.97 0.008 240);
+  --card: oklch(0.18 0.028 262);
+  --card-foreground: oklch(0.97 0.008 240);
+  --popover: oklch(0.20 0.030 262);
+  --popover-foreground: oklch(0.97 0.008 240);
+  --primary: oklch(0.72 0.16 252);
+  --primary-foreground: oklch(0.10 0.020 265);
+  --secondary: oklch(0.22 0.026 262);
+  --secondary-foreground: oklch(0.97 0.008 240);
+  --muted: oklch(0.20 0.024 262);
+  --muted-foreground: oklch(0.70 0.022 248);
+  --accent: oklch(0.26 0.040 260);
+  --accent-foreground: oklch(0.97 0.008 240);
+  --destructive: oklch(0.64 0.22 25);
+  --destructive-foreground: oklch(0.97 0.008 240);
+  --border: oklch(0.30 0.030 262);
+  --input: oklch(0.22 0.026 262);
+  --ring: oklch(0.72 0.16 252);
+  --chart-1: oklch(0.66 0.22 252);
+  --chart-2: oklch(0.72 0.18 200);
+  --chart-3: oklch(0.70 0.20 320);
+  --chart-4: oklch(0.78 0.18 80);
+  --chart-5: oklch(0.72 0.22 30);
+  --sidebar: oklch(0.10 0.020 265);
+  --sidebar-foreground: oklch(0.97 0.008 240);
+  --sidebar-primary: oklch(0.72 0.16 252);
+  --sidebar-primary-foreground: oklch(0.10 0.020 265);
+  --sidebar-accent: oklch(0.26 0.040 260);
+  --sidebar-accent-foreground: oklch(0.97 0.008 240);
+  --sidebar-border: oklch(0.30 0.030 262);
+  --sidebar-ring: oklch(0.72 0.16 252);
+  /* Liquid Glass tokens — dark variant */
+  --glass-tint: color-mix(in oklab, oklch(0.22 0.030 262) 62%, transparent);
+  --glass-tint-strong: color-mix(in oklab, oklch(0.24 0.034 262) 80%, transparent);
+  --glass-tint-subtle: color-mix(in oklab, oklch(0.28 0.038 262) 32%, transparent);
+  --glass-border: color-mix(in oklab, white 12%, transparent);
+  --glass-specular: color-mix(in oklab, white 16%, transparent);
+  --glass-shadow: color-mix(in oklab, black 56%, transparent);
+  --glass-shadow-soft: color-mix(in oklab, black 38%, transparent);
+  /* Aurora mesh — deep night palette */
+  --mesh-color-1: color-mix(in oklab, oklch(0.34 0.12 248) 70%, transparent);
+  --mesh-color-2: color-mix(in oklab, oklch(0.22 0.080 280) 64%, transparent);
+  --mesh-color-3: color-mix(in oklab, oklch(0.28 0.090 220) 60%, transparent);
 }
 
 @layer base {
@@ -121,11 +150,42 @@
   html {
     height: 100%;
     -webkit-tap-highlight-color: color-mix(in oklab, var(--foreground) 20%, transparent);
+    background-color: var(--background);
   }
   body {
     @apply bg-background text-foreground antialiased;
     height: 100%;
     overflow: hidden;
+    /* Aurora mesh — three radial gradients painted over base bg, fixed so they don't scroll. */
+    background-image:
+      radial-gradient(ellipse 78% 62% at 12% 6%, var(--mesh-color-1), transparent 58%),
+      radial-gradient(ellipse 70% 70% at 88% 38%, var(--mesh-color-2), transparent 56%),
+      radial-gradient(ellipse 92% 60% at 50% 108%, var(--mesh-color-3), transparent 65%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+  /* Film-grain noise overlay — sits above mesh, below interactive content. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    background-size: 240px 240px;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+  }
+  .dark body::before {
+    opacity: 0.07;
+    mix-blend-mode: soft-light;
+  }
+  /* Ensure interactive content stacks above the noise overlay. */
+  #root {
+    position: relative;
+    z-index: 1;
+    height: 100%;
   }
   h1,
   h2,
@@ -147,6 +207,75 @@
   .petagent-mdxeditor-content {
     font-family: inherit;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Liquid Glass utility classes — Apple-style translucent surfaces.
+   Three tiers tuned for performance:
+   - .glass: base panels (sidebar, cards, columns) with backdrop-filter
+   - .glass-strong: raised surfaces (dialogs, popovers) with stronger blur
+   - .glass-subtle: rows / hover states — no backdrop-filter, perf-safe
+   --------------------------------------------------------------------------- */
+@utility glass {
+  background-color: var(--glass-tint);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-specular),
+    inset 0 -1px 0 color-mix(in oklab, var(--foreground) 5%, transparent),
+    0 8px 32px var(--glass-shadow-soft),
+    0 2px 8px var(--glass-shadow);
+}
+
+@utility glass-strong {
+  background-color: var(--glass-tint-strong);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-specular),
+    inset 0 -1px 0 color-mix(in oklab, var(--foreground) 7%, transparent),
+    0 24px 64px var(--glass-shadow),
+    0 4px 16px var(--glass-shadow);
+}
+
+@utility glass-subtle {
+  background-color: var(--glass-tint-subtle);
+  border: 1px solid var(--glass-border);
+}
+
+/* Hover lift — apply on Card-like surfaces for tactile feedback. */
+@utility glass-hover {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@utility glass-hover-active {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 var(--glass-specular),
+    inset 0 -1px 0 color-mix(in oklab, var(--foreground) 6%, transparent),
+    0 18px 48px var(--glass-shadow),
+    0 4px 12px var(--glass-shadow);
+}
+
+/* Editorial display heading — Instrument Serif with subtle iridescent gradient.
+   Use sparingly for page titles to break the sans-serif chrome. */
+@utility aurora-text {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  background: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--foreground) 96%, transparent) 0%,
+    color-mix(in oklab, var(--foreground) 86%, var(--primary) 14%) 55%,
+    color-mix(in oklab, var(--foreground) 92%, var(--primary) 8%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 @media (pointer: coarse) {

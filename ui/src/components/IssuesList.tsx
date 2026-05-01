@@ -714,16 +714,16 @@ export function IssuesList({
 
         <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           {/* View mode toggle */}
-          <div className="flex items-center border border-border rounded-md overflow-hidden mr-1">
+          <div className="glass-subtle flex items-center rounded-full overflow-hidden mr-1 p-0.5">
             <button
-              className={`p-1.5 transition-colors ${viewState.viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-2 py-1 rounded-full transition-all ${viewState.viewMode === "list" ? "bg-[var(--glass-tint-strong)] text-foreground shadow-[inset_0_1px_0_var(--glass-specular)]" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() => updateView({ viewMode: "list" })}
               title="List view"
             >
               <List className="h-3.5 w-3.5" />
             </button>
             <button
-              className={`p-1.5 transition-colors ${viewState.viewMode === "board" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`px-2 py-1 rounded-full transition-all ${viewState.viewMode === "board" ? "bg-[var(--glass-tint-strong)] text-foreground shadow-[inset_0_1px_0_var(--glass-specular)]" : "text-muted-foreground hover:text-foreground"}`}
               onClick={() => updateView({ viewMode: "board" })}
               title="Board view"
             >

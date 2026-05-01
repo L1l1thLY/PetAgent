@@ -82,8 +82,10 @@ function KanbanColumn({
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-[120px] rounded-md p-1 space-y-1 transition-colors ${
-          isOver ? "bg-accent/40" : "bg-muted/20"
+        className={`flex-1 min-h-[120px] rounded-xl p-1 space-y-1 transition-colors ${
+          isOver
+            ? "bg-[color-mix(in_oklab,var(--primary)_14%,transparent)] ring-2 ring-[color-mix(in_oklab,var(--primary)_45%,transparent)]"
+            : "bg-[var(--glass-tint-subtle)]"
         }`}
       >
         <SortableContext
@@ -142,9 +144,9 @@ function KanbanCard({
       style={style}
       {...attributes}
       {...listeners}
-      className={`rounded-md border bg-card p-2.5 cursor-grab active:cursor-grabbing transition-shadow ${
+      className={`glass rounded-xl p-2.5 cursor-grab active:cursor-grabbing transition-all duration-200 ${
         isDragging && !isOverlay ? "opacity-30" : ""
-      } ${isOverlay ? "shadow-lg ring-1 ring-primary/20" : "hover:shadow-sm"}`}
+      } ${isOverlay ? "shadow-2xl ring-2 ring-[color-mix(in_oklab,var(--primary)_55%,transparent)] -rotate-1" : "hover:-translate-y-0.5"}`}
     >
       <Link
         to={`/issues/${issue.identifier ?? issue.id}`}

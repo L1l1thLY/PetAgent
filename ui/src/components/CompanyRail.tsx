@@ -199,7 +199,7 @@ export function CompanyRail() {
   );
 
   return (
-    <div className="flex flex-col items-center w-[72px] shrink-0 h-full bg-background border-r border-border">
+    <div className="glass flex flex-col items-center w-[72px] shrink-0 h-full rounded-none border-y-0 border-l-0 border-r border-r-[var(--glass-border)] shadow-none">
       {/* Brand icon - aligned with top sections (implied line, no visible border) */}
       <div className="flex items-center justify-center h-12 w-full shrink-0">
         <Paperclip className="h-5 w-5 text-foreground" />
@@ -236,7 +236,7 @@ export function CompanyRail() {
       </div>
 
       {/* Separator before add button */}
-      <div className="w-8 h-px bg-border mx-auto shrink-0" />
+      <div className="w-8 h-px bg-[var(--glass-border)] mx-auto shrink-0" />
 
       {/* Add company button */}
       <div className="flex items-center justify-center py-2 shrink-0">
@@ -244,7 +244,7 @@ export function CompanyRail() {
           <TooltipTrigger asChild>
             <button
               onClick={() => openOnboarding()}
-              className="flex items-center justify-center w-11 h-11 rounded-[22px] hover:rounded-[14px] border-2 border-dashed border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-[border-color,color,border-radius] duration-150"
+              className="flex items-center justify-center w-11 h-11 rounded-[22px] hover:rounded-[14px] border-2 border-dashed border-[var(--glass-border)] text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-[border-color,color,border-radius] duration-150"
               aria-label="Add company"
             >
               <Plus className="h-5 w-5" />

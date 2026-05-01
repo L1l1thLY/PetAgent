@@ -18,6 +18,7 @@ const workspacePaths = [
   "cli",
   "packages/db",
   "packages/shared",
+  "packages/secrets",
   "packages/adapter-utils",
   "packages/adapters/claude-local",
   "packages/adapters/codex-local",
@@ -42,6 +43,9 @@ for (const p of workspacePaths) {
     }
   }
   for (const name of Object.keys(pkg.optionalDependencies || {})) {
+    externals.add(name);
+  }
+  for (const name of Object.keys(pkg.peerDependencies || {})) {
     externals.add(name);
   }
 }
