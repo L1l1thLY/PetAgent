@@ -53,7 +53,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
     apiKeyEnvVars: ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
   },
   {
-    id: "kimi_coding",
+    id: "kimi-coding",
     displayName: "Kimi K2 (Coding / Claude-compatible)",
     wireProtocols: ["anthropic_messages", "openai_embeddings"],
     defaultBaseUrl: {
@@ -135,9 +135,8 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
 export const ALIASES: Readonly<Record<string, string>> = {
   claude: "anthropic",
   moonshot: "kimi",
-  "kimi-coding": "kimi_coding",
-  "kimi-for-coding": "kimi_coding",
-  "kimi-k2": "kimi_coding",
+  "kimi-for-coding": "kimi-coding",
+  "kimi-k2": "kimi-coding",
   glm: "zai",
   zhipu: "zai",
   google: "gemini",

@@ -1,0 +1,9 @@
+providers:
+  - id: my-kimi
+    preset: kimi-coding
+    api_key_env: KIMI_CODING_KEY
+
+llm_routing:
+  psychologist: my-kimi
+  reflector: my-kimi
+  embedding: my-kimi

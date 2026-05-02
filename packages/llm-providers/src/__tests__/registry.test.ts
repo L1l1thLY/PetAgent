@@ -8,7 +8,7 @@ import {
 
 describe("registry: BUILTIN_PRESETS shape invariants", () => {
   it("has exactly 8 v1 presets", () => {
-    expect(BUILTIN_PRESETS).toHaveLength(8);
+    expect(BUILTIN_PRESETS).toHaveLength(9);
   });
 
   it("each preset has at least one wire protocol", () => {
@@ -101,8 +101,8 @@ describe("resolvePreset", () => {
     expect(resolvePreset("moonshot")?.id).toBe("kimi");
   });
 
-  it("resolves aliases: kimi-coding → kimi", () => {
-    expect(resolvePreset("kimi-coding")?.id).toBe("kimi");
+  it("resolves kimi-coding directly as a preset", () => {
+    expect(resolvePreset("kimi-coding")?.id).toBe("kimi-coding");
   });
 
   it("resolves aliases: glm → zai", () => {

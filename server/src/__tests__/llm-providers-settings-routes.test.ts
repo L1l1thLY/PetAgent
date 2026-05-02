@@ -113,6 +113,7 @@ describe("GET /instance/settings/llm-providers", () => {
       "deepseek",
       "gemini",
       "kimi",
+      "kimi-coding",
       "minimax",
       "minimax-cn",
       "openai",
