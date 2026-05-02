@@ -27,7 +27,7 @@ export interface SetupCliOptions extends BaseClientOptions {
   /** Non-interactive template choice. Must match a TEMPLATE_NAMES entry. */
   template?: TemplateName;
   /** Non-interactive Anthropic API key; stored in secrets under ANTHROPIC_API_KEY. */
-  apiKey?: string;
+  anthropicApiKey?: string;
   /** Non-interactive sandbox directory (defaults to ./.petagent/sandbox). */
   sandboxDir?: string;
   /** Skip the interactive prompt even if stdin is a TTY. */
@@ -147,7 +147,7 @@ export function registerSetupCommand(program: Command): void {
       )
       .option("--company-name <name>", "Non-interactive company name")
       .option("--template <name>", "Non-interactive template (solo-pack / small-dev-team / hybrid-team)")
-      .option("--api-key <value>", "Anthropic API key stored under ANTHROPIC_API_KEY")
+      .option("--anthropic-api-key <value>", "Anthropic API key stored under ANTHROPIC_API_KEY")
       .option("--sandbox-dir <path>", "Sandbox directory to create")
       .option("-y, --yes", "Accept defaults and skip prompts", false)
       .option("--dry-run", "Print the plan without making API calls or writing files", false)
@@ -158,14 +158,14 @@ export function registerSetupCommand(program: Command): void {
           let plan = buildSetupPlan({
             companyName: opts.companyName,
             template: opts.template,
-            apiKey: opts.apiKey,
+            apiKey: opts.anthropicApiKey,
             sandboxDir: opts.sandboxDir,
           });
 
           if (interactive) {
             const companyName = await promptCompanyName(plan.companyName);
             const template = await promptTemplate(plan.template);
-            const apiKey = opts.apiKey ?? (await promptApiKey());
+            const apiKey = opts.anthropicApiKey ?? (await promptApiKey());
             plan = buildSetupPlan({
               companyName,
               template,
@@ -199,9 +199,9 @@ export function registerSetupCommand(program: Command): void {
 
           // Step 3: secrets. Use the same preferred store the secrets CLI
           // commands resolve — keychain-first, encrypted file fallback.
-          if (plan.apiKeyProvided && opts.apiKey) {
+          if (plan.apiKeyProvided && opts.anthropicApiKey) {
             const { store, primaryKind } = await resolveSecretsStore(opts);
-            await store.set(plan.apiKeySecretName, opts.apiKey);
+            await store.set(plan.apiKeySecretName, opts.anthropicApiKey);
             console.log(
               `Stored ${plan.apiKeySecretName} in ${primaryKind}`,
             );
