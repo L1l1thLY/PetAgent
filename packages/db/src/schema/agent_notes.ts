@@ -12,6 +12,8 @@ import { resolveAgentNoteEmbeddingDims } from "../embedding-dimensions.js";
 
 const agentNoteEmbeddingVector = customType<{ data: number[]; driverData: string }>({
   dataType() {
+    // Drizzle reads this while building schema metadata at process start; changing
+    // PETAGENT_EMBEDDING_DIMS later in the same runtime will not resize the column.
     return `vector(${resolveAgentNoteEmbeddingDims()})`;
   },
   toDriver(value: number[]): string {

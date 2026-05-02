@@ -56,14 +56,14 @@ export async function validateAgentNotesEmbeddingDimensions(
 
   if (actualDims !== opts.configuredDims) {
     logger.warn(
-      `[petagent] WARN agent_notes.embedding is vector(${actualDims}) but PETAGENT_EMBEDDING_DIMS resolves to ${opts.configuredDims}. Set PETAGENT_EMBEDDING_DIMS before generating/applying migrations for a new DB, or keep it aligned with the existing column.`,
+      `[petagent] WARN agent_notes.embedding current DB vector dimension is ${actualDims}, but PETAGENT_EMBEDDING_DIMS expects ${opts.configuredDims}. Set PETAGENT_EMBEDDING_DIMS=${opts.configuredDims} before schema generation, then run 'pnpm db:generate' and 'pnpm db:migrate' to create/apply a matching migration for a new DB, or keep PETAGENT_EMBEDDING_DIMS aligned with the existing column.`,
     );
   }
 
   if (opts.providerDims !== null && actualDims !== opts.providerDims) {
     const provider = opts.providerLabel ? ` (${opts.providerLabel})` : "";
     logger.warn(
-      `[petagent] WARN embedding provider${provider} reports ${opts.providerDims} dimensions but agent_notes.embedding is vector(${actualDims}). Notes writes/search can fail until the provider and pgvector column dimensions match.`,
+      `[petagent] WARN embedding provider${provider} expects ${opts.providerDims} dimensions, but agent_notes.embedding current DB vector dimension is ${actualDims}. Set PETAGENT_EMBEDDING_DIMS=${opts.providerDims} before schema generation, then run 'pnpm db:generate' and 'pnpm db:migrate' to create/apply a matching migration for a new DB. Notes writes/search can fail until the provider and pgvector column dimensions match.`,
     );
   }
 }
