@@ -69,6 +69,7 @@ describe("createLLMRouter: env-fallback (no config file)", () => {
     const emb = router.getEmbeddingTransport();
     expect(emb?.transport).toBeInstanceOf(OpenAIEmbeddingsTransport);
     expect(emb?.model).toBe("text-embedding-3-small");
+    expect(emb?.embeddingDims).toBe(1536);
     expect(router.getTextTransport("psychologist")).toBeNull();
   });
 
@@ -82,6 +83,7 @@ describe("createLLMRouter: env-fallback (no config file)", () => {
     });
     const emb = router.getEmbeddingTransport();
     expect(emb?.model).toBe("text-embedding-3-large");
+    expect(emb?.embeddingDims).toBe(3072);
   });
 
   it("combines both fallbacks when both keys present", () => {
@@ -223,6 +225,26 @@ llm_routing:
     const emb = router.getEmbeddingTransport();
     expect(emb?.transport).toBeInstanceOf(OpenAIEmbeddingsTransport);
     expect(emb?.model).toBe("moonshot-v1-embedding");
+    expect(emb?.embeddingDims).toBe(1536);
+  });
+
+  it("routes kimi-coding embedding with its 1024-dim preset metadata", () => {
+    const cfgPath = writeConfig(`
+providers:
+  - id: my-kimi-coding
+    preset: kimi-coding
+    api_key_env: KIMI_CODING_KEY
+llm_routing:
+  embedding: my-kimi-coding
+`);
+    const router = createLLMRouter({
+      env: { KIMI_CODING_KEY: "k" },
+      configPath: cfgPath,
+    });
+    const emb = router.getEmbeddingTransport();
+    expect(emb?.transport).toBeInstanceOf(OpenAIEmbeddingsTransport);
+    expect(emb?.model).toBe("kimi-k2.6");
+    expect(emb?.embeddingDims).toBe(1024);
   });
 
   it("rejects misconfigured embedding target at config-load time (anthropic-only)", () => {

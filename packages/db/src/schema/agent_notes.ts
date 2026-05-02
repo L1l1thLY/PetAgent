@@ -8,10 +8,11 @@ import {
   customType,
 } from "drizzle-orm/pg-core";
 import { companies } from "./companies.js";
+import { resolveAgentNoteEmbeddingDims } from "../embedding-dimensions.js";
 
-const vector1536 = customType<{ data: number[]; driverData: string }>({
+const agentNoteEmbeddingVector = customType<{ data: number[]; driverData: string }>({
   dataType() {
-    return "vector(1536)";
+    return `vector(${resolveAgentNoteEmbeddingDims()})`;
   },
   toDriver(value: number[]): string {
     return `[${value.join(",")}]`;
@@ -36,7 +37,7 @@ export const agentNotes = pgTable(
     tags: text("tags").array(),
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     gitCommitSha: text("git_commit_sha"),
-    embedding: vector1536("embedding"),
+    embedding: agentNoteEmbeddingVector("embedding"),
     scope: text("scope").notNull().default("project"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },

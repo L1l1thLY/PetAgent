@@ -2,7 +2,7 @@ import express, { Router, type Request as ExpressRequest } from "express";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import type { Db } from "@petagent/db";
+import { resolveAgentNoteEmbeddingDims, type Db } from "@petagent/db";
 import type { DeploymentExposure, DeploymentMode } from "@petagent/shared";
 import type { StorageService } from "./storage/types.js";
 import { httpLogger, errorHandler } from "./middleware/index.js";
@@ -38,6 +38,7 @@ import { bridgeHookBusToNotifications } from "./notifications/hook_bridge.js";
 import { createPsychologist } from "./composition/psychologist.js";
 import { createReflector } from "./composition/reflector.js";
 import { createEmbeddingService } from "./composition/embedding.js";
+import { validateAgentNotesEmbeddingDimensions } from "./composition/embedding-dimensions.js";
 import { createLLMRouter } from "./composition/llm-router.js";
 import { buildSkillMinerRunnerDeps } from "./composition/skill-miner.js";
 import { startSkillMiningRoutine } from "./skill-miner/routine.js";
@@ -237,7 +238,19 @@ export async function createApp(
     );
   }
 
-  const embedding = createEmbeddingService({ router: llmRouter });
+  const configuredEmbeddingDims = resolveAgentNoteEmbeddingDims();
+  const embedding = createEmbeddingService({
+    router: llmRouter,
+    stubDimensions: configuredEmbeddingDims,
+  });
+  await validateAgentNotesEmbeddingDimensions({
+    db,
+    configuredDims: configuredEmbeddingDims,
+    providerDims: embedding.providerEmbeddingDims,
+    providerLabel:
+      embedding.model === null ? null : `${embedding.kind}/${embedding.model}`,
+    logger: console,
+  });
   api.use(agentNotesRoutes(db, embedding.service));
   api.use(companyChatRoutes({ db }));
 

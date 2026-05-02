@@ -7,7 +7,7 @@ import {
 } from "../registry.js";
 
 describe("registry: BUILTIN_PRESETS shape invariants", () => {
-  it("has exactly 8 v1 presets", () => {
+  it("has exactly 9 v1 presets", () => {
     expect(BUILTIN_PRESETS).toHaveLength(9);
   });
 
@@ -30,6 +30,17 @@ describe("registry: BUILTIN_PRESETS shape invariants", () => {
       for (const wp of p.wireProtocols) {
         expect(p.defaultModels[wp]).toBeTruthy();
       }
+    }
+  });
+
+  it("each embedding-capable preset declares embedding dimensions", () => {
+    for (const p of BUILTIN_PRESETS) {
+      if (!p.wireProtocols.includes("openai_embeddings")) {
+        expect(p.embeddingDims).toBeUndefined();
+        continue;
+      }
+      expect(p.embeddingDims).toBeGreaterThan(0);
+      expect(Number.isInteger(p.embeddingDims)).toBe(true);
     }
   });
 
@@ -56,6 +67,7 @@ describe("registry: ships expected v1 set", () => {
     "anthropic",
     "openai",
     "kimi",
+    "kimi-coding",
     "minimax",
     "minimax-cn",
     "deepseek",
@@ -103,6 +115,10 @@ describe("resolvePreset", () => {
 
   it("resolves kimi-coding directly as a preset", () => {
     expect(resolvePreset("kimi-coding")?.id).toBe("kimi-coding");
+  });
+
+  it("reports kimi-coding embedding dimensions", () => {
+    expect(resolvePreset("kimi-coding")?.embeddingDims).toBe(1024);
   });
 
   it("resolves aliases: glm → zai", () => {

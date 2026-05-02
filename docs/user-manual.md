@@ -308,20 +308,21 @@ Embedding 行只列出支持 `openai_embeddings` 的 provider —— anthropic-o
 | 想覆盖默认 model（比如用 `moonshot-v1-128k` 替换 `moonshot-v1-32k`） | **UI 或 YAML** |
 | 想对接自建 OpenAI-兼容网关 | **UI（base_url 字段）或 YAML** |
 
-### 内置 8 个 preset
+### 内置 9 个 preset
 
-| Preset | Wire 协议 | Chat 默认 model | Embedding 默认 model | API key env (任一) |
-|---|---|---|---|---|
-| `anthropic` | anthropic_messages | claude-haiku-4-5-20251001 | — | ANTHROPIC_API_KEY |
-| `openai` | openai_chat + openai_embeddings | gpt-4o-mini | text-embedding-3-small | OPENAI_API_KEY |
-| `kimi` | openai_chat + openai_embeddings | moonshot-v1-32k | moonshot-v1-embedding | KIMI_API_KEY / MOONSHOT_API_KEY |
-| `minimax` | openai_chat + openai_embeddings | abab6.5s-chat | embo-01 | MINIMAX_API_KEY |
-| `minimax-cn` | openai_chat + openai_embeddings | abab6.5s-chat | embo-01 | MINIMAX_CN_API_KEY / MINIMAX_API_KEY |
-| `deepseek` | openai_chat | deepseek-chat | — | DEEPSEEK_API_KEY |
-| `zai` | openai_chat + openai_embeddings | glm-4-flash | embedding-3 | GLM_API_KEY / ZHIPU_API_KEY |
-| `gemini` | openai_chat + openai_embeddings | gemini-2.0-flash | text-embedding-004 | GOOGLE_API_KEY / GEMINI_API_KEY |
+| Preset | Wire 协议 | Chat 默认 model | Embedding 默认 model | Dims | API key env (任一) |
+|---|---|---|---|---:|---|
+| `anthropic` | anthropic_messages | claude-haiku-4-5-20251001 | — | — | ANTHROPIC_API_KEY |
+| `openai` | openai_chat + openai_embeddings | gpt-4o-mini | text-embedding-3-small | 1536 | OPENAI_API_KEY |
+| `kimi` | openai_chat + openai_embeddings | moonshot-v1-32k | moonshot-v1-embedding | 1536 | KIMI_API_KEY / MOONSHOT_API_KEY |
+| `kimi-coding` | anthropic_messages + openai_embeddings | kimi-k2.6 | kimi-k2.6 | 1024 | KIMI_CODING_KEY |
+| `minimax` | openai_chat + openai_embeddings | abab6.5s-chat | embo-01 | 1024 | MINIMAX_API_KEY |
+| `minimax-cn` | openai_chat + openai_embeddings | abab6.5s-chat | embo-01 | 1024 | MINIMAX_CN_API_KEY / MINIMAX_API_KEY |
+| `deepseek` | openai_chat | deepseek-chat | — | — | DEEPSEEK_API_KEY |
+| `zai` | openai_chat + openai_embeddings | glm-4-flash | embedding-3 | 2048 | GLM_API_KEY / ZHIPU_API_KEY |
+| `gemini` | openai_chat + openai_embeddings | gemini-2.0-flash | text-embedding-004 | 768 | GOOGLE_API_KEY / GEMINI_API_KEY |
 
-**Preset 别名**：`claude` → `anthropic`，`moonshot` / `kimi-coding` → `kimi`，`glm` / `zhipu` → `zai`，`google` → `gemini`。
+**Preset 别名**：`claude` → `anthropic`，`moonshot` → `kimi`，`kimi-for-coding` / `kimi-k2` → `kimi-coding`，`glm` / `zhipu` → `zai`，`google` → `gemini`。
 
 ### 配置文件位置
 
@@ -624,6 +625,7 @@ petagent secrets rotate
 | `ANTHROPIC_API_KEY` | Psychologist Haiku 分类器 + Reflector Haiku builder 自动启用 |
 | `OPENAI_API_KEY` | EmbeddingService 自动切到 text-embedding-3-small（Notes 真实语义检索）|
 | `OPENAI_EMBEDDING_MODEL` | 覆盖 embedding 模型（默认 `text-embedding-3-small`）|
+| `PETAGENT_EMBEDDING_DIMS` | Notes 的 pgvector 维度（默认 `1536`；用 `kimi-coding` 等非 1536 provider 时，新库/重新生成迁移前设置）|
 
 ### Budget + 邮件
 

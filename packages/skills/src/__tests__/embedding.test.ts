@@ -37,6 +37,19 @@ describe("EmbeddingService (stub mode)", () => {
   it("constructor throws when useStub:false but no apiKey provided", () => {
     expect(() => new EmbeddingService({ useStub: false })).toThrow(/apiKey/);
   });
+
+  it("supports configurable stub dimensions", async () => {
+    const svc = new EmbeddingService({ dimensions: 1024 });
+    const vec = await svc.embed("hello world");
+    expect(vec).toHaveLength(1024);
+    const magnitude = Math.sqrt(vec.reduce((s, x) => s + x * x, 0));
+    expect(magnitude).toBeCloseTo(1, 4);
+  });
+
+  it("rejects invalid stub dimensions", () => {
+    expect(() => new EmbeddingService({ dimensions: 0 })).toThrow(/dimensions/);
+    expect(() => new EmbeddingService({ dimensions: 1.5 })).toThrow(/dimensions/);
+  });
 });
 
 describe("EmbeddingService with transport", () => {

@@ -1,16 +1,15 @@
 /**
  * Built-in provider preset registry (M2 G3 §2).
  *
- * v1 ships 8 hardcoded presets covering Anthropic + OpenAI + 6 China-friendly
- * OpenAI-compatible providers. Custom providers without a preset (free-form
+ * v1 ships hardcoded presets covering Anthropic, OpenAI, Gemini, and
+ * China-friendly OpenAI-compatible providers. Custom providers without a preset (free-form
  * wire_protocol/base_url for local LM Studio etc) are deferred to M3.
  *
  * Default models reflect each vendor's general-purpose tier as of 2026-04;
  * users override per-provider via `model:` in petagent.config.yaml.
  *
- * Embedding dimensions: all v1 presets that expose openai_embeddings return
- * 1536-dim vectors (matches pgvector schema). Future Voyage/Cohere providers
- * with different dims will need either schema migration or zero-padding.
+ * Embedding dimensions are preset metadata so the server can warn when the
+ * active pgvector column does not match the configured provider.
  */
 
 import type { ProviderPreset } from "./types.js";
@@ -36,6 +35,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
       openai_chat: "gpt-4o-mini",
       openai_embeddings: "text-embedding-3-small",
     },
+    embeddingDims: 1536,
     apiKeyEnvVars: ["OPENAI_API_KEY"],
   },
   {
@@ -50,6 +50,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
       openai_chat: "moonshot-v1-32k",
       openai_embeddings: "moonshot-v1-embedding",
     },
+    embeddingDims: 1536,
     apiKeyEnvVars: ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
   },
   {
@@ -64,6 +65,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
       anthropic_messages: "kimi-k2.6",
       openai_embeddings: "kimi-k2.6",
     },
+    embeddingDims: 1024,
     apiKeyEnvVars: ["KIMI_CODING_KEY"],
   },
   {
@@ -78,6 +80,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
       openai_chat: "abab6.5s-chat",
       openai_embeddings: "embo-01",
     },
+    embeddingDims: 1024,
     apiKeyEnvVars: ["MINIMAX_API_KEY"],
   },
   {
@@ -92,6 +95,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
       openai_chat: "abab6.5s-chat",
       openai_embeddings: "embo-01",
     },
+    embeddingDims: 1024,
     apiKeyEnvVars: ["MINIMAX_CN_API_KEY", "MINIMAX_API_KEY"],
   },
   {
@@ -114,6 +118,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
       openai_chat: "glm-4-flash",
       openai_embeddings: "embedding-3",
     },
+    embeddingDims: 2048,
     apiKeyEnvVars: ["GLM_API_KEY", "ZHIPU_API_KEY"],
   },
   {
@@ -128,6 +133,7 @@ export const BUILTIN_PRESETS: readonly ProviderPreset[] = [
       openai_chat: "gemini-2.0-flash",
       openai_embeddings: "text-embedding-004",
     },
+    embeddingDims: 768,
     apiKeyEnvVars: ["GOOGLE_API_KEY", "GEMINI_API_KEY"],
   },
 ];

@@ -103,11 +103,14 @@ afterEach(() => {
 });
 
 describe("GET /instance/settings/llm-providers", () => {
-  it("returns the 8 v1 presets even when no config exists", async () => {
+  it("returns the 9 v1 presets even when no config exists", async () => {
     const app = buildApp();
     const { status, body } = await getJSON(app, "/instance/settings/llm-providers");
     expect(status).toBe(200);
-    const b = body as { presets: Array<{ id: string }>; configSource: string };
+    const b = body as {
+      presets: Array<{ id: string; embeddingDims: number | null }>;
+      configSource: string;
+    };
     expect(b.presets.map((p) => p.id).sort()).toEqual([
       "anthropic",
       "deepseek",
@@ -119,6 +122,9 @@ describe("GET /instance/settings/llm-providers", () => {
       "openai",
       "zai",
     ]);
+    expect(b.presets.find((p) => p.id === "openai")?.embeddingDims).toBe(1536);
+    expect(b.presets.find((p) => p.id === "kimi-coding")?.embeddingDims).toBe(1024);
+    expect(b.presets.find((p) => p.id === "anthropic")?.embeddingDims).toBeNull();
     expect(b.configSource).toBe("env-fallback");
   });
 

@@ -141,7 +141,7 @@ PETAGENT_REFLECTOR_ENABLED=true \
 npx petagentai run
 ```
 
-支持 8 个内置 preset：`anthropic`, `openai`, `kimi`, `minimax`, `minimax-cn`, `deepseek`, `zai` (GLM), `gemini`。详见 [petagent.config.yaml.example](./petagent.config.yaml.example) 和 [docs/user-manual.md](./docs/user-manual.md#多-llm-provider-配置)。
+支持 9 个内置 preset：`anthropic`, `openai`, `kimi`, `kimi-coding`, `minimax`, `minimax-cn`, `deepseek`, `zai` (GLM), `gemini`。Embedding provider 的输出维度必须和 `agent_notes.embedding` 的 pgvector 维度一致；默认是 `1536`，非 1536 provider 可在新库/重新生成迁移前设置 `PETAGENT_EMBEDDING_DIMS`。详见 [petagent.config.yaml.example](./petagent.config.yaml.example) 和 [docs/user-manual.md](./docs/user-manual.md#多-llm-provider-配置)。
 
 启动日志确认实际生效模式：
 

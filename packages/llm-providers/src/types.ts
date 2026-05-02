@@ -32,6 +32,8 @@ export interface ProviderPreset {
   wireProtocols: WireProtocol[];
   defaultBaseUrl: Partial<Record<WireProtocol, string>>;
   defaultModels: Partial<Record<WireProtocol, string>>;
+  /** Default vector dimensions returned by the preset's openai_embeddings model. */
+  embeddingDims?: number;
   apiKeyEnvVars: string[];
 }
 

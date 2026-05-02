@@ -7,10 +7,9 @@
  * Replaces packages/skills/src/embedding_transport.ts's
  * `OpenAIEmbeddingTransport`, which now re-exports this class for BC.
  *
- * 1536-dim vectors are the assumed default to match pgvector schema
- * (migration 0059's `vector(1536)` column on `agent_notes`). Providers
- * with different embedding dimensions need either schema migration or
- * zero-padding — out of scope for v1.
+ * The transport does not enforce vector dimensions. Provider/model
+ * dimensions are tracked as registry metadata so server startup can warn
+ * when the configured provider does not match the pgvector column.
  */
 
 import type { EmbeddingTransport } from "./types.js";

@@ -6,6 +6,7 @@ export interface PresetMeta {
   wireProtocols: string[];
   defaultBaseUrl: Record<string, string | undefined>;
   defaultModels: Record<string, string | undefined>;
+  embeddingDims: number | null;
   apiKeyEnvVars: string[];
   supportsChat: boolean;
   supportsEmbedding: boolean;

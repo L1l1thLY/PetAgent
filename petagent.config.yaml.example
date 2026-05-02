@@ -10,10 +10,13 @@
 #
 # Both modes coexist — the file always wins when it's present.
 #
-# v1 ships 8 built-in presets:
-#   anthropic, openai, kimi, minimax, minimax-cn, deepseek, zai, gemini
-# Aliases: claude → anthropic, moonshot/kimi-coding → kimi,
-#          glm/zhipu → zai, google → gemini.
+# v1 ships 9 built-in presets:
+#   anthropic, openai, kimi, kimi-coding, minimax, minimax-cn, deepseek, zai, gemini
+# Aliases: claude → anthropic, moonshot → kimi,
+#          kimi-for-coding/kimi-k2 → kimi-coding, glm/zhipu → zai, google → gemini.
+# Embedding dimensions must match the agent_notes.embedding pgvector column.
+# Default DB dimension is 1536; set PETAGENT_EMBEDDING_DIMS before generating/applying
+# migrations for a new DB when routing embeddings to a non-1536 provider.
 
 # =============================================================================
 # Providers — declare every API account you want PetAgent to know about
@@ -57,6 +60,11 @@ providers:
   # - id: my-gemini
   #   preset: gemini
   #   api_key_env: GOOGLE_API_KEY
+
+  # Example 8: Kimi K2 coding preset (1024-dim embeddings)
+  # - id: my-kimi-coding
+  #   preset: kimi-coding
+  #   api_key_env: KIMI_CODING_KEY
 
 # =============================================================================
 # Routing — assign one provider per subsystem

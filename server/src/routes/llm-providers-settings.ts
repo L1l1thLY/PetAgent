@@ -210,6 +210,7 @@ export function llmProvidersSettingsRoutes() {
       wireProtocols: p.wireProtocols,
       defaultBaseUrl: p.defaultBaseUrl,
       defaultModels: p.defaultModels,
+      embeddingDims: p.embeddingDims ?? null,
       apiKeyEnvVars: p.apiKeyEnvVars,
       supportsChat:
         p.wireProtocols.includes("anthropic_messages") ||

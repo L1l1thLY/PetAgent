@@ -10,12 +10,18 @@ const fakeEmbeddingTransport: EmbeddingTransport = {
 };
 
 function fakeRouter(opts: {
-  embeddingTransport?: { transport: EmbeddingTransport; model: string };
+  embeddingTransport?: { transport: EmbeddingTransport; model: string; embeddingDims?: number | null };
   preset?: string;
 } = {}): LLMRouter {
   return {
     getTextTransport: () => null,
-    getEmbeddingTransport: () => opts.embeddingTransport ?? null,
+    getEmbeddingTransport: () =>
+      opts.embeddingTransport
+        ? {
+            ...opts.embeddingTransport,
+            embeddingDims: opts.embeddingTransport.embeddingDims ?? null,
+          }
+        : null,
     describeRouting: () =>
       opts.embeddingTransport && opts.preset
         ? [
@@ -37,8 +43,15 @@ describe("createEmbeddingService", () => {
     const result = createEmbeddingService({ router: fakeRouter() });
     expect(result.kind).toBe("stub");
     expect(result.model).toBeNull();
+    expect(result.providerEmbeddingDims).toBeNull();
     const vec = await result.service.embed("hello");
     expect(vec).toHaveLength(1536);
+  });
+
+  it("uses configured stub dimensions", async () => {
+    const result = createEmbeddingService({ router: fakeRouter(), stubDimensions: 1024 });
+    const vec = await result.service.embed("hello");
+    expect(vec).toHaveLength(1024);
   });
 
   it("returns live service when router supplies a transport", () => {
@@ -50,16 +63,22 @@ describe("createEmbeddingService", () => {
     });
     expect(result.kind).toBe("openai");
     expect(result.model).toBe("text-embedding-3-small");
+    expect(result.providerEmbeddingDims).toBeNull();
     expect(result.service).toBeDefined();
   });
 
-  it("kind echoes the resolved preset (e.g. kimi)", () => {
+  it("kind echoes the resolved preset (e.g. kimi-coding)", () => {
     const result = createEmbeddingService({
       router: fakeRouter({
-        embeddingTransport: { transport: fakeEmbeddingTransport, model: "moonshot-v1-embedding" },
-        preset: "kimi",
+        embeddingTransport: {
+          transport: fakeEmbeddingTransport,
+          model: "kimi-k2.6",
+          embeddingDims: 1024,
+        },
+        preset: "kimi-coding",
       }),
     });
-    expect(result.kind).toBe("kimi");
+    expect(result.kind).toBe("kimi-coding");
+    expect(result.providerEmbeddingDims).toBe(1024);
   });
 });

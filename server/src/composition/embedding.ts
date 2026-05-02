@@ -21,14 +21,21 @@ export interface CreateEmbeddingServiceResult {
   service: EmbeddingService;
   kind: EmbeddingServiceKind;
   model: string | null;
+  providerEmbeddingDims: number | null;
 }
 
 export function createEmbeddingService(deps: {
   router: LLMRouter;
+  stubDimensions?: number;
 }): CreateEmbeddingServiceResult {
   const route = deps.router.getEmbeddingTransport();
   if (route === null) {
-    return { service: new EmbeddingService(), kind: "stub", model: null };
+    return {
+      service: new EmbeddingService({ dimensions: deps.stubDimensions }),
+      kind: "stub",
+      model: null,
+      providerEmbeddingDims: null,
+    };
   }
   const desc = deps.router.describeRouting().find((d) => d.subsystem === "embedding");
   return {
@@ -43,5 +50,6 @@ export function createEmbeddingService(deps: {
     }),
     kind: desc?.preset ?? "openai",
     model: route.model,
+    providerEmbeddingDims: route.embeddingDims,
   };
 }

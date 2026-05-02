@@ -25,11 +25,17 @@ const fakeEmbeddingTransport: EmbeddingTransport = {
 
 function fakeRouter(opts: {
   textTransport?: { transport: LLMTextTransport; model: string };
-  embeddingTransport?: { transport: EmbeddingTransport; model: string };
+  embeddingTransport?: { transport: EmbeddingTransport; model: string; embeddingDims?: number | null };
 } = {}): LLMRouter {
   return {
     getTextTransport: () => opts.textTransport ?? null,
-    getEmbeddingTransport: () => opts.embeddingTransport ?? null,
+    getEmbeddingTransport: () =>
+      opts.embeddingTransport
+        ? {
+            ...opts.embeddingTransport,
+            embeddingDims: opts.embeddingTransport.embeddingDims ?? null,
+          }
+        : null,
     describeRouting: () => [],
   };
 }

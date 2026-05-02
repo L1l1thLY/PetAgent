@@ -36,7 +36,11 @@ export interface LLMRouter {
   getTextTransport(
     subsystem: "psychologist" | "reflector",
   ): { transport: LLMTextTransport; model: string } | null;
-  getEmbeddingTransport(): { transport: EmbeddingTransport; model: string } | null;
+  getEmbeddingTransport(): {
+    transport: EmbeddingTransport;
+    model: string;
+    embeddingDims: number | null;
+  } | null;
   describeRouting(): RoutingDescription[];
 }
 
@@ -58,6 +62,16 @@ export interface CreateLLMRouterDeps {
 }
 
 const DEFAULT_CONFIG_FILENAME = "petagent.config.yaml";
+const KNOWN_EMBEDDING_MODEL_DIMS: Readonly<Record<string, number>> = {
+  "text-embedding-3-small": 1536,
+  "text-embedding-3-large": 3072,
+  "text-embedding-ada-002": 1536,
+  "moonshot-v1-embedding": 1536,
+  "kimi-k2.6": 1024,
+  "embo-01": 1024,
+  "embedding-3": 2048,
+  "text-embedding-004": 768,
+};
 
 export function createLLMRouter(deps: CreateLLMRouterDeps): LLMRouter {
   const env = deps.env;
@@ -164,6 +178,10 @@ export function createLLMRouter(deps: CreateLLMRouterDeps): LLMRouter {
     return { entry, preset, apiKey, model, baseUrl };
   }
 
+  function resolveEmbeddingDims(preset: ProviderPreset, model: string): number | null {
+    return KNOWN_EMBEDDING_MODEL_DIMS[model.trim().toLowerCase()] ?? preset.embeddingDims ?? null;
+  }
+
   return {
     getTextTransport(subsystem) {
       const route = resolveTextRoute(subsystem);
@@ -182,7 +200,11 @@ export function createLLMRouter(deps: CreateLLMRouterDeps): LLMRouter {
         baseUrl: route.baseUrl,
         model: route.model,
       });
-      return { transport, model: route.model };
+      return {
+        transport,
+        model: route.model,
+        embeddingDims: resolveEmbeddingDims(route.preset, route.model),
+      };
     },
     describeRouting() {
       const out: RoutingDescription[] = [];

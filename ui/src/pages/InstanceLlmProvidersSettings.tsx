@@ -496,6 +496,7 @@ function ProviderCard({
           <span>
             Speaks: <span className="font-mono">{preset.wireProtocols.join(", ")}</span>
           </span>
+          {preset.embeddingDims !== null && <span>· {preset.embeddingDims} dims</span>}
           {!preset.supportsEmbedding && <span>· cannot embed</span>}
         </div>
       )}
