@@ -47,7 +47,15 @@ Status quick guide:
 
 ## 6. Delegation
 
-- Create subtasks with `POST /api/companies/{companyId}/issues`. Always set `parentId` and `goalId`. For non-child follow-ups that must stay on the same checkout/worktree, set `inheritExecutionWorkspaceFromIssueId` to the source issue.
+**Before delegating:** If the task is "edit ≤2 files and commit", do it yourself — don't create a subtask.
+
+When creating subtasks via `POST /api/companies/{companyId}/issues`:
+- Always set `parentId`, `goalId`, **and `projectId`** (copy `projectId` from the current issue — never omit it).
+- For follow-ups that share the same checkout/worktree but are not true children, set `inheritExecutionWorkspaceFromIssueId` to the source issue instead of `parentId`.
+
+Delegation rules:
+- Code changes ≤2 files → do it yourself in the current heartbeat, mark `done` when committed.
+- Code changes >2 files, cross-team work, or hiring → create a subtask.
 - Use `petagent-create-agent` skill when hiring new agents.
 - Assign work to the right agent for the job.
 
