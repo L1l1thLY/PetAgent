@@ -1,6 +1,8 @@
 import express from "express";
 import request from "supertest";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { authRoutes } from "../routes/auth.js";
+import { errorHandler } from "../middleware/index.js";
 
 function createSelectChain(rows: unknown[]) {
   return {
@@ -37,11 +39,7 @@ function createDb(row: Record<string, unknown>) {
   } as any;
 }
 
-async function createApp(actor: Express.Request["actor"], row: Record<string, unknown>) {
-  const [{ authRoutes }, { errorHandler }] = await Promise.all([
-    import("../routes/auth.js"),
-    import("../middleware/index.js"),
-  ]);
+function createApp(actor: Express.Request["actor"], row: Record<string, unknown>) {
   const app = express();
   app.use(express.json());
   app.use((req, _res, next) => {
@@ -61,12 +59,8 @@ describe("auth routes", () => {
     image: "https://example.com/jane.png",
   };
 
-  beforeEach(() => {
-    vi.resetModules();
-  });
-
   it("returns the persisted user profile in the session payload", async () => {
-    const app = await createApp(
+    const app = createApp(
       {
         type: "board",
         userId: "user-1",
@@ -88,7 +82,7 @@ describe("auth routes", () => {
   });
 
   it("updates the signed-in profile", async () => {
-    const app = await createApp(
+    const app = createApp(
       {
         type: "board",
         userId: "user-1",
@@ -111,7 +105,7 @@ describe("auth routes", () => {
   });
 
   it("preserves the existing avatar when updating only the profile name", async () => {
-    const app = await createApp(
+    const app = createApp(
       {
         type: "board",
         userId: "user-1",
@@ -134,7 +128,7 @@ describe("auth routes", () => {
   });
 
   it("accepts PetAgent asset paths for avatars", async () => {
-    const app = await createApp(
+    const app = createApp(
       {
         type: "board",
         userId: "user-1",
@@ -152,7 +146,7 @@ describe("auth routes", () => {
   });
 
   it("rejects invalid avatar image references", async () => {
-    const app = await createApp(
+    const app = createApp(
       {
         type: "board",
         userId: "user-1",
